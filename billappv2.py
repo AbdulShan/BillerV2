@@ -1,18 +1,14 @@
 #All necessary Packages
-from asyncio.windows_events import NULL
 import datetime
 from tkinter import *
 import sqlite3
 from tkinter.ttk import Style, Treeview
 import atexit
 from os import path
-from turtle import bgcolor
-from types import NoneType
 import fpdf
 from json import dumps, loads
 import atexit
 from tkcalendar import Calendar, DateEntry
-
 
 #font
 book_antiqua=("Helvetica Neue Light",12,"normal")
@@ -22,7 +18,6 @@ book_antiqua_size18=("Book Antiqua",18,"bold underline")
 frame_color='#212125'
 element_color='white'
 element_color_dark='#6a6c6e'
-
 
 
 #date and time, sorting date into dd/mm/yyyy
@@ -71,9 +66,18 @@ style = Style(root)
 style.theme_use("clam")
 style.configure("Treeview", background=element_color_dark,fieldbackground=element_color_dark, foreground="white")
 
-def clear_all(data):
-        for item in data.get_children():
-            data.delete(item)
+def clear_all(treeview_name):
+        for item in treeview_name.get_children():
+            treeview_name.delete(item)
+
+def selected_item_from_treeview(treeview_name):
+    curItem = treeview_name.focus()
+    treeview_name.item(curItem)
+    selected_items =treeview_name.item(curItem)
+    for key, value in selected_items.items():
+        if key == 'values':
+            k=value[0]
+            return k
 
 def menu_frame_obj():
     image.place(relx = 0.45, rely = 0.075, anchor = CENTER)
@@ -233,11 +237,11 @@ def purchase_obj():
     purchase_add_update_btn.place(relx = 0.384, rely = 0.24, anchor = NW)
 
     #Purchase Delete Button
-    purchase_delete_btn=Button(purchase_frame,fg=element_color,bg=element_color_dark,text="Delete",width = 21,border=4,command=lambda:[])
+    purchase_delete_btn=Button(purchase_frame,fg=element_color,bg=element_color_dark,text="Delete",width = 21,border=4,command=lambda:[delete_purchase_item()])
     purchase_delete_btn.place(relx = 0.0275, rely = 0.73, anchor = NW)
 
     #Purchase Total
-    purchase_total_lbl=Label(purchase_frame,text="RS.000000",font=book_antiqua_size18,bg=frame_color,fg=element_color)
+    purchase_total_lbl=Label(purchase_frame,text="RS.0",font=book_antiqua_size18,bg=frame_color,fg=element_color)
     purchase_total_lbl.place(relx = 0.4, rely = 0.735, anchor = NW)
 
     #Purchase save
@@ -262,43 +266,66 @@ def purchase_obj():
             invoice_number_tb.config(state='disabled')
     invoice_number_update()
 
-    
-    purchasing_items={'dealer_name':'',
-        'dealer_gstin':'','date_today':'','invoice_number':'','dealer_address':'','dealer_contact':'','item_code':[],
-        'item_name':[],'item_quantity':[],'item_price':[]}
-
-    product_list=[]
-
     def add_purchase_item():
-        purchasing_items['dealer_name']=dealer_name_tb.get()
-        purchasing_items['dealer_gstin']=dealer_gstin_tb.get()
-        purchasing_items['date_today']=(today)
-        purchasing_items['invoice_number']=invoice_number_tb.get()
-        purchasing_items['dealer_address']=purchase_dealer_address_tb.get()
-        purchasing_items['dealer_contact']=purchase_dealer_contact_tb.get()
-        
-        dealer_name_tb.configure(state='disabled')
-        dealer_gstin_tb.configure(state='disabled')
-        purchase_dealer_address_tb.configure(state='disabled')
-        purchase_dealer_contact_tb.configure(state='disabled')
+        invoice_number=int(invoice_number_tb.get())
+        dealer_name=dealer_name_tb.get()
+        dealer_gstin=dealer_gstin_tb.get()
+        purchase_dealer_address=purchase_dealer_address_tb.get()
+        purchase_dealer_contact=purchase_dealer_contact_tb.get()
+        dealer_data=[invoice_number,dealer_name,dealer_gstin,purchase_dealer_address,purchase_dealer_contact]
 
+        purchase_item_code=int(purchase_item_code_tb.get())
+        date=purchase_date.get_date()
+        purchase_item_name=purchase_item_name_tb.get()
+        purchase_quantity=float(purchase_quantity_tb.get())
+        purchase_price=float(purchase_price_tb.get())
+        purchase_total=purchase_quantity*purchase_price
+        try:
+            con=sqlite3.connect("Store_Data.sql")
+            cur=con.cursor()
+            #cur.execute("CREATE TABLE IF NOT EXISTS temp_dealer_purchase_details(invoice_number int(10) PRIMARY KEY NOT NULL,dealer_name varhcar(20),dealer_gstin varhcar(20),dealer_address varhcar(30),dealer_contact int(12))")
+            cur.execute("CREATE TABLE IF NOT EXISTS temp_item_purchase_details(item_id int(15) PRIMARY KEY,date date,item_name varhcar(30),purchase_quantity REAL,buying_price REAL,total_price REAL)")
+            
+            #cur.execute("INSERT INTO temp_dealer_purchase_details(invoice_number,dealer_name,dealer_gstin,dealer_address,dealer_contact)VALUES({},'{}','{}','{}',{})".format(invoice_number,dealer_name,dealer_gstin,purchase_dealer_address,purchase_dealer_contact))
+            cur.execute("INSERT INTO temp_item_purchase_details(item_id,date,item_name,purchase_quantity,buying_price,total_price)VALUES({},'{}','{}',{:.2f},{:.2f},{:.2f})".format(purchase_item_code,date,purchase_item_name,purchase_quantity,purchase_price,purchase_total))
+            
+            cur.execute("SELECT item_id,item_name,purchase_quantity,buying_price,total_price FROM temp_item_purchase_details")
+            row=cur.fetchall()
+            clear_all(purchase_tree_view)
+            for i in row:
+                purchase_tree_view.insert("", 'end', text ="L1",values =(i[0],i[1],i[2],i[3],i[4]))
 
-        purchasing_items['item_code'].append(purchase_item_code_tb.get())
-        purchasing_items['item_name'].append(purchase_item_name_tb.get())
-        purchasing_items['item_quantity'].append(purchase_quantity_tb.get())
-        purchasing_items['item_price'].append(purchase_price_tb.get())
+            cur.execute("SELECT SUM(total_price) FROM temp_item_purchase_details")
+            total=cur.fetchall()
+            purchase_total_lbl.configure(text="{:.2f}".format(total[0][0]))
+            
 
-        purchasing_items['item_code'] = [x for x in purchasing_items['item_code'] if x != '']
-        purchasing_items['item_name'] = [x for x in purchasing_items['item_name'] if x != '']
-        purchasing_items['item_quantity'] = [x for x in purchasing_items['item_quantity'] if x != '']
-        purchasing_items['item_price'] = [x for x in purchasing_items['item_price'] if x != '']
+            con.commit()
+            con.close()
+        except sqlite3.Error as err:
+            print("Error - ",err)
 
-        clear_all(purchase_tree_view)
-        for i in product_list:
-            purchase_tree_view.insert("", 'end', text ="L1",values =(i[0],i[1],i[2],i[3]))
-    
+    def delete_purchase_item():
+        k=selected_item_from_treeview(purchase_tree_view)
 
-        print(purchasing_items)
+        try:
+            con=sqlite3.connect("Store_Data.sql")
+            cur=con.cursor()
+            cur.execute("DELETE FROM temp_item_purchase_details where item_id={}".format(k))
+            cur.execute("SELECT item_id,item_name,purchase_quantity,buying_price,total_price FROM temp_item_purchase_details")
+            row=cur.fetchall()
+            clear_all(purchase_tree_view)
+            for i in row:
+                purchase_tree_view.insert("", 'end', text ="L1",values =(i[0],i[1],i[2],i[3],i[4]))
+
+            cur.execute("SELECT SUM(total_price) FROM temp_item_purchase_details")
+            total=cur.fetchall()
+            purchase_total_lbl.configure(text="{:.2f}".format(total[0][0]))
+
+            con.commit()
+            con.close()
+        except sqlite3.Error as err:
+            print("Error - ",err)
 
     #treeview element
     purchase_tree_view= Treeview(purchase_frame,selectmode='browse',height=23)

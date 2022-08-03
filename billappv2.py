@@ -17,7 +17,10 @@ book_antiqua_size18=("Book Antiqua",18,"bold underline")
 
 frame_color='#212125'
 element_color='white'
-element_color_dark='#6a6c6e'
+element_color_dark='#797777'
+button_color='#0b5a8c'
+
+menu_button_height=3
 
 
 #date and time, sorting date into dd/mm/yyyy
@@ -55,7 +58,7 @@ if "__main__"==__name__:
     root.state('zoomed')
 
     #Logo
-menu_frame= Frame(root,bg="#333232",width=250,height=1060)
+menu_frame= Frame(root,bg="#2d2a2a",width=250,height=1060)
 menu_frame.grid(row=0,column=0)
 menu_frame.propagate(0)
 
@@ -82,26 +85,45 @@ def selected_item_from_treeview(treeview_name):
 def menu_frame_obj():
     image.place(relx = 0.45, rely = 0.075, anchor = CENTER)
 
-    company_details_btn=Button(menu_frame,text="Company",width = 25,fg=element_color,bg=element_color_dark,command=lambda:[company_details_obj()])
-    company_details_btn.place(relx = 0.475, rely = 0.23, anchor = CENTER)
+    company_details_btn=Button(menu_frame,text="Company",width = 25,height=menu_button_height,fg=element_color,bg=button_color,command=lambda:[company_details_obj()])
+    #company_details_btn.place(relx = 0.475, rely = 0.23, anchor = CENTER)
 
-    purchase_btn=Button(menu_frame,text="Purchase",width = 25,fg=element_color,bg=element_color_dark,command=lambda:[purchase_obj()])
-    purchase_btn.place(relx = 0.475, rely = 0.26, anchor = CENTER)
+    purchase_btn=Button(menu_frame,text="Purchase",width = 25,fg=element_color,height=menu_button_height,bg=button_color,command=lambda:[purchase_obj()])
+    #purchase_btn.place(relx = 0.475, rely = 0.26, anchor = CENTER)
 
-    dealer_btn=Button(menu_frame,text="Dealer",width = 25,fg=element_color,bg=element_color_dark,command=lambda:[dealer_obj()])
-    dealer_btn.place(relx = 0.475, rely = 0.29, anchor = CENTER)
+    dealer_btn=Button(menu_frame,text="Dealer",width = 25,fg=element_color,height=menu_button_height,bg=button_color,command=lambda:[dealer_obj()])
+    #dealer_btn.place(relx = 0.475, rely = 0.29, anchor = CENTER)
     
-    '''customer_btn=Button(menu_frame,text="Customer",width = 25,fg=element_color,bg=element_color_dark,command=lambda:[customer_detail_obj()])
+    '''customer_btn=Button(menu_frame,text="Customer",width = 25,fg=element_color,bg=button_color,command=lambda:[customer_detail_obj()])
     customer_btn.place(relx = 0.475, rely = 0.35, anchor = CENTER)'''
 
-    item_btn=Button(menu_frame,text="Items",width = 25,fg=element_color,bg=element_color_dark,command=lambda:[item_obj()])
-    item_btn.place(relx = 0.475, rely = 0.35, anchor = CENTER)
+    item_btn=Button(menu_frame,text="Items",width = 25,fg=element_color,height=menu_button_height,bg=button_color,command=lambda:[item_obj()])
+    #item_btn.place(relx = 0.475, rely = 0.35, anchor = CENTER)
 
-    reports_btn=Button(menu_frame,text="Reports",width = 25,fg=element_color,bg=element_color_dark,command=lambda:[report_obj()])
+    reports_btn=Button(menu_frame,text="Reports",width = 25,fg=element_color,height=menu_button_height,bg=button_color,command=lambda:[report_obj()])
     reports_btn.place(relx = 0.475, rely = 0.32, anchor = CENTER)
 
-    billing_btn=Button(menu_frame,text="Billing",width = 25,fg=element_color,bg=element_color_dark,command=lambda:[billing_obj()])
-    billing_btn.place(relx = 0.475, rely = 0.38, anchor = CENTER)
+    billing_btn=Button(menu_frame,text="Billing",width = 25,fg=element_color,height=menu_button_height,bg=button_color,command=lambda:[billing_obj()])
+    #billing_btn.place(relx = 0.475, rely = 0.38, anchor = CENTER)
+
+    for i in range(1):
+        y=0.34
+        company_details_btn.place(relx = 0.475, rely = y, anchor = CENTER)
+        y+=0.06
+        purchase_btn.place(relx = 0.475, rely = y, anchor = CENTER)
+        y+=0.06
+        dealer_btn.place(relx = 0.475, rely = y, anchor = CENTER)
+        y+=0.06
+        item_btn.place(relx = 0.475, rely = y, anchor = CENTER)
+        y+=0.06
+        reports_btn.place(relx = 0.475, rely = y, anchor = CENTER)
+        y+=0.06
+        billing_btn.place(relx = 0.475, rely = y, anchor = CENTER)
+
+
+
+
+
 
 def company_details_obj():
     company_details_frame= Frame(root,width=1670,height=1060,bg=frame_color)
@@ -137,7 +159,7 @@ def company_details_obj():
     company_contact_number_tb.place(relx = 0.2, rely = 0.32, anchor = NW)
 
     #Update BUtton and message
-    add_update_btn=Button(company_details_frame,fg=element_color,bg=element_color_dark,text="Add/Update Details",width = 25,border=4,command=lambda:[details_updated_obj()])
+    add_update_btn=Button(company_details_frame,fg=element_color,bg=button_color,text="Add/Update Details",width = 25,border=4,command=lambda:[details_updated_obj()])
     add_update_btn.place(relx = 0.1, rely = 0.38, anchor = NW)
 
     def details_updated_obj():
@@ -233,11 +255,11 @@ def purchase_obj():
 
 
     #Purchase Add Button
-    purchase_add_update_btn=Button(purchase_frame,fg=element_color,bg=element_color_dark,text="Add",width = 21,border=4,command=lambda:[add_purchase_item()])
+    purchase_add_update_btn=Button(purchase_frame,fg=element_color,bg=button_color,text="Add",width = 21,border=4,command=lambda:[add_purchase_item()])
     purchase_add_update_btn.place(relx = 0.384, rely = 0.24, anchor = NW)
 
     #Purchase Delete Button
-    purchase_delete_btn=Button(purchase_frame,fg=element_color,bg=element_color_dark,text="Delete",width = 21,border=4,command=lambda:[delete_purchase_item()])
+    purchase_delete_btn=Button(purchase_frame,fg=element_color,bg=button_color,text="Delete",width = 21,border=4,command=lambda:[delete_purchase_item()])
     purchase_delete_btn.place(relx = 0.0275, rely = 0.73, anchor = NW)
 
     #Purchase Total
@@ -245,7 +267,7 @@ def purchase_obj():
     purchase_total_lbl.place(relx = 0.4, rely = 0.735, anchor = NW)
 
     #Purchase save
-    purchase_print_button=Button(purchase_frame,fg=element_color,bg=element_color_dark,text="Save",width = 16,height=2,border=4,command=lambda:[invoice_number_update()])
+    purchase_print_button=Button(purchase_frame,fg=element_color,bg=button_color,text="Save",width = 16,height=2,border=4,command=lambda:[invoice_number_update()])
     purchase_print_button.place(relx = 0.4, rely = 0.775, anchor = NW)
     #get all data
 
@@ -357,9 +379,6 @@ def purchase_obj():
     purchase_tree_view.heading("5",text="Total")
 
 
-
-
-
 def dealer_obj():
     dealer_frame= Frame(root,width=1670,height=1060,bg=frame_color)
     dealer_frame.grid(row=0,column=1)
@@ -397,7 +416,7 @@ def dealer_obj():
     dealer_contact_number_tb.place(relx = 0.115, rely = 0.19, anchor = NW)
 
     #dealer add button
-    dealer_add_btn=Button(dealer_frame,fg=element_color,bg=element_color_dark,text="Add",width = 15,border=4,command=lambda:[])
+    dealer_add_btn=Button(dealer_frame,fg=element_color,bg=button_color,text="Add",width = 15,border=4,command=lambda:[])
     dealer_add_btn.place(relx = 0.25, rely = 0.19, anchor = NW)
 
     #item treeview element
@@ -428,19 +447,19 @@ def dealer_obj():
     dealer_tree_view.heading("4",text="GSTIN No")
 
     #dealer refresh btn
-    dealer_refresh_btn=Button(dealer_frame,fg=element_color,bg=element_color_dark,text="Delete",width = 15,border=4,command=lambda:[])
+    dealer_refresh_btn=Button(dealer_frame,fg=element_color,bg=button_color,text="Delete",width = 15,border=4,command=lambda:[])
     dealer_refresh_btn.place(relx = 0.04, rely = 0.7, anchor = NW)
 
     #dealer Delete btn
-    dealer_delete_btn=Button(dealer_frame,fg=element_color,bg=element_color_dark,text="Refresh",width = 15,border=4,command=lambda:[])
+    dealer_delete_btn=Button(dealer_frame,fg=element_color,bg=button_color,text="Refresh",width = 15,border=4,command=lambda:[])
     dealer_delete_btn.place(relx = 0.12, rely = 0.7, anchor = NW)
 
     #dealer Edit btn
-    dealer_edit_btn=Button(dealer_frame,fg=element_color,bg=element_color_dark,text="Edit",width = 15,border=4,command=lambda:[])
+    dealer_edit_btn=Button(dealer_frame,fg=element_color,bg=button_color,text="Edit",width = 15,border=4,command=lambda:[])
     dealer_edit_btn.place(relx = 0.2, rely = 0.7, anchor = NW)
 
     #Show details btn
-    dealer_show_details_btn=Button(dealer_frame,fg=element_color,bg=element_color_dark,text="Show Details",width = 16,border=4,command=lambda:[])
+    dealer_show_details_btn=Button(dealer_frame,fg=element_color,bg=button_color,text="Show Details",width = 16,border=4,command=lambda:[])
     dealer_show_details_btn.place(relx = 0.424, rely = 0.7, anchor = NW)
 
 '''def customer_detail_obj():
@@ -515,18 +534,18 @@ def item_obj():
     item_lbl.place(relx = 0.4, rely = 0.065, anchor = NW)
 
     #item refresh btn
-    item_refresh_btn=Button(item_frame,fg=element_color,bg=element_color_dark,text="Delete",width = 15,border=4,command=lambda:[])
+    item_refresh_btn=Button(item_frame,fg=element_color,bg=button_color,text="Delete",width = 15,border=4,command=lambda:[])
     item_refresh_btn.place(relx = 0.03, rely = 0.67, anchor = NW)
 
     #item Delete btn
-    item_delete_btn=Button(item_frame,fg=element_color,bg=element_color_dark,text="Refresh",width = 15,border=4,command=lambda:[])
+    item_delete_btn=Button(item_frame,fg=element_color,bg=button_color,text="Refresh",width = 15,border=4,command=lambda:[])
     item_delete_btn.place(relx = 0.11, rely = 0.67, anchor = NW)
 
     #item Edit btn
-    item_edit_btn=Button(item_frame,fg=element_color,bg=element_color_dark,text="Edit",width = 15,border=4,command=lambda:[])
+    item_edit_btn=Button(item_frame,fg=element_color,bg=button_color,text="Edit",width = 15,border=4,command=lambda:[])
     item_edit_btn.place(relx = 0.19, rely = 0.67, anchor = NW)
 
-    item_add_btn=Button(item_frame,fg=element_color,bg=element_color_dark,text="Add",width = 15,border=4,command=lambda:[])
+    item_add_btn=Button(item_frame,fg=element_color,bg=button_color,text="Add",width = 15,border=4,command=lambda:[])
     item_add_btn.place(relx = 0.4, rely = 0.67, anchor = NW)
 
     #Id auto gen label
@@ -619,11 +638,11 @@ def report_obj():
     report_date_tb.place(relx = 0.177, rely = 0.19, anchor = NW)
 
     #Search btn
-    report_seacrh_btn=Button(report_frame,fg=element_color,bg=element_color_dark,text="Search",width = 16,border=4,command=lambda:[])
+    report_seacrh_btn=Button(report_frame,fg=element_color,bg=button_color,text="Search",width = 16,border=4,command=lambda:[])
     report_seacrh_btn.place(relx = 0.27, rely = 0.19, anchor = NW)
     
     #Show details btn
-    report_show_details_btn=Button(report_frame,fg=element_color,bg=element_color_dark,text="Show Details",width = 16,border=4,command=lambda:[])
+    report_show_details_btn=Button(report_frame,fg=element_color,bg=button_color,text="Show Details",width = 16,border=4,command=lambda:[])
     report_show_details_btn.place(relx = 0.365, rely = 0.19, anchor = NW)
 
     #treeview element
@@ -710,7 +729,7 @@ def billing_obj():
     billing_quantity_tb.bind("<FocusIn>", lambda args: billing_quantity_tb.delete('0', 'end'))
 
     #Add Button
-    billing_add_update_btn=Button(billing_frame,fg=element_color,bg=element_color_dark,text="Add",width = 21,border=4,command=lambda:[])
+    billing_add_update_btn=Button(billing_frame,fg=element_color,bg=button_color,text="Add",width = 21,border=4,command=lambda:[])
     billing_add_update_btn.place(relx = 0.648, rely = 0.22, anchor = NW)
 
     #treeview element
@@ -754,7 +773,7 @@ def billing_obj():
 
 
     #Delete Button
-    delete_btn=Button(billing_frame,fg=element_color,bg=element_color_dark,text="Delete",width = 15,border=4,command=lambda:[])
+    delete_btn=Button(billing_frame,fg=element_color,bg=button_color,text="Delete",width = 15,border=4,command=lambda:[])
     delete_btn.place(relx = 0.0275, rely = 0.71, anchor = NW)
 
     #Total Gst Label
@@ -776,7 +795,7 @@ def billing_obj():
     total_lbl.place(relx = 0.66, rely = 0.715, anchor = NW)
 
     #Save And Print Button
-    save_print_button=Button(billing_frame,fg=element_color,bg=element_color_dark,text="Save & Print",width = 16,height=2,border=4,command=lambda:[])
+    save_print_button=Button(billing_frame,fg=element_color,bg=button_color,text="Save & Print",width = 16,height=2,border=4,command=lambda:[])
     save_print_button.place(relx = 0.66, rely = 0.755, anchor = NW)
 
 

@@ -1,7 +1,9 @@
 #All necessary Packages
 import datetime
+from genericpath import exists
 from tkinter import *
 import sqlite3
+from tkinter import messagebox
 from tkinter.ttk import Style, Treeview
 import atexit
 from os import path
@@ -127,10 +129,6 @@ def menu_frame_obj():
         billing_btn.place(relx = 0.475, rely = y, anchor = CENTER)
 
 
-
-
-
-
 def company_details_obj():
     company_details_frame= Frame(root,width=1670,height=1060,bg=frame_color)
     company_details_frame.grid(row=0,column=1)
@@ -170,12 +168,9 @@ def company_details_obj():
 
     def details_updated_obj():
         if company_name_tb.get() =="" or company_adress_tb.get() =="" or company_gstin_tb.get() =="" or company_contact_number_tb.get() =="":
-            message_lbl=Label(company_details_frame,text='Enter All Fields',font=book_antiqua,fg="red",bg=frame_color)
-            message_lbl.place(relx = 0.1, rely = 0.42, anchor = NW)
+            messagebox.showerror(title='Error', message="Enter All Fields")
         else:
-            message_lbl=Label(company_details_frame,text='Details Updated',font=book_antiqua,fg="#2ea307",bg=frame_color)
-            message_lbl.place(relx = 0.1, rely = 0.42, anchor = NW)
-            
+            messagebox.showinfo(title='Sucess', message="Details Updated")
             #stores company data in company_details.json file
             company=[]
             company.append(company_name_tb.get())
@@ -261,7 +256,7 @@ def purchase_obj():
 
 
     #Purchase Add Button
-    purchase_add_update_btn=Button(purchase_frame,fg=element_color,bg=frame_button_color,text="Add",width = 21,border=4,command=lambda:[add_purchase_item()])
+    purchase_add_update_btn=Button(purchase_frame,fg=element_color,bg=frame_button_color,text="Add",width = 21,border=4,command=lambda:[check_entry_condition()])
     purchase_add_update_btn.place(relx = 0.384, rely = 0.24, anchor = NW)
 
     #Purchase Delete Button
@@ -279,9 +274,8 @@ def purchase_obj():
     #Purchase save
     purchase_print_button=Button(purchase_frame,fg=element_color,bg=frame_button_color,text="Save",width = 16,height=2,border=4,command=lambda:[invoice_number_update()])
     purchase_print_button.place(relx = 0.4, rely = 0.775, anchor = NW)
+    
     #get all data
-
-
     def invoice_number_update():
         purchase_invoice_no=read_counter('purchase_invoice_number')
         if path.exists('purchase_invoice_number.json'):
@@ -298,14 +292,32 @@ def purchase_obj():
             invoice_number_tb.config(state='disabled')
     invoice_number_update()
 
+    def check_entry_condition():
+        if len(invoice_number_tb.get()) ==0 or len(dealer_name_tb.get()) ==0 or len(purchase_dealer_address_tb.get()) ==0 or len(purchase_dealer_contact_tb.get()) ==0 or len(purchase_item_code_tb.get()) ==0 or len(purchase_item_name_tb.get()) ==0 or len(purchase_quantity_tb.get()) ==0 or len(purchase_price_tb.get()) ==0:
+            messagebox.showerror(title='Error', message="Enter All Fields\n(GSTIN not Mandatory)")
+        elif any(ch.isdigit() or not ch.isalnum() for ch in dealer_name_tb.get()):
+            messagebox.showerror(title='Error', message="Dealer Name \ncannot have number or special charecter")
+        elif any(not ch.isdigit() for ch in purchase_dealer_contact_tb.get()):
+            messagebox.showerror(title='Error', message="Contact Number \ncannot have Letter or special charecter")
+        elif any(not ch.isdigit() for ch in purchase_item_code_tb.get()):
+            messagebox.showerror(title='Error', message="Item Code \ncannot have Letter or special charecter")
+        elif any(not ch.isdigit() for ch in purchase_quantity_tb.get()):
+            messagebox.showerror(title='Error', message="Quantity \ncannot have Letter or special charecter")
+        elif any(not ch.isdigit() for ch in purchase_price_tb.get()):
+            messagebox.showerror(title='Error', message="Price \ncannot have Letter or special charecter")
+        else:
+            add_purchase_item()
+    
     def add_purchase_item():
         invoice_number=int(invoice_number_tb.get())
         dealer_name=dealer_name_tb.get()
         dealer_gstin=dealer_gstin_tb.get()
         purchase_dealer_address=purchase_dealer_address_tb.get()
         purchase_dealer_contact=purchase_dealer_contact_tb.get()
+        
         dealer_data={'invoice_number':invoice_number,'dealer_name':dealer_name,'dealer_gstin':dealer_gstin,'purchase_dealer_address':purchase_dealer_address,'purchase_dealer_contact':purchase_dealer_contact}
         print(dealer_data)
+        
         purchase_item_code=int(purchase_item_code_tb.get())
         date=purchase_date.get_date()
         purchase_item_name=purchase_item_name_tb.get()
@@ -335,6 +347,7 @@ def purchase_obj():
             con.commit()
             con.close()
         except sqlite3.Error as err:
+            messagebox.showerror(title='Error', message="Item Code cannot repeat")
             print("Error - ",err)
 
     def delete_purchase_item():
@@ -349,11 +362,9 @@ def purchase_obj():
             clear_all(purchase_tree_view)
             for i in row:
                 purchase_tree_view.insert("", 'end', text ="L1",values =(i[0],i[1],i[2],i[3],i[4]))
-
             cur.execute("SELECT SUM(total_price) FROM temp_item_purchase_details")
             total=cur.fetchall()
             purchase_total_lbl.configure(text="{:.2f}".format(total[0][0]))
-
             con.commit()
             con.close()
         except sqlite3.Error as err:

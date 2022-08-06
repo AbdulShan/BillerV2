@@ -53,10 +53,23 @@ def write_counter(filename,data_to_write):
 
 #bill_number = read_counter('bill_number')
 
+def scroll_bar(frame_name,widget):
+    if frame_name=='menu_frame':
+        v = Scrollbar(widget, orient = 'vertical')
+        v.pack(side = LEFT, fill = Y)
+    else:
+        h = Scrollbar(widget, orient = 'horizontal')
+        h.pack(side = BOTTOM, fill = X)
+        v = Scrollbar(widget,orient = 'vertical')
+        v.pack(side = RIGHT, fill = Y)
+
+    #t = Text(widget, width = 15, height = 15, wrap = NONE,xscrollcommand = h.set,yscrollcommand = v.set)
+
 #Tkinter window configs
 if "__main__"==__name__:
     root=Tk()
     root.title("Billing App")
+    root.iconbitmap('logo.png')
     #get your Windows width/height, set size to full window
     width = root.winfo_screenwidth()
     height = root.winfo_screenheight()
@@ -90,43 +103,40 @@ def selected_item_from_treeview(treeview_name):
             k=value[0]
             return k
 
+
+
 def menu_frame_obj():
     image.place(relx = 0.45, rely = 0.075, anchor = CENTER)
 
     company_details_btn=Button(menu_frame,text="Company",width = 25,height=menu_button_height,fg=element_color,bg=menu_button_color,command=lambda:[company_details_obj()])
-    #company_details_btn.place(relx = 0.475, rely = 0.23, anchor = CENTER)
-
     purchase_btn=Button(menu_frame,text="Purchase",width = 25,fg=element_color,height=menu_button_height,bg=menu_button_color,command=lambda:[purchase_obj()])
-    #purchase_btn.place(relx = 0.475, rely = 0.26, anchor = CENTER)
-
-    dealer_btn=Button(menu_frame,text="Dealer",width = 25,fg=element_color,height=menu_button_height,bg=menu_button_color,command=lambda:[dealer_obj()])
-    #dealer_btn.place(relx = 0.475, rely = 0.29, anchor = CENTER)
-    
+    dealer_btn=Button(menu_frame,text="Dealer",width = 25,fg=element_color,height=menu_button_height,bg=menu_button_color,command=lambda:[dealer_obj()])    
     '''customer_btn=Button(menu_frame,text="Customer",width = 25,fg=element_color,bg=menu_button_color,command=lambda:[customer_detail_obj()])
     customer_btn.place(relx = 0.475, rely = 0.35, anchor = CENTER)'''
 
     item_btn=Button(menu_frame,text="Items",width = 25,fg=element_color,height=menu_button_height,bg=menu_button_color,command=lambda:[item_obj()])
-    #item_btn.place(relx = 0.475, rely = 0.35, anchor = CENTER)
-
     reports_btn=Button(menu_frame,text="Reports",width = 25,fg=element_color,height=menu_button_height,bg=menu_button_color,command=lambda:[report_obj()])
-    reports_btn.place(relx = 0.475, rely = 0.32, anchor = CENTER)
-
     billing_btn=Button(menu_frame,text="Billing",width = 25,fg=element_color,height=menu_button_height,bg=menu_button_color,command=lambda:[billing_obj()])
-    #billing_btn.place(relx = 0.475, rely = 0.38, anchor = CENTER)
 
-    for i in range(1):
-        y=0.3
+    def place_menu(clicks):
+        y=0.3+clicks
+        add=0.075
         company_details_btn.place(relx = 0.475, rely = y, anchor = CENTER)
-        y+=0.075
+        y+=add
         purchase_btn.place(relx = 0.475, rely = y, anchor = CENTER)
-        y+=0.075
+        y+=add
         dealer_btn.place(relx = 0.475, rely = y, anchor = CENTER)
-        y+=0.075
+        y+=add
         item_btn.place(relx = 0.475, rely = y, anchor = CENTER)
-        y+=0.075
+        y+=add
         reports_btn.place(relx = 0.475, rely = y, anchor = CENTER)
-        y+=0.075
+        y+=add
         billing_btn.place(relx = 0.475, rely = y, anchor = CENTER)
+    place_menu(0)
+    top_scrollbar= Button(menu_frame,text="v",width=2,fg=element_color,bg=menu_button_color,command=lambda:[place_menu(0.1)])
+    top_scrollbar.place(relx = 0.95, rely = 0.5, anchor = CENTER)
+    bottom_scrollbar=Button(menu_frame,text="^",width=2,fg=element_color,bg=menu_button_color,command=lambda:[place_menu(-0.1)])
+    bottom_scrollbar.place(relx = 0.95, rely = 0.4, anchor = CENTER)
 
 
 def company_details_obj():
@@ -192,88 +202,87 @@ def purchase_obj():
     purchase_frame.propagate(0)
 
     purchase_details_lbl=Label(purchase_frame,text="Purchase Products",font=book_antiqua_size18,bg=frame_color,fg=element_color)
-    purchase_details_lbl.place(relx = 0.4, rely = 0.065, anchor = NW)
+    purchase_details_lbl.place(relx = 0.4, rely = 0.01, anchor = NW)
 
     #Dealer name
     dealer_name_lbl=Label(purchase_frame,text="Dealer Name",font=book_antiqua,bg=frame_color,fg=element_color)
-    dealer_name_lbl.place(relx = 0.04, rely = 0.14, anchor = NW)
+    dealer_name_lbl.place(relx = 0.04, rely = 0.08, anchor = NW)
 
     dealer_name_tb=Entry(purchase_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=25)
-    dealer_name_tb.place(relx = 0.105, rely = 0.14, anchor = NW)
+    dealer_name_tb.place(relx = 0.105, rely = 0.08, anchor = NW)
 
     #Dealer Gstin
     dealer_gstin_lbl=Label(purchase_frame,text="GSTIN",font=book_antiqua,bg=frame_color,fg=element_color)
-    dealer_gstin_lbl.place(relx = 0.265, rely = 0.14, anchor = NW)
+    dealer_gstin_lbl.place(relx = 0.265, rely = 0.08, anchor = NW)
 
     dealer_gstin_tb=Entry(purchase_frame,fg=element_color,bg=entry_box_color,font=arial,border=4)
-    dealer_gstin_tb.place(relx = 0.3, rely = 0.14, anchor = NW)
+    dealer_gstin_tb.place(relx = 0.3, rely = 0.08, anchor = NW)
 
     #Purchase Date
     purchase_date_lbl=Label(purchase_frame,text="Date",font=book_antiqua,bg=frame_color,fg=element_color)
-    purchase_date_lbl.place(relx = 0.43, rely = 0.14, anchor = NW)
+    purchase_date_lbl.place(relx = 0.43, rely = 0.08, anchor = NW)
 
     #date
     today = date.today()
     purchase_date= DateEntry(purchase_frame, width= 16,height=0, background= "grey", foreground= "white",bd=4, maxdate=today)
-    purchase_date.place(relx = 0.455, rely = 0.1405, anchor = NW)
+    purchase_date.place(relx = 0.455, rely = 0.08, anchor = NW)
 
     #Purchase INvoice Number
     invoice_number_lbl=Label(purchase_frame,text="Invoice Number",font=book_antiqua,bg=frame_color,fg=element_color)
-    invoice_number_lbl.place(relx = 0.55, rely = 0.14, anchor = NW)
+    invoice_number_lbl.place(relx =0.43, rely = 0.13, anchor = NW)
 
     invoice_number_tb=Entry(purchase_frame,fg=element_color,bg=entry_box_color,font=arial,border=4)
-    invoice_number_tb.place(relx = 0.62, rely = 0.14, anchor = NW)
+    invoice_number_tb.place(relx = 0.43, rely = 0.08, anchor = NW)
 
     #dealer Address
     purchase_dealer_address_lbl=Label(purchase_frame,text="Address",font=book_antiqua,bg=frame_color,fg=element_color)
-    purchase_dealer_address_lbl.place(relx = 0.06, rely = 0.19, anchor = NW)
+    purchase_dealer_address_lbl.place(relx = 0.06, rely = 0.13, anchor = NW)
 
-    purchase_dealer_address_tb=Entry(purchase_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=25)
-    purchase_dealer_address_tb.place(relx = 0.105, rely = 0.19, anchor = NW)
+    purchase_dealer_address_tb=Text(purchase_frame, width=20, height=3,fg=element_color,bg=entry_box_color,font=arial,border=4)
+    purchase_dealer_address_tb.place(relx = 0.105, rely = 0.13, anchor = NW)
 
     #dealer contact
     purchase_dealer_contact_lbl=Label(purchase_frame,text="Contact",font=book_antiqua,bg=frame_color,fg=element_color)
-    purchase_dealer_contact_lbl.place(relx = 0.26, rely = 0.19, anchor = NW)
+    purchase_dealer_contact_lbl.place(relx = 0.26, rely = 0.13, anchor = NW)
 
     purchase_dealer_contact_tb=Entry(purchase_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=20)
-    purchase_dealer_contact_tb.place(relx = 0.3, rely = 0.19, anchor = NW)
+    purchase_dealer_contact_tb.place(relx = 0.3, rely = 0.13, anchor = NW)
 
     #Purchase Item Code TextBox
     purchase_item_code_tb=Entry(purchase_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=14)
-    purchase_item_code_tb.place(relx = 0.03, rely = 0.24, anchor = NW)
+    purchase_item_code_tb.place(relx = 0.03, rely = 0.185, anchor = NW)
 
     #Purchase Item Name TextBox
     purchase_item_name_tb=Entry(purchase_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=28)
-    purchase_item_name_tb.place(relx = 0.11, rely = 0.24, anchor = NW)
+    purchase_item_name_tb.place(relx = 0.11, rely = 0.185, anchor = NW)
 
     #Purchase Quantity TextBox
     purchase_quantity_tb=Entry(purchase_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=10)
-    purchase_quantity_tb.place(relx = 0.266, rely = 0.24, anchor = NW)
+    purchase_quantity_tb.place(relx = 0.266, rely = 0.185, anchor = NW)
 
     #Purchase Price
     purchase_price_tb=Entry(purchase_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=10)
-    purchase_price_tb.place(relx = 0.325, rely = 0.24, anchor = NW)
-
+    purchase_price_tb.place(relx = 0.325, rely = 0.185, anchor = NW)
 
     #Purchase Add Button
     purchase_add_update_btn=Button(purchase_frame,fg=element_color,bg=frame_button_color,text="Add",width = 21,border=4,command=lambda:[check_entry_condition()])
-    purchase_add_update_btn.place(relx = 0.384, rely = 0.24, anchor = NW)
+    purchase_add_update_btn.place(relx = 0.384, rely = 0.185, anchor = NW)
 
     #Purchase Delete Button
     purchase_delete_btn=Button(purchase_frame,fg=element_color,bg=frame_button_color,text="Delete",width = 21,border=4,command=lambda:[delete_purchase_item()])
-    purchase_delete_btn.place(relx = 0.03, rely = 0.73, anchor = NW)
+    purchase_delete_btn.place(relx = 0.03, rely = 0.67, anchor = NW)
 
     #clear all button
     purchase_clearall_btn=Button(purchase_frame,fg=element_color,bg=frame_button_color,text="clear All",width = 21,border=4,command=lambda:[delete_all_purchase_item()])
-    purchase_clearall_btn.place(relx = 0.13, rely = 0.73, anchor = NW)
+    purchase_clearall_btn.place(relx = 0.13, rely = 0.67, anchor = NW)
     
     #Purchase Total
     purchase_total_lbl=Label(purchase_frame,text="0000.00",font=book_antiqua_size18,bg=frame_color,fg=element_color)
-    purchase_total_lbl.place(relx = 0.4, rely = 0.735, anchor = NW)
+    purchase_total_lbl.place(relx = 0.4, rely = 0.675, anchor = NW)
 
     #Purchase save
-    purchase_print_button=Button(purchase_frame,fg=element_color,bg=frame_button_color,text="Save",width = 16,height=2,border=4,command=lambda:[invoice_number_update()])
-    purchase_print_button.place(relx = 0.4, rely = 0.775, anchor = NW)
+    purchase_print_button=Button(purchase_frame,fg=element_color,bg=frame_button_color,text="Save",width = 16,height=2,border=4,command=lambda:[save_purchase_data_to_database(),invoice_number_update()])
+    purchase_print_button.place(relx = 0.4, rely = 0.675, anchor = NW)
     
     #get all data
     def invoice_number_update():
@@ -301,9 +310,9 @@ def purchase_obj():
             messagebox.showerror(title='Error', message="Contact Number \ncannot have Letter or special charecter")
         elif any(not ch.isdigit() for ch in purchase_item_code_tb.get()):
             messagebox.showerror(title='Error', message="Item Code \ncannot have Letter or special charecter")
-        elif any(not ch.isdigit() for ch in purchase_quantity_tb.get()):
+        elif any(not ch.isdecimal() for ch in purchase_quantity_tb.get()):
             messagebox.showerror(title='Error', message="Quantity \ncannot have Letter or special charecter")
-        elif any(not ch.isdigit() for ch in purchase_price_tb.get()):
+        elif any(not ch.isdecimal() for ch in purchase_price_tb.get()):
             messagebox.showerror(title='Error', message="Price \ncannot have Letter or special charecter")
         else:
             add_purchase_item()
@@ -315,8 +324,8 @@ def purchase_obj():
         purchase_dealer_address=purchase_dealer_address_tb.get()
         purchase_dealer_contact=purchase_dealer_contact_tb.get()
         
+        global dealer_data
         dealer_data={'invoice_number':invoice_number,'dealer_name':dealer_name,'dealer_gstin':dealer_gstin,'purchase_dealer_address':purchase_dealer_address,'purchase_dealer_contact':purchase_dealer_contact}
-        print(dealer_data)
         
         purchase_item_code=int(purchase_item_code_tb.get())
         date=purchase_date.get_date()
@@ -382,9 +391,29 @@ def purchase_obj():
         except sqlite3.Error as err:
             print("Error - ",err)
 
+    def save_purchase_data_to_database():
+        try:
+            con=sqlite3.connect("Store_Data.sql")
+            cur=con.cursor()
+            cur.execute("CREATE TABLE IF NOT EXISTS dealer_purchase_details(invoice_number int(10) PRIMARY KEY NOT NULL,dealer_name varhcar(20),dealer_gstin varhcar(20),dealer_address varhcar(30),dealer_contact int(12))")
+            cur.execute("CREATE TABLE IF NOT EXISTS item_purchase_details(item_id int(15) PRIMARY KEY,date date,item_name varhcar(30),purchase_quantity REAL,buying_price REAL,total_price REAL)")
+            
+            cur.execute("INSERT INTO dealer_purchase_details(invoice_number,dealer_name,dealer_gstin,dealer_address,dealer_contact)VALUES({},'{}','{}','{}',{})".format(dealer_data['invoice_number'],dealer_data['dealer_name'],dealer_data['dealer_gstin'],dealer_data['purchase_dealer_address'],dealer_data['purchase_dealer_contact']))
+
+            cur.execute("SELECT * from temp_item_purchase_details")
+            row=cur.fetchall()
+            for i in row:
+                cur.execute("INSERT INTO item_purchase_details(item_id,date,item_name,purchase_quantity,buying_price,total_price)VALUES({},'{}','{}',{:.2f},{:.2f},{:.2f})".format(i[0],i[1],i[2],i[3],i[4],i[5]))
+            messagebox.showinfo(title='Saved', message="Products Added to inventory")
+            delete_all_purchase_item()
+            con.commit()
+            con.close()
+        except sqlite3.Error as err:
+            print("Error - ",err)
+
     #treeview element
     purchase_tree_view= Treeview(purchase_frame,selectmode='browse',height=23)
-    purchase_tree_view.place(relx = 0.03, rely = 0.27, anchor = NW)
+    purchase_tree_view.place(relx = 0.03, rely = 0.21, anchor = NW)
 
     #verticle scrollbar
     #vertical_scrollbar=Scrollbar(billing_frame,orient="vertical",command=tree_view.yview)
@@ -422,34 +451,13 @@ def dealer_obj():
 
     #dealer Name
     dealer_name_lbl=Label(dealer_frame,text="Dealer Name",font=book_antiqua,bg=frame_color,fg=element_color)
-    dealer_name_lbl.place(relx = 0.04, rely = 0.14, anchor = NW)
+    dealer_name_lbl.place(relx = 0.0385, rely = 0.19, anchor = NW)
 
     dealer_name_tb=Entry(dealer_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=20)
-    dealer_name_tb.place(relx = 0.115, rely = 0.14, anchor = NW)
-
-    #dealer GSTIN Number
-    dealer_gstin_number_lbl=Label(dealer_frame,text="GSTIN No",font=book_antiqua,bg=frame_color,fg=element_color)
-    dealer_gstin_number_lbl.place(relx = 0.25, rely = 0.14, anchor = NW)
-
-    dealer_gstin_number_tb=Entry(dealer_frame,fg=element_color,bg=entry_box_color,font=arial,border=4)
-    dealer_gstin_number_tb.place(relx = 0.3, rely = 0.14, anchor = NW)
-
-    #dealer Address
-    dealer_address_lbl=Label(dealer_frame,text="Address",font=book_antiqua,bg=frame_color,fg=element_color)
-    dealer_address_lbl.place(relx = 0.429, rely = 0.14, anchor = NW)
-
-    dealer_address_tb=Entry(dealer_frame,fg=element_color,bg=entry_box_color,font=arial,border=4)
-    dealer_address_tb.place(relx = 0.475, rely = 0.14, anchor = NW)
-
-    #dealer Contact
-    dealer_contact_number_lbl=Label(dealer_frame,text="Contact Number",font=book_antiqua,bg=frame_color,fg=element_color)
-    dealer_contact_number_lbl.place(relx = 0.0385, rely = 0.19, anchor = NW)
-
-    dealer_contact_number_tb=Entry(dealer_frame,fg=element_color,bg=entry_box_color,font=arial,border=4)
-    dealer_contact_number_tb.place(relx = 0.115, rely = 0.19, anchor = NW)
+    dealer_name_tb.place(relx = 0.115, rely = 0.19, anchor = NW)
 
     #dealer add button
-    dealer_add_btn=Button(dealer_frame,fg=element_color,bg=frame_button_color,text="Add",width = 15,border=4,command=lambda:[])
+    dealer_add_btn=Button(dealer_frame,fg=element_color,bg=frame_button_color,text="Search",width = 15,border=4,command=lambda:[])
     dealer_add_btn.place(relx = 0.25, rely = 0.19, anchor = NW)
 
     #item treeview element
@@ -462,7 +470,7 @@ def dealer_obj():
     #tree_view.configure(xscrollcommand=vertical_scrollbar.set)
 
     #Definning number of columns
-    dealer_tree_view["columns"]=("1","2","3","4")
+    dealer_tree_view["columns"]=("1","2","3","4","5")
 
     #defining heading
     dealer_tree_view["show"]='headings'
@@ -472,12 +480,14 @@ def dealer_obj():
     dealer_tree_view.column("2",width=130)
     dealer_tree_view.column("3",width=300)
     dealer_tree_view.column("4",width=130)
+    dealer_tree_view.column("5",width=130)
 
     #assigning heading name
     dealer_tree_view.heading("1",text="Name")
     dealer_tree_view.heading("2",text="Contact")
     dealer_tree_view.heading("3",text="Address")
     dealer_tree_view.heading("4",text="GSTIN No")
+    dealer_tree_view.heading("5",text="Category")
 
     #dealer refresh btn
     dealer_refresh_btn=Button(dealer_frame,fg=element_color,bg=frame_button_color,text="Delete",width = 15,border=4,command=lambda:[])

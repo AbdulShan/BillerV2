@@ -75,8 +75,8 @@ if "__main__"==__name__:
     height = root.winfo_screenheight()
     root.geometry("%dx%d" % (width, height))
     #wont allow to resize window, and full screen when opening
-    '''root.resizable(False,False)
-    root.state('zoomed')'''
+    root.resizable(False,False)
+    root.state('zoomed')
 
     #Logo
 menu_frame= Frame(root,bg="#161719",width=250,height=1060)
@@ -461,8 +461,8 @@ def dealer_obj():
     dealer_add_btn.place(relx = 0.25, rely = 0.075, anchor = NW)
 
     #item treeview element
-    dealer_tree_view= Treeview(dealer_frame,selectmode='browse',height=21)
-    dealer_tree_view.place(relx = 0.04, rely = 0.11, anchor = NW)
+    dealer_tree_view= Treeview(dealer_frame,selectmode='browse',height=17)
+    dealer_tree_view.place(relx = 0.04, rely = 0.105, anchor = NW)
 
     #verticle scrollbar
     #vertical_scrollbar=Scrollbar(billing_frame,orient="vertical",command=tree_view.yview)
@@ -470,40 +470,38 @@ def dealer_obj():
     #tree_view.configure(xscrollcommand=vertical_scrollbar.set)
 
     #Definning number of columns
-    dealer_tree_view["columns"]=("1","2","3","4","5")
+    dealer_tree_view["columns"]=("1","2","3","4")
 
     #defining heading
     dealer_tree_view["show"]='headings'
 
     #modifying the size of the columns
-    dealer_tree_view.column("1",width=200)
-    dealer_tree_view.column("2",width=130)
-    dealer_tree_view.column("3",width=300)
-    dealer_tree_view.column("4",width=130)
-    dealer_tree_view.column("5",width=130)
+    dealer_tree_view.column("1",width=210)
+    dealer_tree_view.column("2",width=110)
+    dealer_tree_view.column("3",width=260)
+    dealer_tree_view.column("4",width=110)
 
     #assigning heading name
     dealer_tree_view.heading("1",text="Name")
     dealer_tree_view.heading("2",text="Contact")
     dealer_tree_view.heading("3",text="Address")
     dealer_tree_view.heading("4",text="GSTIN No")
-    dealer_tree_view.heading("5",text="Category")
 
     #dealer refresh btn
     dealer_refresh_btn=Button(dealer_frame,fg=element_color,bg=frame_button_color,text="Delete",width = 15,border=4,command=lambda:[])
-    dealer_refresh_btn.place(relx = 0.04, rely = 0.535, anchor = NW)
+    dealer_refresh_btn.place(relx = 0.04, rely = 0.454, anchor = NW)
 
     #dealer Delete btn
     dealer_delete_btn=Button(dealer_frame,fg=element_color,bg=frame_button_color,text="Refresh",width = 15,border=4,command=lambda:[])
-    dealer_delete_btn.place(relx = 0.12, rely = 0.535, anchor = NW)
+    dealer_delete_btn.place(relx = 0.12, rely = 0.454, anchor = NW)
 
     #dealer Edit btn
     dealer_edit_btn=Button(dealer_frame,fg=element_color,bg=frame_button_color,text="Edit",width = 15,border=4,command=lambda:[])
-    dealer_edit_btn.place(relx = 0.2, rely = 0.535, anchor = NW)
+    dealer_edit_btn.place(relx = 0.2, rely = 0.454, anchor = NW)
 
     #Show details btn
     dealer_show_details_btn=Button(dealer_frame,fg=element_color,bg=frame_button_color,text="Show Details",width = 16,border=4,command=lambda:[])
-    dealer_show_details_btn.place(relx = 0.424, rely = 0.535, anchor = NW)
+    dealer_show_details_btn.place(relx = 0.38, rely = 0.454, anchor = NW)
 
 '''def customer_detail_obj():
     customer_detail_frame=Frame(root,width=1670,height=1060,bg=frame_color)
@@ -573,57 +571,75 @@ def item_obj():
     item_frame.grid(row=0,column=1)
     item_frame.propagate(0)
 
+    #Filter by name
+    item_search_lbl=Label(item_frame,text="Search",font=book_antiqua,bg=frame_color,fg=element_color)
+    item_search_lbl.place(relx = 0.04, rely = 0.07, anchor = NW)
+
+    item_search_tb=Entry(item_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=20)
+    item_search_tb.place(relx = 0.095, rely = 0.07, anchor = NW)
+
     item_lbl=Label(item_frame,text="Search\Edit Items",font=book_antiqua_size18,bg=frame_color,fg=element_color)
     item_lbl.place(relx = 0.4, rely = 0.008, anchor = NW)
 
     #item refresh btn
     item_refresh_btn=Button(item_frame,fg=element_color,bg=frame_button_color,text="Delete",width = 15,border=4,command=lambda:[])
-    item_refresh_btn.place(relx = 0.03, rely = 0.56, anchor = NW)
+    item_refresh_btn.place(relx = 0.03, rely = 0.496, anchor = NW)
 
     #item Delete btn
     item_delete_btn=Button(item_frame,fg=element_color,bg=frame_button_color,text="Refresh",width = 15,border=4,command=lambda:[])
-    item_delete_btn.place(relx = 0.11, rely = 0.56, anchor = NW)
+    item_delete_btn.place(relx = 0.11, rely = 0.496, anchor = NW)
 
     #item Edit btn
     item_edit_btn=Button(item_frame,fg=element_color,bg=frame_button_color,text="Edit",width = 15,border=4,command=lambda:[])
-    item_edit_btn.place(relx = 0.19, rely = 0.56, anchor = NW)
+    item_edit_btn.place(relx = 0.19, rely = 0.496, anchor = NW)
 
+    #item Save btn
+    item_save_btn=Button(item_frame,fg=element_color,bg=frame_button_color,text="Save",width = 15,border=4,command=lambda:[])
+    item_save_btn.place(relx = 0.27, rely = 0.496, anchor = NW)
+
+    #item Add btn
     item_add_btn=Button(item_frame,fg=element_color,bg=frame_button_color,text="Add",width = 15,border=4,command=lambda:[])
-    item_add_btn.place(relx = 0.4, rely = 0.56, anchor = NW)
+    item_add_btn.place(relx = 0.422, rely = 0.496, anchor = NW)
 
     #Id label
     item_id_tb=Entry(item_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=11)
-    item_id_tb.place(relx = 0.03, rely = 0.131, anchor = NW)
+    item_id_tb.place(relx = 0.03, rely = 0.12, anchor = NW)
     item_id_tb.insert(0, 'Item Id')
     item_id_tb.bind("<FocusIn>", lambda args: item_id_tb.delete('0', 'end'))
 
     #Item Name TextBox
-    item_name_tb=Entry(item_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=22)
-    item_name_tb.place(relx = 0.0925, rely = 0.131, anchor = NW)
+    item_name_tb=Entry(item_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=21)
+    item_name_tb.place(relx = 0.0925, rely = 0.12, anchor = NW)
     item_name_tb.insert(0, 'Item Name')
     item_name_tb.bind("<FocusIn>", lambda args: item_name_tb.delete('0', 'end'))
 
     #Quantity TextBox
-    item_quantity_tb=Entry(item_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=14)
-    item_quantity_tb.place(relx = 0.239, rely = 0.131, anchor = NW)
+    item_quantity_tb=Entry(item_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=12)
+    item_quantity_tb.place(relx = 0.209, rely = 0.12, anchor = NW)
     item_quantity_tb.insert(0, 'Stock')
     item_quantity_tb.bind("<FocusIn>", lambda args: item_quantity_tb.delete('0', 'end'))
 
-    #Price TextBox
-    item_price_tb=Entry(item_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=13)
-    item_price_tb.place(relx = 0.32, rely = 0.131, anchor = NW)
+    #Category
+    item_category_tb=Entry(item_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=13)
+    item_category_tb.place(relx = 0.278, rely = 0.12, anchor = NW)
+    item_category_tb.insert(0, 'Category')
+    item_category_tb.bind("<FocusIn>", lambda args: item_category_tb.delete('0', 'end'))
+
+    #Price
+    item_price_tb=Entry(item_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=12)
+    item_price_tb.place(relx = 0.355, rely = 0.12, anchor = NW)
     item_price_tb.insert(0, 'Price')
     item_price_tb.bind("<FocusIn>", lambda args: item_price_tb.delete('0', 'end'))
 
     #Selling Price
-    selling_price_tb=Entry(item_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=14)
-    selling_price_tb.place(relx = 0.395, rely = 0.131, anchor = NW)
+    selling_price_tb=Entry(item_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=12)
+    selling_price_tb.place(relx = 0.42, rely = 0.12, anchor = NW)
     selling_price_tb.insert(0, 'Selling Price')
     selling_price_tb.bind("<FocusIn>", lambda args: selling_price_tb.delete('0', 'end'))
 
     #item treeview element
-    item_tree_view= Treeview(item_frame,selectmode='browse',height=20)
-    item_tree_view.place(relx = 0.03, rely = 0.154, anchor = NW)
+    item_tree_view= Treeview(item_frame,selectmode='browse',height=17)
+    item_tree_view.place(relx = 0.03, rely = 0.148, anchor = NW)
 
     #verticle scrollbar
     #vertical_scrollbar=Scrollbar(billing_frame,orient="vertical",command=tree_view.yview)
@@ -639,10 +655,10 @@ def item_obj():
     #modifying the size of the columns
     item_tree_view.column("1",width=100)
     item_tree_view.column("2",width=200)
-    item_tree_view.column("3",width=130)
+    item_tree_view.column("3",width=110)
     item_tree_view.column("4",width=130)
-    item_tree_view.column("5",width=134)
-    item_tree_view.column("6",width=134)
+    item_tree_view.column("5",width=114)
+    item_tree_view.column("6",width=114)
 
     #assigning heading name
     item_tree_view.heading("1",text="Id")
@@ -691,7 +707,7 @@ def report_obj():
     report_show_details_btn.place(relx = 0.365, rely = 0.19, anchor = NW)
 
     #treeview element
-    report_tree_view= Treeview(report_frame,selectmode='browse',height=23)
+    report_tree_view= Treeview(report_frame,selectmode='browse',height=17)
     report_tree_view.place(relx = 0.03, rely = 0.23, anchor = NW)
 
     #verticle scrollbar
@@ -725,61 +741,65 @@ def billing_obj():
     billing_frame.propagate(0)
 
     billing_lbl=Label(billing_frame,text="Billing",font=book_antiqua_size18,bg=frame_color,fg=element_color)
-    billing_lbl.place(relx = 0.4, rely = 0.065, anchor = NW)
+    billing_lbl.place(relx = 0.4, rely = 0.008, anchor = NW)
     
     #Customer Name
     billing_customer_name_lbl=Label(billing_frame,text="Customer Name",font=book_antiqua,bg=frame_color,fg=element_color)
-    billing_customer_name_lbl.place(relx = 0.04, rely = 0.14, anchor = NW)
+    billing_customer_name_lbl.place(relx = 0.04, rely = 0.075, anchor = NW)
 
-    billing_customer_name_tb=Entry(billing_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=25)
-    billing_customer_name_tb.place(relx = 0.115, rely = 0.14, anchor = NW)
+    billing_customer_name_tb=Entry(billing_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=20)
+    billing_customer_name_tb.place(relx = 0.115, rely = 0.075, anchor = NW)
 
     #Customer Mobile NUmber
     billing_mobile_lbl=Label(billing_frame,text="Mobile",font=book_antiqua,bg=frame_color,fg=element_color)
-    billing_mobile_lbl.place(relx = 0.27, rely = 0.14, anchor = NW)
+    billing_mobile_lbl.place(relx = 0.24, rely = 0.075, anchor = NW)
 
-    billing_mobile_tb=Entry(billing_frame,font=arial,fg=element_color,bg=entry_box_color,border=4)
-    billing_mobile_tb.place(relx = 0.305, rely = 0.14, anchor = NW)
+    billing_mobile_tb=Entry(billing_frame,font=arial,fg=element_color,bg=entry_box_color,border=4,width=17)
+    billing_mobile_tb.place(relx = 0.275, rely = 0.075, anchor = NW)
 
     #Bill Number
     billing_bill_number_lbl=Label(billing_frame,text="Bill Number",font=book_antiqua,bg=frame_color,fg=element_color)
-    billing_bill_number_lbl.place(relx = 0.43, rely = 0.14, anchor = NW)
+    billing_bill_number_lbl.place(relx = 0.385, rely = 0.075, anchor = NW)
 
-    billing_bill_number_tb=Entry(billing_frame,fg=element_color,bg=entry_box_color,font=arial,border=4)
-    billing_bill_number_tb.place(relx = 0.485, rely = 0.14, anchor = NW)
+    billing_bill_number_tb=Entry(billing_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=10)
+    billing_bill_number_tb.place(relx = 0.44, rely = 0.075, anchor = NW)
 
     #billed date
     today = date.today()
     billing_billed_date = DateEntry(billing_frame, width= 16,height=0, background= "grey", foreground= "white",bd=4, maxdate=today)
-    billing_billed_date.place(relx = 0.612, rely = 0.14, anchor = NW)
+    billing_billed_date.place(relx = 0.515, rely = 0.077, anchor = NW)
 
-
-    
     #Item Code TextBox
-    billing_item_code_tb=Entry(billing_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=16)
-    billing_item_code_tb.place(relx = 0.03, rely = 0.22, anchor = NW)
+    billing_item_code_tb=Entry(billing_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=11)
+    billing_item_code_tb.place(relx = 0.03, rely = 0.15, anchor = NW)
     billing_item_code_tb.insert(0, 'Item Code')
     billing_item_code_tb.bind("<FocusIn>", lambda args: billing_item_code_tb.delete('0', 'end'))
 
     #Item Name TextBox
-    billing_item_name_tb=Entry(billing_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=28)
-    billing_item_name_tb.place(relx = 0.12, rely = 0.22, anchor = NW)
+    billing_item_name_tb=Entry(billing_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=21)
+    billing_item_name_tb.place(relx = 0.093, rely = 0.15, anchor = NW)
     billing_item_name_tb.insert(0, 'Item Name')
     billing_item_name_tb.bind("<FocusIn>", lambda args: billing_item_name_tb.delete('0', 'end'))
 
     #Quantity TextBox
-    billing_quantity_tb=Entry(billing_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=10)
-    billing_quantity_tb.place(relx = 0.275, rely = 0.22, anchor = NW)
+    billing_quantity_tb=Entry(billing_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=8)
+    billing_quantity_tb.place(relx = 0.21, rely = 0.15, anchor = NW)
     billing_quantity_tb.insert(0, 'Quantity')
     billing_quantity_tb.bind("<FocusIn>", lambda args: billing_quantity_tb.delete('0', 'end'))
 
+    #Discoount TextBox
+    billing_discount_tb=Entry(billing_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=10)
+    billing_discount_tb.place(relx = 0.41, rely = 0.15, anchor = NW)
+    billing_discount_tb.insert(0, 'Discount')
+    billing_discount_tb.bind("<FocusIn>", lambda args: billing_discount_tb.delete('0', 'end'))
+    
     #Add Button
-    billing_add_update_btn=Button(billing_frame,fg=element_color,bg=frame_button_color,text="Add",width = 21,border=4,command=lambda:[])
-    billing_add_update_btn.place(relx = 0.648, rely = 0.22, anchor = NW)
+    billing_add_update_btn=Button(billing_frame,fg=element_color,bg=frame_button_color,text="Add",width = 15,border=4,command=lambda:[])
+    billing_add_update_btn.place(relx = 0.47, rely = 0.15, anchor = NW)
 
     #treeview element
-    billing_tree_view= Treeview(billing_frame,selectmode='browse',height=23)
-    billing_tree_view.place(relx = 0.03, rely = 0.25, anchor = NW)
+    billing_tree_view= Treeview(billing_frame,selectmode='browse',height=17)
+    billing_tree_view.place(relx = 0.03, rely = 0.18, anchor = NW)
     
     
 
@@ -795,14 +815,14 @@ def billing_obj():
     billing_tree_view["show"]='headings'
 
     #modifying the size of the columns
-    billing_tree_view.column("1",width=150)
-    billing_tree_view.column("2",width=260)
-    billing_tree_view.column("3",width=100)
-    billing_tree_view.column("4",width=100)
-    billing_tree_view.column("5",width=160)
-    billing_tree_view.column("6",width=160)
+    billing_tree_view.column("1",width=100)
+    billing_tree_view.column("2",width=200)
+    billing_tree_view.column("3",width=80)
+    billing_tree_view.column("4",width=90)
+    billing_tree_view.column("5",width=80)
+    billing_tree_view.column("6",width=80)
     billing_tree_view.column("7",width=100)
-    billing_tree_view.column("8",width=160)
+    billing_tree_view.column("8",width=120)
 
     #assigning heading name
     billing_tree_view.heading("1",text="ItemCode")
@@ -819,33 +839,33 @@ def billing_obj():
 
     #Delete Button
     delete_btn=Button(billing_frame,fg=element_color,bg=frame_button_color,text="Delete",width = 15,border=4,command=lambda:[])
-    delete_btn.place(relx = 0.0275, rely = 0.71, anchor = NW)
+    delete_btn.place(relx = 0.028, rely = 0.53, anchor = NW)
 
     #Total Gst Label
     total_cgst_lbl=Label(billing_frame,text="Total CGST",font=book_antiqua,bg=frame_color,fg=element_color)
-    total_cgst_lbl.place(relx = 0.41, rely = 0.71, anchor = NW)
+    total_cgst_lbl.place(relx = 0.41, rely = 0.53, anchor = NW)
 
     total_cgst_lbl2=Label(billing_frame,text="00.00%",font=book_antiqua,bg=frame_color,fg=element_color)
-    total_cgst_lbl2.place(relx = 0.465, rely = 0.71, anchor = NW)
+    total_cgst_lbl2.place(relx = 0.465, rely = 0.53, anchor = NW)
 
     #Total Sgst Label
     total_sgst_lbl=Label(billing_frame,text="Total SGST",font=book_antiqua,bg=frame_color,fg=element_color)
-    total_sgst_lbl.place(relx = 0.41, rely = 0.735, anchor = NW)
+    total_sgst_lbl.place(relx = 0.41, rely = 0.555, anchor = NW)
 
     total_sgst_lbl2=Label(billing_frame,text="00.00%",font=book_antiqua,bg=frame_color,fg=element_color)
-    total_sgst_lbl2.place(relx = 0.465, rely = 0.735, anchor = NW)
+    total_sgst_lbl2.place(relx = 0.465, rely = 0.555, anchor = NW)
 
     #Total
     total_lbl=Label(billing_frame,text="RS.0000.00",font=book_antiqua_size18,bg=frame_color,fg=element_color)
-    total_lbl.place(relx = 0.66, rely = 0.715, anchor = NW)
+    total_lbl.place(relx = 0.66, rely = 0.535, anchor = NW)
 
     #Save And Print Button
     save_print_button=Button(billing_frame,fg=element_color,bg=frame_button_color,text="Save & Print",width = 16,height=2,border=4,command=lambda:[])
-    save_print_button.place(relx = 0.66, rely = 0.755, anchor = NW)
+    save_print_button.place(relx = 0.58, rely = 0.535, anchor = NW)
 
 
 menu_frame_obj()
 #company_details_obj()
-item_obj()
+billing_obj()
 
 root.mainloop()

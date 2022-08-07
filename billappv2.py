@@ -843,25 +843,25 @@ def billing_obj():
 
     #Total Gst Label
     total_cgst_lbl=Label(billing_frame,text="Total CGST",font=book_antiqua,bg=frame_color,fg=element_color)
-    total_cgst_lbl.place(relx = 0.41, rely = 0.53, anchor = NW)
+    total_cgst_lbl.place(relx = 0.25, rely = 0.53, anchor = NW)
 
     total_cgst_lbl2=Label(billing_frame,text="00.00%",font=book_antiqua,bg=frame_color,fg=element_color)
-    total_cgst_lbl2.place(relx = 0.465, rely = 0.53, anchor = NW)
+    total_cgst_lbl2.place(relx = 0.305, rely = 0.53, anchor = NW)
 
     #Total Sgst Label
     total_sgst_lbl=Label(billing_frame,text="Total SGST",font=book_antiqua,bg=frame_color,fg=element_color)
-    total_sgst_lbl.place(relx = 0.41, rely = 0.555, anchor = NW)
+    total_sgst_lbl.place(relx = 0.25, rely = 0.555, anchor = NW)
 
     total_sgst_lbl2=Label(billing_frame,text="00.00%",font=book_antiqua,bg=frame_color,fg=element_color)
-    total_sgst_lbl2.place(relx = 0.465, rely = 0.555, anchor = NW)
+    total_sgst_lbl2.place(relx = 0.305, rely = 0.555, anchor = NW)
+
+    #Save And Print Button
+    save_print_button=Button(billing_frame,fg=element_color,bg=frame_button_color,text="Save & Print",width = 13,height=2,border=4,command=lambda:[])
+    save_print_button.place(relx = 0.39, rely = 0.535, anchor = NW)
 
     #Total
     total_lbl=Label(billing_frame,text="RS.0000.00",font=book_antiqua_size18,bg=frame_color,fg=element_color)
-    total_lbl.place(relx = 0.66, rely = 0.535, anchor = NW)
-
-    #Save And Print Button
-    save_print_button=Button(billing_frame,fg=element_color,bg=frame_button_color,text="Save & Print",width = 16,height=2,border=4,command=lambda:[])
-    save_print_button.place(relx = 0.58, rely = 0.535, anchor = NW)
+    total_lbl.place(relx = 0.46, rely = 0.535, anchor = NW)
 
 
 menu_frame_obj()

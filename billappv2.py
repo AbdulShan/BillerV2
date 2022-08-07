@@ -270,19 +270,19 @@ def purchase_obj():
 
     #Purchase Delete Button
     purchase_delete_btn=Button(purchase_frame,fg=element_color,bg=frame_button_color,text="Delete",width = 21,border=4,command=lambda:[delete_purchase_item()])
-    purchase_delete_btn.place(relx = 0.03, rely = 0.645, anchor = NW)
+    purchase_delete_btn.place(relx = 0.03, rely = 0.575, anchor = NW)
 
     #clear all button
     purchase_clearall_btn=Button(purchase_frame,fg=element_color,bg=frame_button_color,text="clear All",width = 21,border=4,command=lambda:[delete_all_purchase_item()])
-    purchase_clearall_btn.place(relx = 0.13, rely = 0.645, anchor = NW)
+    purchase_clearall_btn.place(relx = 0.13, rely = 0.575, anchor = NW)
     
     #Purchase Total
     purchase_total_lbl=Label(purchase_frame,text="0000.00",font=book_antiqua_size18,bg=frame_color,fg=element_color)
-    purchase_total_lbl.place(relx = 0.41, rely = 0.65, anchor = NW)
+    purchase_total_lbl.place(relx = 0.41, rely = 0.575, anchor = NW)
 
     #Purchase save
     purchase_print_button=Button(purchase_frame,fg=element_color,bg=frame_button_color,text="Save",width = 16,height=2,border=4,command=lambda:[save_purchase_data_to_database(),invoice_number_update()])
-    purchase_print_button.place(relx = 0.32, rely = 0.65, anchor = NW)
+    purchase_print_button.place(relx = 0.32, rely = 0.575, anchor = NW)
     
     #get all data
     def invoice_number_update():
@@ -412,7 +412,7 @@ def purchase_obj():
             print("Error - ",err)
 
     #treeview element
-    purchase_tree_view= Treeview(purchase_frame,selectmode='browse',height=21)
+    purchase_tree_view= Treeview(purchase_frame,selectmode='browse',height=17)
     purchase_tree_view.place(relx = 0.03, rely = 0.225, anchor = NW)
 
     #verticle scrollbar
@@ -598,7 +598,7 @@ def item_obj():
     item_id_tb.bind("<FocusIn>", lambda args: item_id_tb.delete('0', 'end'))
 
     #Item Name TextBox
-    item_name_tb=Entry(item_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=26)
+    item_name_tb=Entry(item_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=22)
     item_name_tb.place(relx = 0.0925, rely = 0.131, anchor = NW)
     item_name_tb.insert(0, 'Item Name')
     item_name_tb.bind("<FocusIn>", lambda args: item_name_tb.delete('0', 'end'))
@@ -631,24 +631,26 @@ def item_obj():
     #tree_view.configure(xscrollcommand=vertical_scrollbar.set)
 
     #Definning number of columns
-    item_tree_view["columns"]=("1","2","3","4","5")
+    item_tree_view["columns"]=("1","2","3","4","5","6")
 
     #defining heading
     item_tree_view["show"]='headings'
 
     #modifying the size of the columns
     item_tree_view.column("1",width=100)
-    item_tree_view.column("2",width=250)
+    item_tree_view.column("2",width=200)
     item_tree_view.column("3",width=130)
     item_tree_view.column("4",width=130)
     item_tree_view.column("5",width=134)
+    item_tree_view.column("6",width=134)
 
     #assigning heading name
     item_tree_view.heading("1",text="Id")
     item_tree_view.heading("2",text="Item Name")
     item_tree_view.heading("3",text="Stock")
-    item_tree_view.heading("4",text="Price")
-    item_tree_view.heading("5",text="Selling Price")
+    item_tree_view.heading("4",text="Category")
+    item_tree_view.heading("5",text="Price")
+    item_tree_view.heading("6",text="Selling Price")
 
 def report_obj():
     report_frame= Frame(root,width=1670,height=1060,bg=frame_color)

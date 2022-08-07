@@ -132,11 +132,11 @@ def menu_frame_obj():
         reports_btn.place(relx = 0.475, rely = y, anchor = CENTER)
         y+=add
         billing_btn.place(relx = 0.475, rely = y, anchor = CENTER)
-    place_menu(0)
-    top_scrollbar= Button(menu_frame,text="v",width=2,fg=element_color,bg=menu_button_color,command=lambda:[place_menu(0.1)])
+    place_menu(-0.1)
+    '''top_scrollbar= Button(menu_frame,text="v",width=2,fg=element_color,bg=menu_button_color,command=lambda:[place_menu(0.1)])
     top_scrollbar.place(relx = 0.95, rely = 0.5, anchor = CENTER)
     bottom_scrollbar=Button(menu_frame,text="^",width=2,fg=element_color,bg=menu_button_color,command=lambda:[place_menu(-0.1)])
-    bottom_scrollbar.place(relx = 0.95, rely = 0.4, anchor = CENTER)
+    bottom_scrollbar.place(relx = 0.95, rely = 0.4, anchor = CENTER)'''
 
 
 def company_details_obj():
@@ -447,22 +447,22 @@ def dealer_obj():
     dealer_frame.propagate(0)
 
     dealer_lbl=Label(dealer_frame,text="Dealer Details",font=book_antiqua_size18,bg=frame_color,fg=element_color)
-    dealer_lbl.place(relx = 0.4, rely = 0.065, anchor = NW)
+    dealer_lbl.place(relx = 0.4, rely = 0.008, anchor = NW)
 
     #dealer Name
     dealer_name_lbl=Label(dealer_frame,text="Dealer Name",font=book_antiqua,bg=frame_color,fg=element_color)
-    dealer_name_lbl.place(relx = 0.0385, rely = 0.19, anchor = NW)
+    dealer_name_lbl.place(relx = 0.04, rely = 0.075, anchor = NW)
 
     dealer_name_tb=Entry(dealer_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=20)
-    dealer_name_tb.place(relx = 0.115, rely = 0.19, anchor = NW)
+    dealer_name_tb.place(relx = 0.105, rely = 0.075, anchor = NW)
 
     #dealer add button
     dealer_add_btn=Button(dealer_frame,fg=element_color,bg=frame_button_color,text="Search",width = 15,border=4,command=lambda:[])
-    dealer_add_btn.place(relx = 0.25, rely = 0.19, anchor = NW)
+    dealer_add_btn.place(relx = 0.25, rely = 0.075, anchor = NW)
 
     #item treeview element
-    dealer_tree_view= Treeview(dealer_frame,selectmode='browse',height=23)
-    dealer_tree_view.place(relx = 0.04, rely = 0.23, anchor = NW)
+    dealer_tree_view= Treeview(dealer_frame,selectmode='browse',height=21)
+    dealer_tree_view.place(relx = 0.04, rely = 0.11, anchor = NW)
 
     #verticle scrollbar
     #vertical_scrollbar=Scrollbar(billing_frame,orient="vertical",command=tree_view.yview)
@@ -491,19 +491,19 @@ def dealer_obj():
 
     #dealer refresh btn
     dealer_refresh_btn=Button(dealer_frame,fg=element_color,bg=frame_button_color,text="Delete",width = 15,border=4,command=lambda:[])
-    dealer_refresh_btn.place(relx = 0.04, rely = 0.7, anchor = NW)
+    dealer_refresh_btn.place(relx = 0.04, rely = 0.535, anchor = NW)
 
     #dealer Delete btn
     dealer_delete_btn=Button(dealer_frame,fg=element_color,bg=frame_button_color,text="Refresh",width = 15,border=4,command=lambda:[])
-    dealer_delete_btn.place(relx = 0.12, rely = 0.7, anchor = NW)
+    dealer_delete_btn.place(relx = 0.12, rely = 0.535, anchor = NW)
 
     #dealer Edit btn
     dealer_edit_btn=Button(dealer_frame,fg=element_color,bg=frame_button_color,text="Edit",width = 15,border=4,command=lambda:[])
-    dealer_edit_btn.place(relx = 0.2, rely = 0.7, anchor = NW)
+    dealer_edit_btn.place(relx = 0.2, rely = 0.535, anchor = NW)
 
     #Show details btn
     dealer_show_details_btn=Button(dealer_frame,fg=element_color,bg=frame_button_color,text="Show Details",width = 16,border=4,command=lambda:[])
-    dealer_show_details_btn.place(relx = 0.424, rely = 0.7, anchor = NW)
+    dealer_show_details_btn.place(relx = 0.424, rely = 0.535, anchor = NW)
 
 '''def customer_detail_obj():
     customer_detail_frame=Frame(root,width=1670,height=1060,bg=frame_color)
@@ -573,57 +573,57 @@ def item_obj():
     item_frame.grid(row=0,column=1)
     item_frame.propagate(0)
 
-    item_lbl=Label(item_frame,text="Add/Search Items",font=book_antiqua_size18,bg=frame_color,fg=element_color)
-    item_lbl.place(relx = 0.4, rely = 0.065, anchor = NW)
+    item_lbl=Label(item_frame,text="Search\Edit Items",font=book_antiqua_size18,bg=frame_color,fg=element_color)
+    item_lbl.place(relx = 0.4, rely = 0.008, anchor = NW)
 
     #item refresh btn
     item_refresh_btn=Button(item_frame,fg=element_color,bg=frame_button_color,text="Delete",width = 15,border=4,command=lambda:[])
-    item_refresh_btn.place(relx = 0.03, rely = 0.67, anchor = NW)
+    item_refresh_btn.place(relx = 0.03, rely = 0.56, anchor = NW)
 
     #item Delete btn
     item_delete_btn=Button(item_frame,fg=element_color,bg=frame_button_color,text="Refresh",width = 15,border=4,command=lambda:[])
-    item_delete_btn.place(relx = 0.11, rely = 0.67, anchor = NW)
+    item_delete_btn.place(relx = 0.11, rely = 0.56, anchor = NW)
 
     #item Edit btn
     item_edit_btn=Button(item_frame,fg=element_color,bg=frame_button_color,text="Edit",width = 15,border=4,command=lambda:[])
-    item_edit_btn.place(relx = 0.19, rely = 0.67, anchor = NW)
+    item_edit_btn.place(relx = 0.19, rely = 0.56, anchor = NW)
 
     item_add_btn=Button(item_frame,fg=element_color,bg=frame_button_color,text="Add",width = 15,border=4,command=lambda:[])
-    item_add_btn.place(relx = 0.4, rely = 0.67, anchor = NW)
+    item_add_btn.place(relx = 0.4, rely = 0.56, anchor = NW)
 
-    #Id auto gen label
+    #Id label
     item_id_tb=Entry(item_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=11)
-    item_id_tb.place(relx = 0.03, rely = 0.17, anchor = NW)
+    item_id_tb.place(relx = 0.03, rely = 0.131, anchor = NW)
     item_id_tb.insert(0, 'Item Id')
     item_id_tb.bind("<FocusIn>", lambda args: item_id_tb.delete('0', 'end'))
 
     #Item Name TextBox
     item_name_tb=Entry(item_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=26)
-    item_name_tb.place(relx = 0.0925, rely = 0.17, anchor = NW)
+    item_name_tb.place(relx = 0.0925, rely = 0.131, anchor = NW)
     item_name_tb.insert(0, 'Item Name')
     item_name_tb.bind("<FocusIn>", lambda args: item_name_tb.delete('0', 'end'))
 
     #Quantity TextBox
     item_quantity_tb=Entry(item_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=14)
-    item_quantity_tb.place(relx = 0.239, rely = 0.17, anchor = NW)
+    item_quantity_tb.place(relx = 0.239, rely = 0.131, anchor = NW)
     item_quantity_tb.insert(0, 'Stock')
     item_quantity_tb.bind("<FocusIn>", lambda args: item_quantity_tb.delete('0', 'end'))
 
     #Price TextBox
     item_price_tb=Entry(item_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=13)
-    item_price_tb.place(relx = 0.32, rely = 0.17, anchor = NW)
+    item_price_tb.place(relx = 0.32, rely = 0.131, anchor = NW)
     item_price_tb.insert(0, 'Price')
     item_price_tb.bind("<FocusIn>", lambda args: item_price_tb.delete('0', 'end'))
 
     #Selling Price
     selling_price_tb=Entry(item_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=14)
-    selling_price_tb.place(relx = 0.395, rely = 0.17, anchor = NW)
+    selling_price_tb.place(relx = 0.395, rely = 0.131, anchor = NW)
     selling_price_tb.insert(0, 'Selling Price')
     selling_price_tb.bind("<FocusIn>", lambda args: selling_price_tb.delete('0', 'end'))
 
     #item treeview element
-    item_tree_view= Treeview(item_frame,selectmode='browse',height=23)
-    item_tree_view.place(relx = 0.03, rely = 0.2, anchor = NW)
+    item_tree_view= Treeview(item_frame,selectmode='browse',height=20)
+    item_tree_view.place(relx = 0.03, rely = 0.154, anchor = NW)
 
     #verticle scrollbar
     #vertical_scrollbar=Scrollbar(billing_frame,orient="vertical",command=tree_view.yview)
@@ -641,7 +641,7 @@ def item_obj():
     item_tree_view.column("2",width=250)
     item_tree_view.column("3",width=130)
     item_tree_view.column("4",width=130)
-    item_tree_view.column("5",width=130)
+    item_tree_view.column("5",width=134)
 
     #assigning heading name
     item_tree_view.heading("1",text="Id")
@@ -844,6 +844,6 @@ def billing_obj():
 
 menu_frame_obj()
 #company_details_obj()
-purchase_obj()
+item_obj()
 
 root.mainloop()

@@ -75,8 +75,8 @@ if "__main__"==__name__:
     height = root.winfo_screenheight()
     root.geometry("%dx%d" % (width, height))
     #wont allow to resize window, and full screen when opening
-    root.resizable(False,False)
-    root.state('zoomed')
+    '''root.resizable(False,False)
+    root.state('zoomed')'''
 
     #Logo
 menu_frame= Frame(root,bg="#161719",width=250,height=1060)
@@ -202,87 +202,87 @@ def purchase_obj():
     purchase_frame.propagate(0)
 
     purchase_details_lbl=Label(purchase_frame,text="Purchase Products",font=book_antiqua_size18,bg=frame_color,fg=element_color)
-    purchase_details_lbl.place(relx = 0.4, rely = 0.01, anchor = NW)
+    purchase_details_lbl.place(relx = 0.4, rely = 0.008, anchor = NW)
 
     #Dealer name
     dealer_name_lbl=Label(purchase_frame,text="Dealer Name",font=book_antiqua,bg=frame_color,fg=element_color)
-    dealer_name_lbl.place(relx = 0.04, rely = 0.08, anchor = NW)
+    dealer_name_lbl.place(relx = 0.04, rely = 0.075, anchor = NW)
 
-    dealer_name_tb=Entry(purchase_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=25)
-    dealer_name_tb.place(relx = 0.105, rely = 0.08, anchor = NW)
+    dealer_name_tb=Entry(purchase_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=20)
+    dealer_name_tb.place(relx = 0.105, rely = 0.075, anchor = NW)
 
     #Dealer Gstin
     dealer_gstin_lbl=Label(purchase_frame,text="GSTIN",font=book_antiqua,bg=frame_color,fg=element_color)
-    dealer_gstin_lbl.place(relx = 0.265, rely = 0.08, anchor = NW)
+    dealer_gstin_lbl.place(relx = 0.265, rely = 0.075, anchor = NW)
 
     dealer_gstin_tb=Entry(purchase_frame,fg=element_color,bg=entry_box_color,font=arial,border=4)
-    dealer_gstin_tb.place(relx = 0.3, rely = 0.08, anchor = NW)
+    dealer_gstin_tb.place(relx = 0.305, rely = 0.075, anchor = NW)
 
     #Purchase Date
     purchase_date_lbl=Label(purchase_frame,text="Date",font=book_antiqua,bg=frame_color,fg=element_color)
-    purchase_date_lbl.place(relx = 0.43, rely = 0.08, anchor = NW)
+    purchase_date_lbl.place(relx = 0.37, rely = 0.162, anchor = NW)
 
     #date
     today = date.today()
     purchase_date= DateEntry(purchase_frame, width= 16,height=0, background= "grey", foreground= "white",bd=4, maxdate=today)
-    purchase_date.place(relx = 0.455, rely = 0.08, anchor = NW)
+    purchase_date.place(relx = 0.40, rely = 0.162, anchor = NW)
 
     #Purchase INvoice Number
     invoice_number_lbl=Label(purchase_frame,text="Invoice Number",font=book_antiqua,bg=frame_color,fg=element_color)
-    invoice_number_lbl.place(relx =0.43, rely = 0.13, anchor = NW)
+    invoice_number_lbl.place(relx =0.23, rely = 0.16, anchor = NW)
 
-    invoice_number_tb=Entry(purchase_frame,fg=element_color,bg=entry_box_color,font=arial,border=4)
-    invoice_number_tb.place(relx = 0.43, rely = 0.08, anchor = NW)
+    invoice_number_tb=Entry(purchase_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=8)
+    invoice_number_tb.place(relx = 0.305, rely = 0.16, anchor = NW)
 
     #dealer Address
     purchase_dealer_address_lbl=Label(purchase_frame,text="Address",font=book_antiqua,bg=frame_color,fg=element_color)
-    purchase_dealer_address_lbl.place(relx = 0.06, rely = 0.13, anchor = NW)
+    purchase_dealer_address_lbl.place(relx = 0.06, rely = 0.12, anchor = NW)
 
     purchase_dealer_address_tb=Text(purchase_frame, width=20, height=3,fg=element_color,bg=entry_box_color,font=arial,border=4)
-    purchase_dealer_address_tb.place(relx = 0.105, rely = 0.13, anchor = NW)
+    purchase_dealer_address_tb.place(relx = 0.105, rely = 0.12, anchor = NW)
 
     #dealer contact
     purchase_dealer_contact_lbl=Label(purchase_frame,text="Contact",font=book_antiqua,bg=frame_color,fg=element_color)
-    purchase_dealer_contact_lbl.place(relx = 0.26, rely = 0.13, anchor = NW)
+    purchase_dealer_contact_lbl.place(relx = 0.262, rely = 0.12, anchor = NW)
 
     purchase_dealer_contact_tb=Entry(purchase_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=20)
-    purchase_dealer_contact_tb.place(relx = 0.3, rely = 0.13, anchor = NW)
+    purchase_dealer_contact_tb.place(relx = 0.305, rely = 0.12, anchor = NW)
 
     #Purchase Item Code TextBox
     purchase_item_code_tb=Entry(purchase_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=14)
-    purchase_item_code_tb.place(relx = 0.03, rely = 0.185, anchor = NW)
+    purchase_item_code_tb.place(relx = 0.03, rely = 0.198, anchor = NW)
 
     #Purchase Item Name TextBox
     purchase_item_name_tb=Entry(purchase_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=28)
-    purchase_item_name_tb.place(relx = 0.11, rely = 0.185, anchor = NW)
+    purchase_item_name_tb.place(relx = 0.11, rely = 0.198, anchor = NW)
 
     #Purchase Quantity TextBox
     purchase_quantity_tb=Entry(purchase_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=10)
-    purchase_quantity_tb.place(relx = 0.266, rely = 0.185, anchor = NW)
+    purchase_quantity_tb.place(relx = 0.266, rely = 0.198, anchor = NW)
 
     #Purchase Price
     purchase_price_tb=Entry(purchase_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=10)
-    purchase_price_tb.place(relx = 0.325, rely = 0.185, anchor = NW)
+    purchase_price_tb.place(relx = 0.325, rely = 0.198, anchor = NW)
 
     #Purchase Add Button
     purchase_add_update_btn=Button(purchase_frame,fg=element_color,bg=frame_button_color,text="Add",width = 21,border=4,command=lambda:[check_entry_condition()])
-    purchase_add_update_btn.place(relx = 0.384, rely = 0.185, anchor = NW)
+    purchase_add_update_btn.place(relx = 0.384, rely = 0.198, anchor = NW)
 
     #Purchase Delete Button
     purchase_delete_btn=Button(purchase_frame,fg=element_color,bg=frame_button_color,text="Delete",width = 21,border=4,command=lambda:[delete_purchase_item()])
-    purchase_delete_btn.place(relx = 0.03, rely = 0.67, anchor = NW)
+    purchase_delete_btn.place(relx = 0.03, rely = 0.645, anchor = NW)
 
     #clear all button
     purchase_clearall_btn=Button(purchase_frame,fg=element_color,bg=frame_button_color,text="clear All",width = 21,border=4,command=lambda:[delete_all_purchase_item()])
-    purchase_clearall_btn.place(relx = 0.13, rely = 0.67, anchor = NW)
+    purchase_clearall_btn.place(relx = 0.13, rely = 0.645, anchor = NW)
     
     #Purchase Total
     purchase_total_lbl=Label(purchase_frame,text="0000.00",font=book_antiqua_size18,bg=frame_color,fg=element_color)
-    purchase_total_lbl.place(relx = 0.4, rely = 0.675, anchor = NW)
+    purchase_total_lbl.place(relx = 0.41, rely = 0.65, anchor = NW)
 
     #Purchase save
     purchase_print_button=Button(purchase_frame,fg=element_color,bg=frame_button_color,text="Save",width = 16,height=2,border=4,command=lambda:[save_purchase_data_to_database(),invoice_number_update()])
-    purchase_print_button.place(relx = 0.4, rely = 0.675, anchor = NW)
+    purchase_print_button.place(relx = 0.32, rely = 0.65, anchor = NW)
     
     #get all data
     def invoice_number_update():
@@ -412,8 +412,8 @@ def purchase_obj():
             print("Error - ",err)
 
     #treeview element
-    purchase_tree_view= Treeview(purchase_frame,selectmode='browse',height=23)
-    purchase_tree_view.place(relx = 0.03, rely = 0.21, anchor = NW)
+    purchase_tree_view= Treeview(purchase_frame,selectmode='browse',height=21)
+    purchase_tree_view.place(relx = 0.03, rely = 0.225, anchor = NW)
 
     #verticle scrollbar
     #vertical_scrollbar=Scrollbar(billing_frame,orient="vertical",command=tree_view.yview)

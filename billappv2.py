@@ -1,12 +1,16 @@
 #All necessary Packages
+from asyncio.windows_events import NULL
 import datetime
 from genericpath import exists
 from tkinter import *
 import sqlite3
 from tkinter import messagebox
 from tkinter.ttk import Style, Treeview
+from tkinter import ttk
 import atexit
 from os import path
+import sys
+import traceback
 import fpdf
 from json import dumps, loads
 import atexit
@@ -15,7 +19,7 @@ from tkcalendar import Calendar, DateEntry
 #font
 book_antiqua=("Helvetica Neue Light",12,"normal")
 arial=('Arial', 12)
-book_antiqua_size18=("Book Antiqua",18,"bold underline")
+book_antiqua_size18=("Book Antiqua",18,"bold")
 
 frame_color='#242729'
 
@@ -103,7 +107,7 @@ def selected_item_from_treeview(treeview_name):
             k=value[0]
             return k
 
-
+    
 
 def menu_frame_obj():
     image.place(relx = 0.45, rely = 0.075, anchor = CENTER)
@@ -248,10 +252,38 @@ def purchase_obj():
     purchase_dealer_contact_tb=Entry(purchase_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=20)
     purchase_dealer_contact_tb.place(relx = 0.305, rely = 0.12, anchor = NW)
 
-    #Purchase Item Code TextBox
-    purchase_item_code_tb=Entry(purchase_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=14)
-    purchase_item_code_tb.place(relx = 0.03, rely = 0.198, anchor = NW)
+    try:
+        con=sqlite3.connect("Store_Data.sql")
+        cur=con.cursor()
+        cur.execute("SELECT item_id,item_name FROM item_purchase_details")
+        row=cur.fetchall()
+        item_codes=[]
+        for i in row:
+            item_codes.append(i)
+        con.commit()
+        con.close()
+    except sqlite3.Error as err:
+            print("Error - ",err)
 
+    #for combox and autofill
+    def callback(*args):
+        pos=int(purchase_item_code_tb.current())
+        item_no_array=[]
+        item_name_array=[]
+        for j in item_codes:
+            item_no_array.append(j[0])
+            item_name_array.append(j[1])
+        purchase_item_code_tb.delete(0,END)
+        purchase_item_name_tb.delete(0,END)
+        purchase_item_code_tb.insert(0,item_no_array[pos])
+        purchase_item_name_tb.insert(0,item_name_array[pos])
+    
+    #Purchase Item Code TextBox
+    style.configure("TCombobox", fg= element_color, bg= entry_box_color)
+    purchase_item_code_tb=ttk.Combobox(purchase_frame,values=item_codes,font=arial,width=13)
+    purchase_item_code_tb.place(relx = 0.03, rely = 0.202, anchor = NW)
+    purchase_item_code_tb.bind('<<ComboboxSelected>>', callback)
+    
     #Purchase Item Name TextBox
     purchase_item_name_tb=Entry(purchase_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=28)
     purchase_item_name_tb.place(relx = 0.11, rely = 0.198, anchor = NW)
@@ -302,7 +334,8 @@ def purchase_obj():
     invoice_number_update()
 
     def check_entry_condition():
-        if len(invoice_number_tb.get()) ==0 or len(dealer_name_tb.get()) ==0 or len(purchase_dealer_address_tb.get()) ==0 or len(purchase_dealer_contact_tb.get()) ==0 or len(purchase_item_code_tb.get()) ==0 or len(purchase_item_name_tb.get()) ==0 or len(purchase_quantity_tb.get()) ==0 or len(purchase_price_tb.get()) ==0:
+
+        if len(invoice_number_tb.get()) ==0 or len(dealer_name_tb.get()) ==0 or len(purchase_dealer_address_tb.get(1.0, END)) ==0 or len(purchase_dealer_contact_tb.get()) ==0 or len(purchase_item_code_tb.get()) ==0 or len(purchase_item_name_tb.get()) ==0 or len(purchase_quantity_tb.get()) ==0 or len(purchase_price_tb.get()) ==0:
             messagebox.showerror(title='Error', message="Enter All Fields\n(GSTIN not Mandatory)")
         elif any(ch.isdigit() or not ch.isalnum() for ch in dealer_name_tb.get()):
             messagebox.showerror(title='Error', message="Dealer Name \ncannot have number or special charecter")
@@ -310,9 +343,9 @@ def purchase_obj():
             messagebox.showerror(title='Error', message="Contact Number \ncannot have Letter or special charecter")
         elif any(not ch.isdigit() for ch in purchase_item_code_tb.get()):
             messagebox.showerror(title='Error', message="Item Code \ncannot have Letter or special charecter")
-        elif any(not ch.isdecimal() for ch in purchase_quantity_tb.get()):
+        if any(ch.isalpha() for ch in purchase_quantity_tb.get()):
             messagebox.showerror(title='Error', message="Quantity \ncannot have Letter or special charecter")
-        elif any(not ch.isdecimal() for ch in purchase_price_tb.get()):
+        elif any(ch.isalpha() for ch in purchase_price_tb.get()):
             messagebox.showerror(title='Error', message="Price \ncannot have Letter or special charecter")
         else:
             add_purchase_item()
@@ -321,7 +354,7 @@ def purchase_obj():
         invoice_number=int(invoice_number_tb.get())
         dealer_name=dealer_name_tb.get()
         dealer_gstin=dealer_gstin_tb.get()
-        purchase_dealer_address=purchase_dealer_address_tb.get()
+        purchase_dealer_address=purchase_dealer_address_tb.get(1.0, END)
         purchase_dealer_contact=purchase_dealer_contact_tb.get()
         
         global dealer_data
@@ -337,10 +370,10 @@ def purchase_obj():
             con=sqlite3.connect("Store_Data.sql")
             cur=con.cursor()
             #cur.execute("CREATE TABLE IF NOT EXISTS temp_dealer_purchase_details(invoice_number int(10) PRIMARY KEY NOT NULL,dealer_name varhcar(20),dealer_gstin varhcar(20),dealer_address varhcar(30),dealer_contact int(12))")
-            cur.execute("CREATE TABLE IF NOT EXISTS temp_item_purchase_details(item_id int(15) PRIMARY KEY,date date,item_name varhcar(30),purchase_quantity REAL,buying_price REAL,total_price REAL)")
+            cur.execute("CREATE TABLE IF NOT EXISTS temp_item_purchase_details(item_id int(15) PRIMARY KEY,date date,item_name varhcar(30),purchase_quantity FLOAT,buying_price FLOAT,total_price FLOAT)")
             
             #cur.execute("INSERT INTO temp_dealer_purchase_details(invoice_number,dealer_name,dealer_gstin,dealer_address,dealer_contact)VALUES({},'{}','{}','{}',{})".format(invoice_number,dealer_name,dealer_gstin,purchase_dealer_address,purchase_dealer_contact))
-            cur.execute("INSERT INTO temp_item_purchase_details(item_id,date,item_name,purchase_quantity,buying_price,total_price)VALUES({},'{}','{}',{:.2f},{:.2f},{:.2f})".format(purchase_item_code,date,purchase_item_name,purchase_quantity,purchase_price,purchase_total))
+            cur.execute("INSERT INTO temp_item_purchase_details(item_id,date,item_name,purchase_quantity,buying_price,total_price)VALUES({},'{}','{}',{:.2f},{:.2f},{:.2f})".format(purchase_item_code,date,purchase_item_name,purchase_quantity,purchase_price,float(purchase_total)))
             
             cur.execute("SELECT item_id,item_name,purchase_quantity,buying_price,total_price FROM temp_item_purchase_details")
             row=cur.fetchall()
@@ -352,12 +385,16 @@ def purchase_obj():
             total=cur.fetchall()
             purchase_total_lbl.configure(text="{:.2f}".format(total[0][0]))
             
-
             con.commit()
             con.close()
         except sqlite3.Error as err:
-            messagebox.showerror(title='Error', message="Item Code cannot repeat")
             print("Error - ",err)
+            error_message=str(err)
+            print(error_message[0:24])
+            if error_message[0:24]=='UNIQUE constraint failed':
+                messagebox.showerror(title='Error', message="Item Code cannot repeat")
+            con.close()
+
 
     def delete_purchase_item():
         k=selected_item_from_treeview(purchase_tree_view)
@@ -405,9 +442,9 @@ def purchase_obj():
             for i in row:
                 cur.execute("INSERT INTO item_purchase_details(item_id,date,item_name,purchase_quantity,buying_price,total_price)VALUES({},'{}','{}',{:.2f},{:.2f},{:.2f})".format(i[0],i[1],i[2],i[3],i[4],i[5]))
             messagebox.showinfo(title='Saved', message="Products Added to inventory")
-            delete_all_purchase_item()
             con.commit()
             con.close()
+            delete_all_purchase_item()
         except sqlite3.Error as err:
             print("Error - ",err)
 
@@ -440,6 +477,8 @@ def purchase_obj():
     purchase_tree_view.heading("4",text="Price")
     purchase_tree_view.heading("5",text="Total")
 
+    delete_all_purchase_item()
+
 
 def dealer_obj():
     dealer_frame= Frame(root,width=1670,height=1060,bg=frame_color)
@@ -455,14 +494,31 @@ def dealer_obj():
 
     dealer_name_tb=Entry(dealer_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=20)
     dealer_name_tb.place(relx = 0.105, rely = 0.075, anchor = NW)
+    #dealer_name_tb.bind('<Key>', Scankey)
 
     #dealer add button
     dealer_add_btn=Button(dealer_frame,fg=element_color,bg=frame_button_color,text="Search",width = 15,border=4,command=lambda:[])
     dealer_add_btn.place(relx = 0.25, rely = 0.075, anchor = NW)
 
     #item treeview element
+    global dealer_tree_view
     dealer_tree_view= Treeview(dealer_frame,selectmode='browse',height=17)
     dealer_tree_view.place(relx = 0.04, rely = 0.105, anchor = NW)
+
+    def dealer_info():
+        try:
+            con=sqlite3.connect("Store_Data.sql")
+            cur=con.cursor()
+            '''#for i in range(100):
+                #cur.execute("INSERT INTO dealer_purchase_details (invoice_number,dealer_name,dealer_contact,dealer_address,dealer_gstin) VALUES({},'{}',{},'{}','{}')".format(i+1321,'asdf',4656546,'asdfsfad',"asdfasdf"))'''
+            cur.execute("SELECT dealer_name,dealer_contact,dealer_address,dealer_gstin from dealer_purchase_details")
+            row=cur.fetchall()
+            for i in row:
+                dealer_tree_view.insert("", 'end', text ="L1", values=(i[0],i[1],i[2],i[3]))
+            con.commit()
+            con.close()
+        except sqlite3.Error as err:
+            print("Error - ",err)
 
     #verticle scrollbar
     #vertical_scrollbar=Scrollbar(billing_frame,orient="vertical",command=tree_view.yview)
@@ -503,6 +559,7 @@ def dealer_obj():
     dealer_show_details_btn=Button(dealer_frame,fg=element_color,bg=frame_button_color,text="Show Details",width = 16,border=4,command=lambda:[])
     dealer_show_details_btn.place(relx = 0.38, rely = 0.454, anchor = NW)
 
+    dealer_info()
 '''def customer_detail_obj():
     customer_detail_frame=Frame(root,width=1670,height=1060,bg=frame_color)
     customer_detail_frame.grid(row=0,column=1)
@@ -863,9 +920,8 @@ def billing_obj():
     total_lbl=Label(billing_frame,text="RS.0000.00",font=book_antiqua_size18,bg=frame_color,fg=element_color)
     total_lbl.place(relx = 0.46, rely = 0.535, anchor = NW)
 
-
 menu_frame_obj()
 #company_details_obj()
-billing_obj()
+purchase_obj()
 
 root.mainloop()

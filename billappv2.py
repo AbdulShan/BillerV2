@@ -102,7 +102,7 @@ def selected_item_from_treeview(treeview_name,treeview_name_string):
     curItem = treeview_name.focus()
     treeview_name.item(curItem)
     selected_items =treeview_name.item(curItem)
-    if treeview_name_string=='purchase_tree_view':
+    if treeview_name_string=='purchase_tree_view' or 'item_tree_view':
         for key, value in selected_items.items():
             if key == 'values':
                 selected_treeview_item=value[0]
@@ -257,7 +257,12 @@ def purchase_obj():
 
     purchase_dealer_contact_tb=Entry(purchase_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=20)
     purchase_dealer_contact_tb.place(relx = 0.305, rely = 0.12, anchor = NW)
-
+    
+    #Purchase Item Code TextBox
+    style.configure("TCombobox", fg= element_color, bg= entry_box_color)
+    purchase_item_code_tb=ttk.Combobox(purchase_frame,values='',font=arial,width=13)
+    purchase_item_code_tb.place(relx = 0.03, rely = 0.202, anchor = NW)
+    
     try:
         con=sqlite3.connect("Store_Data.sql")
         cur=con.cursor()
@@ -266,6 +271,7 @@ def purchase_obj():
         item_codes=[]
         for i in row:
             item_codes.append(i)
+        purchase_item_code_tb.configure(values=item_codes)
         con.commit()
         con.close()
     except sqlite3.Error as err:
@@ -284,10 +290,6 @@ def purchase_obj():
         purchase_item_code_tb.insert(0,item_no_array[pos])
         purchase_item_name_tb.insert(0,item_name_array[pos])
     
-    #Purchase Item Code TextBox
-    style.configure("TCombobox", fg= element_color, bg= entry_box_color)
-    purchase_item_code_tb=ttk.Combobox(purchase_frame,values=item_codes,font=arial,width=13)
-    purchase_item_code_tb.place(relx = 0.03, rely = 0.202, anchor = NW)
     purchase_item_code_tb.bind('<<ComboboxSelected>>', callback)
     
     #Purchase Item Name TextBox
@@ -386,10 +388,12 @@ def purchase_obj():
             clear_all(purchase_tree_view)
             for i in row:
                 purchase_tree_view.insert("", 'end', text ="L1",values =(i[0],i[1],i[2],i[3],i[4]))
-
             cur.execute("SELECT SUM(total_price) FROM temp_item_purchase_details")
             total=cur.fetchall()
-            purchase_total_lbl.configure(text="{:.2f}".format(total[0][0]))
+            if len(total)==0:
+                purchase_total_lbl.configure(text="0000.00")
+            else:
+                purchase_total_lbl.configure(text="{:.2f}".format(total[0][0]))
             
             con.commit()
             con.close()
@@ -416,7 +420,11 @@ def purchase_obj():
                 purchase_tree_view.insert("", 'end', text ="L1",values =(i[0],i[1],i[2],i[3],i[4]))
             cur.execute("SELECT SUM(total_price) FROM temp_item_purchase_details")
             total=cur.fetchall()
-            purchase_total_lbl.configure(text="{:.2f}".format(total[0][0]))
+            print(len(total))
+            if len(total)<1:
+                purchase_total_lbl.configure(text="0000.00")
+            else:
+                purchase_total_lbl.configure(text="{:.2f}".format(total[0][0]))
             con.commit()
             con.close()
         except sqlite3.Error as err:
@@ -439,7 +447,7 @@ def purchase_obj():
             con=sqlite3.connect("Store_Data.sql")
             cur=con.cursor()
             cur.execute("CREATE TABLE IF NOT EXISTS dealer_purchase_details(invoice_number int(10) PRIMARY KEY NOT NULL,dealer_name varhcar(20),dealer_gstin varhcar(20),dealer_address varhcar(30),dealer_contact int(12))")
-            cur.execute("CREATE TABLE IF NOT EXISTS item_purchase_details(item_id int(15) PRIMARY KEY,date date,item_name varhcar(30),purchase_quantity REAL,buying_price REAL,total_price REAL)")
+            cur.execute("CREATE TABLE IF NOT EXISTS item_purchase_details(item_id int(15) PRIMARY KEY,date date,item_name varhcar(30),purchase_quantity REAL,buying_price REAL,total_price REAL,selling_price REAL)")
             
             cur.execute("INSERT INTO dealer_purchase_details(invoice_number,dealer_name,dealer_gstin,dealer_address,dealer_contact)VALUES({},'{}','{}','{}',{})".format(dealer_data['invoice_number'],dealer_data['dealer_name'],dealer_data['dealer_gstin'],dealer_data['purchase_dealer_address'],dealer_data['purchase_dealer_contact']))
 
@@ -484,8 +492,6 @@ def purchase_obj():
     purchase_tree_view.heading("5",text="Total")
 
     delete_all_purchase_item()
-
-
 def dealer_obj():
     dealer_frame= Frame(root,width=1670,height=1060,bg=frame_color)
     dealer_frame.grid(row=0,column=1)
@@ -665,7 +671,7 @@ def item_obj():
     item_lbl.place(relx = 0.4, rely = 0.008, anchor = NW)
 
     #item refresh btn
-    item_refresh_btn=Button(item_frame,fg=element_color,bg=frame_button_color,text="Delete",width = 15,border=4,command=lambda:[])
+    item_refresh_btn=Button(item_frame,fg=element_color,bg=frame_button_color,text="Delete",width = 15,border=4,command=lambda:[delete_item_info()])
     item_refresh_btn.place(relx = 0.03, rely = 0.496, anchor = NW)
 
     #item Delete btn
@@ -755,22 +761,35 @@ def item_obj():
         try:
             con=sqlite3.connect("Store_Data.sql")
             cur=con.cursor()
-            cur.execute("CREATE TABLE IF NOT EXISTS item_details(item_id int(15) PRIMARY KEY,item_name varhcar(30),purchase_quantity REAL,buying_price REAL,selling_price REAL)")
-            cur.execute("SELECT item_id,item_name,purchase_quantity,buying_price from item_purchase_details")
+            cur.execute("SELECT item_id,item_name,purchase_quantity,buying_price,selling_price from item_purchase_details")
             row=cur.fetchall()
             for i in row:
-                cur.execute("REPLACE INTO item_details(item_id,item_name,purchase_quantity,buying_price)VALUES({},'{}',{},{:.2f})".format(i[0],i[1],i[2],i[3]))
-            con.commit()
-            cur.execute("SELECT item_id,item_name,purchase_quantity,buying_price,selling_price from item_details")
-            row2=cur.fetchall()
-            for j in row2:
-                item_tree_view.insert("", 'end', text ="L1", values=(j[0],j[1],j[2],'',j[3],j[4]))
+                item_tree_view.insert("", 'end', text ="L1", values=(i[0],i[1],i[2],'',i[3],i[4]))
             
             con.commit()
             con.close()
         except sqlite3.Error as err:
             print("Error - ",err)
     item_info()
+
+    def delete_item_info():
+        selected_treeview_item=selected_item_from_treeview(item_tree_view,'item_tree_view')
+        print(selected_treeview_item)
+        try:
+            con=sqlite3.connect("Store_Data.sql")
+            cur=con.cursor()
+            cur.execute("DELETE FROM item_purchase_details where item_id={}".format(selected_treeview_item))
+            con.commit()
+            cur.execute("SELECT item_id,item_name,purchase_quantity,buying_price,selling_price from item_purchase_details")
+            row=cur.fetchall()
+            clear_all(item_tree_view)
+            for i in row:
+                item_tree_view.insert("", 'end', text ="L1",values =(i[0],i[1],i[2],i[3]))
+            con.commit()
+            con.close()
+        except sqlite3.Error as err:
+            print("Error - ",err)
+        
 
 def report_obj():
     report_frame= Frame(root,width=1670,height=1060,bg=frame_color)

@@ -759,14 +759,13 @@ def item_obj():
             cur.execute("SELECT item_id,item_name,purchase_quantity,buying_price from item_purchase_details")
             row=cur.fetchall()
             for i in row:
-                cur.execute("INSERT INTO item_details(item_id,item_name,purchase_quantity,buying_price)VALUES({},'{}',{},{:.2f})".format(i[0],i[1],i[2],i[3]))
+                cur.execute("REPLACE INTO item_details(item_id,item_name,purchase_quantity,buying_price)VALUES({},'{}',{},{:.2f})".format(i[0],i[1],i[2],i[3]))
             con.commit()
             cur.execute("SELECT item_id,item_name,purchase_quantity,buying_price,selling_price from item_details")
             row2=cur.fetchall()
-            print(row2)
             for j in row2:
-                item_tree_view.insert("", 'end', text ="L1", values=(j[0],j[1],j[2],j[3],j[4]))
-            cur.execute("DROP TABLE item_details")
+                item_tree_view.insert("", 'end', text ="L1", values=(j[0],j[1],j[2],'',j[3],j[4]))
+            
             con.commit()
             con.close()
         except sqlite3.Error as err:

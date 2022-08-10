@@ -190,14 +190,17 @@ def company_details_obj():
         if company_name_tb.get() =="" or company_adress_tb.get() =="" or company_gstin_tb.get() =="" or company_contact_number_tb.get() =="":
             messagebox.showerror(title='Error', message="Enter All Fields")
         else:
-            messagebox.showinfo(title='Sucess', message="Details Updated")
-            #stores company data in company_details.json file
-            company=[]
-            company.append(company_name_tb.get())
-            company.append(company_adress_tb.get())
-            company.append(company_gstin_tb.get())
-            company.append(company_contact_number_tb.get())
-            write_counter('company_details',company)
+            if len(company_contact_number_tb.get()) >10:
+                messagebox.showerror(title='Error', message="Contact Number Must be\n less than 10 Digits")
+            else:
+                messagebox.showinfo(title='Sucess', message="Details Updated")
+                #stores company data in company_details.json file
+                company=[]
+                company.append(company_name_tb.get())
+                company.append(company_adress_tb.get())
+                company.append(company_gstin_tb.get())
+                company.append(company_contact_number_tb.get())
+                write_counter('company_details',company)
 
     if path.exists("company_details.json"):
         current_company_details=read_counter('company_details')
@@ -205,6 +208,8 @@ def company_details_obj():
         company_adress_tb.insert(0,current_company_details[1])
         company_gstin_tb.insert(0,current_company_details[2])
         company_contact_number_tb.insert(0,current_company_details[3])
+    
+    
 
 def purchase_obj():
     purchase_frame= Frame(root,width=1670,height=1060,bg=frame_color)
@@ -342,7 +347,6 @@ def purchase_obj():
     invoice_number_update()
 
     def check_entry_condition():
-
         if len(invoice_number_tb.get()) ==0 or len(dealer_name_tb.get()) ==0 or len(purchase_dealer_address_tb.get(1.0, END)) ==0 or len(purchase_dealer_contact_tb.get()) ==0 or len(purchase_item_code_tb.get()) ==0 or len(purchase_item_name_tb.get()) ==0 or len(purchase_quantity_tb.get()) ==0 or len(purchase_price_tb.get()) ==0:
             messagebox.showerror(title='Error', message="Enter All Fields\n(GSTIN not Mandatory)")
         elif any(ch.isdigit() or not ch.isalnum() for ch in dealer_name_tb.get()):
@@ -390,12 +394,11 @@ def purchase_obj():
                 purchase_tree_view.insert("", 'end', text ="L1",values =(i[0],i[1],i[2],i[3],i[4]))
             cur.execute("SELECT SUM(total_price) FROM temp_item_purchase_details")
             total=cur.fetchall()
-            if len(total)==0:
+            con.commit()
+            if len(total)<1:
                 purchase_total_lbl.configure(text="0000.00")
             else:
-                purchase_total_lbl.configure(text="{:.2f}".format(total[0][0]))
-            
-            con.commit()
+                purchase_total_lbl.configure(text="{:.2f}".format(float(total[0][0])))
             con.close()
         except sqlite3.Error as err:
             print("Error - ",err)
@@ -408,7 +411,6 @@ def purchase_obj():
 
     def delete_purchase_item():
         selected_treeview_item=selected_item_from_treeview(purchase_tree_view,'purchase_tree_view')
-
         try:
             con=sqlite3.connect("Store_Data.sql")
             cur=con.cursor()
@@ -421,10 +423,11 @@ def purchase_obj():
             cur.execute("SELECT SUM(total_price) FROM temp_item_purchase_details")
             total=cur.fetchall()
             print(len(total))
-            if len(total)<1:
+            print(total)
+            if str(total[0][0])=='None':
                 purchase_total_lbl.configure(text="0000.00")
             else:
-                purchase_total_lbl.configure(text="{:.2f}".format(total[0][0]))
+                purchase_total_lbl.configure(text="{:.2f}".format(float(total[0][0])))
             con.commit()
             con.close()
         except sqlite3.Error as err:

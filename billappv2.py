@@ -353,7 +353,7 @@ def purchase_obj():
             messagebox.showerror(title='Error', message="Dealer Name \ncannot have number or special charecter")
         elif any(not ch.isdigit() for ch in purchase_dealer_contact_tb.get()):
             messagebox.showerror(title='Error', message="Contact Number \ncannot have Letter or special charecter")
-        elif purchase_dealer_contact_tb>10:
+        elif len(purchase_dealer_contact_tb.get())>10:
             messagebox.showerror(title='Error', message="Contact Number \ncannot exceed 10 Digits")
         elif any(not ch.isdigit() for ch in purchase_item_code_tb.get()):
             messagebox.showerror(title='Error', message="Item Code \ncannot have Letter or special charecter")
@@ -931,7 +931,7 @@ def billing_obj():
     billing_discount_tb.bind("<FocusIn>", lambda args: billing_discount_tb.delete('0', 'end'))
     
     #Add Button
-    billing_add_update_btn=Button(billing_frame,fg=element_color,bg=frame_button_color,text="Add",width = 15,border=4,command=lambda:[])
+    billing_add_update_btn=Button(billing_frame,fg=element_color,bg=frame_button_color,text="Add",width = 15,border=4,command=lambda:[check_entry_condition()])
     billing_add_update_btn.place(relx = 0.47, rely = 0.15, anchor = NW)
 
     #treeview element
@@ -1001,17 +1001,18 @@ def billing_obj():
     total_lbl.place(relx = 0.46, rely = 0.535, anchor = NW)
     
     def check_entry_condition():
-        if len(billing_customer_name_tb.get()) ==0 or len(billing_item_code_tb.get()) ==0 or len(billing_item_name_tb.get(1.0, END)) ==0 or len(billing_quantity_tb.get()) ==0:
+        if len(billing_customer_name_tb.get()) ==0 or len(billing_item_code_tb.get()) ==0 or len(billing_item_name_tb.get()) ==0 or len(billing_quantity_tb.get()) ==0:
             messagebox.showerror(title='Error', message="Enter All Fields\n(GSTIN not Mandatory)")
-        elif any(ch.isdigit() or not ch.isalnum() for ch in billing_item_name_tb.get()):
+        elif any(ch.isdigit() or not ch.isalnum() for ch in billing_customer_name_tb.get()):
             messagebox.showerror(title='Error', message="Customer Name \ncannot have number or special charecter")
-        
+        elif any(not ch.isdigit() for ch in billing_mobile_tb.get()):
+            messagebox.showerror(title='Error', message="Mobile Number \ncannot have Letter or special charecter")
+        elif len(billing_mobile_tb.get())>10:
+            messagebox.showerror(title='Error', message="Mobile Number \ncannot exceed 10 Digits")
         elif any(not ch.isdigit() for ch in billing_item_code_tb.get()):
             messagebox.showerror(title='Error', message="Item Code \ncannot have Letter or special charecter")
         elif any(ch.isalpha() for ch in billing_quantity_tb.get()):
             messagebox.showerror(title='Error', message="Quantity \ncannot have Letter")
-        elif billing_mobile_tb>10:
-            messagebox.showerror(title='Error', message="Mobile Number \ncannot exceed 10 Digits")
         else:
             #continues
             print()

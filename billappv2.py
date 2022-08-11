@@ -246,7 +246,7 @@ def purchase_obj():
     invoice_number_lbl=Label(purchase_frame,text="Invoice Number",font=book_antiqua,bg=frame_color,fg=element_color)
     invoice_number_lbl.place(relx =0.23, rely = 0.16, anchor = NW)
 
-    invoice_number_tb=Entry(purchase_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=8)
+    invoice_number_tb=Entry(purchase_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=10)
     invoice_number_tb.place(relx = 0.305, rely = 0.16, anchor = NW)
 
     #dealer Address
@@ -353,9 +353,11 @@ def purchase_obj():
             messagebox.showerror(title='Error', message="Dealer Name \ncannot have number or special charecter")
         elif any(not ch.isdigit() for ch in purchase_dealer_contact_tb.get()):
             messagebox.showerror(title='Error', message="Contact Number \ncannot have Letter or special charecter")
+        elif purchase_dealer_contact_tb>10:
+            messagebox.showerror(title='Error', message="Contact Number \ncannot exceed 10 Digits")
         elif any(not ch.isdigit() for ch in purchase_item_code_tb.get()):
             messagebox.showerror(title='Error', message="Item Code \ncannot have Letter or special charecter")
-        if any(ch.isalpha() for ch in purchase_quantity_tb.get()):
+        elif any(ch.isalpha() for ch in purchase_quantity_tb.get()):
             messagebox.showerror(title='Error', message="Quantity \ncannot have Letter or special charecter")
         elif any(ch.isalpha() for ch in purchase_price_tb.get()):
             messagebox.showerror(title='Error', message="Price \ncannot have Letter or special charecter")
@@ -686,12 +688,8 @@ def item_obj():
     item_edit_btn.place(relx = 0.19, rely = 0.496, anchor = NW)
 
     #item Save btn
-    item_save_btn=Button(item_frame,fg=element_color,bg=frame_button_color,text="Save",width = 15,border=4,command=lambda:[])
-    item_save_btn.place(relx = 0.27, rely = 0.496, anchor = NW)
-
-    #item Add btn
-    item_add_btn=Button(item_frame,fg=element_color,bg=frame_button_color,text="Add",width = 15,border=4,command=lambda:[])
-    item_add_btn.place(relx = 0.422, rely = 0.496, anchor = NW)
+    item_save_btn=Button(item_frame,fg=element_color,bg=frame_button_color,text="Save",width = 15,border=4,command=lambda:[check_item_entry_condition()])
+    item_save_btn.place(relx = 0.422, rely = 0.496, anchor = NW)
 
     #Id label
     item_id_tb=Entry(item_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=11)
@@ -792,6 +790,19 @@ def item_obj():
             con.close()
         except sqlite3.Error as err:
             print("Error - ",err)
+    
+    def check_item_entry_condition():
+        if any(not ch.isdigit() for ch in item_id_tb.get()):
+            messagebox.showerror(title='Error', message="Item Id \ncannot have Letter or special charecter")
+        elif any(not ch.isdigit() for ch in item_quantity_tb.get()):
+            messagebox.showerror(title='Error', message="Item Quantity \ncannot have Letter")
+        elif any(ch.isalpha() for ch in item_price_tb.get()):
+            messagebox.showerror(title='Error', message="Item Price \ncannot have Letter")
+        elif any(ch.isalpha() for ch in selling_price_tb.get()):
+            messagebox.showerror(title='Error', message="Selling Price \ncannot have Letter")
+        else:
+            #item_edit()
+            print()
         
 
 def report_obj():
@@ -988,6 +999,22 @@ def billing_obj():
     #Total
     total_lbl=Label(billing_frame,text="RS.0000.00",font=book_antiqua_size18,bg=frame_color,fg=element_color)
     total_lbl.place(relx = 0.46, rely = 0.535, anchor = NW)
+    
+    def check_entry_condition():
+        if len(billing_customer_name_tb.get()) ==0 or len(billing_item_code_tb.get()) ==0 or len(billing_item_name_tb.get(1.0, END)) ==0 or len(billing_quantity_tb.get()) ==0:
+            messagebox.showerror(title='Error', message="Enter All Fields\n(GSTIN not Mandatory)")
+        elif any(ch.isdigit() or not ch.isalnum() for ch in billing_item_name_tb.get()):
+            messagebox.showerror(title='Error', message="Customer Name \ncannot have number or special charecter")
+        
+        elif any(not ch.isdigit() for ch in billing_item_code_tb.get()):
+            messagebox.showerror(title='Error', message="Item Code \ncannot have Letter or special charecter")
+        elif any(ch.isalpha() for ch in billing_quantity_tb.get()):
+            messagebox.showerror(title='Error', message="Quantity \ncannot have Letter")
+        elif billing_mobile_tb>10:
+            messagebox.showerror(title='Error', message="Mobile Number \ncannot exceed 10 Digits")
+        else:
+            #continues
+            print()
 
 menu_frame_obj()
 #company_details_obj()

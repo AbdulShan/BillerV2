@@ -32,6 +32,8 @@ frame_button_color='#165a72'
 tree_view_color_bg='#242729'
 tree_view_color_fg='#242729'
 
+selection_color='darkblue'
+
 menu_button_height=4
 
 
@@ -43,7 +45,7 @@ datesorted=date.strftime("%d-%m-%Y")
 def read_counter(filename):
     #reads the Bill number from the counter.json file
     if path.exists("{}.json".format(filename)):
-            if filename=='company_details':
+            if filename=='company_details' or 'cleaner':
                 return loads(open("{}.json".format(filename), "r").read())
             elif filename=='bill_number':
                 return loads(open("{}.json".format(filename), "r").read()) + 1 if path.exists("{}.json".format(filename)) else 0
@@ -113,11 +115,36 @@ def selected_item_from_treeview(treeview_name,treeview_name_string):
                 selected_treeview_item=value[3]
                 return selected_treeview_item
 
-    
+def delete_previous_frame(frame_name,frame_var):
+    if frame_name=='company_details_frame':
+        code='{}.destroy()'.format(frame_var)
+        exec(code)
+        print(frame_var)
+    elif frame_name=='purchase_frame':
+        code='{}.destroy()'.format(frame_var)
+        exec(code)
+        print(frame_var)
+    elif frame_name=='dealer_frame':
+        code='{}.destroy()'.format(frame_var)
+        exec(code)
+        print(frame_var)
+    elif frame_name=='item_frame':
+        code='{}.destroy()'.format(frame_var)
+        exec(code)
+        print(frame_var)
+    elif frame_name=='report_frame':
+        code='{}.destroy()'.format(frame_var)
+        exec(code)
+        print(frame_var)
+    elif frame_name=='billing_frame':
+        code='{}.destroy()'.format(frame_var)
+        exec(code)
+        print(frame_var)
 
 def menu_frame_obj():
     image.place(relx = 0.45, rely = 0.075, anchor = CENTER)
 
+    global company_details_btn,purchase_btn,dealer_btn,item_btn,reports_btn,billing_btn
     company_details_btn=Button(menu_frame,text="Company",width = 25,height=menu_button_height,fg=element_color,bg=menu_button_color,command=lambda:[company_details_obj()])
     purchase_btn=Button(menu_frame,text="Purchase",width = 25,fg=element_color,height=menu_button_height,bg=menu_button_color,command=lambda:[purchase_obj()])
     dealer_btn=Button(menu_frame,text="Dealer",width = 25,fg=element_color,height=menu_button_height,bg=menu_button_color,command=lambda:[dealer_obj()])    
@@ -150,6 +177,17 @@ def menu_frame_obj():
 
 
 def company_details_obj():
+    company_details_btn.config(state='disabled',bg='darkblue')
+    purchase_btn.config(state='normal',bg=menu_button_color)
+    dealer_btn.config(state='normal',bg=menu_button_color)
+    item_btn.config(state='normal',bg=menu_button_color)
+    reports_btn.config(state='normal',bg=menu_button_color)
+    billing_btn.config(state='normal',bg=menu_button_color)
+
+    r=read_counter('cleaner')
+    #delete_previous_frame('company_details_frame',r)
+    write_counter('cleaner','company_details_frame')
+    global company_details_frame
     company_details_frame= Frame(root,width=1670,height=1060,bg=frame_color)
     company_details_frame.grid(row=0,column=1)
     company_details_frame.propagate(0)
@@ -182,36 +220,68 @@ def company_details_obj():
     company_contact_number_tb=Entry(company_details_frame,fg=element_color,bg=entry_box_color,font=arial,border=4)
     company_contact_number_tb.place(relx = 0.2, rely = 0.32, anchor = NW)
 
-    #Update BUtton and message
-    add_update_btn=Button(company_details_frame,fg=element_color,bg=frame_button_color,text="Add/Update Details",width = 25,border=4,command=lambda:[details_updated_obj()])
-    add_update_btn.place(relx = 0.1, rely = 0.38, anchor = NW)
+    #Edit Button and message
+    edit_btn=Button(company_details_frame,fg=element_color,bg=frame_button_color,text="Edit Details",width = 20,border=4,command=lambda:[enable_company__text_box(),add_btn.config(state='normal')])
+    edit_btn.place(relx = 0.1, rely = 0.38, anchor = NW)
+
+    #Update Button and message
+    add_btn=Button(company_details_frame,fg=element_color,bg=frame_button_color,text="Update Details",width = 20,border=4,command=lambda:[details_updated_obj(),edit_btn.config(state='normal')])
+    add_btn.place(relx = 0.205, rely = 0.38, anchor = NW)
+
+    def enable_company__text_box():
+        company_name_tb.config(state='normal')
+        company_adress_tb.config(state='normal')
+        company_gstin_tb.config(state='normal')
+        company_contact_number_tb.config(state='normal')
+        edit_btn.config(state='disabled')
+        
+
+    def disable_company__text_box():
+        company_name_tb.config(state='disabled')
+        company_adress_tb.config(state='disabled')
+        company_gstin_tb.config(state='disabled')
+        company_contact_number_tb.config(state='disabled')
+        add_btn.config(state='disabled')
+        
 
     def details_updated_obj():
         if company_name_tb.get() =="" or company_adress_tb.get() =="" or company_gstin_tb.get() =="" or company_contact_number_tb.get() =="":
             messagebox.showerror(title='Error', message="Enter All Fields")
+        elif any(not ch.isdigit() for ch in company_contact_number_tb.get()):
+            messagebox.showerror(title='Error', message="Contact Number \ncannot have Letter or special charecter")
+        elif len(company_contact_number_tb.get()) >10:
+            messagebox.showerror(title='Error', message="Contact Number Must be\n less than 10 Digits")
         else:
-            if len(company_contact_number_tb.get()) >10:
-                messagebox.showerror(title='Error', message="Contact Number Must be\n less than 10 Digits")
-            else:
-                messagebox.showinfo(title='Sucess', message="Details Updated")
-                #stores company data in company_details.json file
-                company=[]
-                company.append(company_name_tb.get())
-                company.append(company_adress_tb.get())
-                company.append(company_gstin_tb.get())
-                company.append(company_contact_number_tb.get())
-                write_counter('company_details',company)
+            messagebox.showinfo(title='Sucess', message="Details Updated")
+            #stores company data in company_details.json file
+            company={'company_name':(company_name_tb.get()),'company_address':(company_adress_tb.get()),'company_gstin':(company_gstin_tb.get())
+            ,'company_contact':(company_contact_number_tb.get())}
+            write_counter('company_details',company)
+            disable_company__text_box()
 
     if path.exists("company_details.json"):
+        enable_company__text_box
         current_company_details=read_counter('company_details')
-        company_name_tb.insert(0,current_company_details[0])
-        company_adress_tb.insert(0,current_company_details[1])
-        company_gstin_tb.insert(0,current_company_details[2])
-        company_contact_number_tb.insert(0,current_company_details[3])
+        company_name_tb.insert(0,current_company_details['company_name'])
+        company_adress_tb.insert(0,current_company_details['company_address'])
+        company_gstin_tb.insert(0,current_company_details['company_gstin'])
+        company_contact_number_tb.insert(0,current_company_details['company_contact'])
+        disable_company__text_box()
     
-    
+    disable_company__text_box()
 
 def purchase_obj():
+    company_details_btn.config(state='normal',bg=menu_button_color)
+    purchase_btn.config(state='disabled',bg=selection_color)
+    dealer_btn.config(state='normal',bg=menu_button_color)
+    item_btn.config(state='normal',bg=menu_button_color)
+    reports_btn.config(state='normal',bg=menu_button_color)
+    billing_btn.config(state='normal',bg=menu_button_color)
+
+    r=read_counter('cleaner')
+    delete_previous_frame('purchase_frame',r)
+    write_counter('cleaner','purchase_frame')
+    global purchase_frame
     purchase_frame= Frame(root,width=1670,height=1060,bg=frame_color)
     purchase_frame.grid(row=0,column=1)
     purchase_frame.propagate(0)
@@ -498,6 +568,17 @@ def purchase_obj():
 
     delete_all_purchase_item()
 def dealer_obj():
+    company_details_btn.config(state='normal',bg=menu_button_color)
+    purchase_btn.config(state='normal',bg=menu_button_color)
+    dealer_btn.config(state='disabled',bg=selection_color)
+    item_btn.config(state='normal',bg=menu_button_color)
+    reports_btn.config(state='normal',bg=menu_button_color)
+    billing_btn.config(state='normal',bg=menu_button_color)
+
+    r=read_counter('cleaner')
+    delete_previous_frame('dealer_frame',r)
+    write_counter('cleaner','dealer_frame')
+    global dealer_frame
     dealer_frame= Frame(root,width=1670,height=1060,bg=frame_color)
     dealer_frame.grid(row=0,column=1)
     dealer_frame.propagate(0)
@@ -661,6 +742,17 @@ def dealer_obj():
     customer_detail_tree_view.heading("3",text="Mobile Number")'''
 
 def item_obj():
+    company_details_btn.config(state='normal',bg=menu_button_color)
+    purchase_btn.config(state='normal',bg=menu_button_color)
+    dealer_btn.config(state='normal',bg=menu_button_color)
+    item_btn.config(state='disabled',bg=selection_color)
+    reports_btn.config(state='normal',bg=menu_button_color)
+    billing_btn.config(state='normal',bg=menu_button_color)
+
+    r=read_counter('cleaner')
+    delete_previous_frame('item_frame',r)
+    write_counter('cleaner','item_frame')
+    global item_frame
     item_frame= Frame(root,width=1670,height=1060,bg=frame_color)
     item_frame.grid(row=0,column=1)
     item_frame.propagate(0)
@@ -806,6 +898,17 @@ def item_obj():
         
 
 def report_obj():
+    company_details_btn.config(state='normal',bg=menu_button_color)
+    purchase_btn.config(state='normal',bg=menu_button_color)
+    dealer_btn.config(state='normal',bg=menu_button_color)
+    item_btn.config(state='normal',bg=menu_button_color)
+    reports_btn.config(state='disabled',bg=selection_color)
+    billing_btn.config(state='normal',bg=menu_button_color)
+
+    r=read_counter('cleaner')
+    delete_previous_frame('report_frame',r)
+    write_counter('cleaner','report_frame')
+    global report_frame
     report_frame= Frame(root,width=1670,height=1060,bg=frame_color)
     report_frame.grid(row=0,column=1)
     report_frame.propagate(0)
@@ -873,6 +976,18 @@ def report_obj():
     report_tree_view.heading("5",text="Amount")
 
 def billing_obj():
+    company_details_btn.config(state='normal',bg=menu_button_color)
+    purchase_btn.config(state='normal',bg=menu_button_color)
+    dealer_btn.config(state='normal',bg=menu_button_color)
+    item_btn.config(state='normal',bg=menu_button_color)
+    reports_btn.config(state='normal',bg=menu_button_color)
+    billing_btn.config(state='disabled',bg=selection_color)
+
+
+    r=read_counter('cleaner')
+    delete_previous_frame('billing_frame',r)
+    write_counter('cleaner','billing_frame')
+    global billing_frame
     billing_frame=Frame(root,width=1670,height=1060,bg=frame_color)
     billing_frame.grid(row=0,column=1)
     billing_frame.propagate(0)
@@ -1018,7 +1133,8 @@ def billing_obj():
             print()
 
 menu_frame_obj()
-#company_details_obj()
-item_obj()
+
+write_counter('cleaner','company_details_frame')
+company_details_obj()
 
 root.mainloop()

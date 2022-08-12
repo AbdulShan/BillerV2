@@ -45,7 +45,7 @@ datesorted=date.strftime("%d-%m-%Y")
 def read_counter(filename):
     #reads the Bill number from the counter.json file
     if path.exists("{}.json".format(filename)):
-            if filename=='company_details' or 'cleaner':
+            if filename=='company_details' or 'cleaner' or 'bool_for_cleaner':
                 return loads(open("{}.json".format(filename), "r").read())
             elif filename=='bill_number':
                 return loads(open("{}.json".format(filename), "r").read()) + 1 if path.exists("{}.json".format(filename)) else 0
@@ -127,7 +127,7 @@ def delete_previous_frame(frame_name,frame_var):
     elif frame_name=='dealer_frame':
         code='{}.destroy()'.format(frame_var)
         exec(code)
-        print(frame_var)
+        print('{}')
     elif frame_name=='item_frame':
         code='{}.destroy()'.format(frame_var)
         exec(code)
@@ -185,8 +185,11 @@ def company_details_obj():
     billing_btn.config(state='normal',bg=menu_button_color)
 
     r=read_counter('cleaner')
-    #delete_previous_frame('company_details_frame',r)
+    if read_counter('bool_for_cleaner')=='True':
+        delete_previous_frame('company_details_frame',r)
     write_counter('cleaner','company_details_frame')
+    write_counter('bool_for_cleaner','True')
+
     global company_details_frame
     company_details_frame= Frame(root,width=1670,height=1060,bg=frame_color)
     company_details_frame.grid(row=0,column=1)
@@ -1134,7 +1137,12 @@ def billing_obj():
 
 menu_frame_obj()
 
+def onclose():
+    write_counter('bool_for_cleaner','False')
+    root.destroy()
+
 write_counter('cleaner','company_details_frame')
 company_details_obj()
-
+write_counter('bool_for_cleaner','False')
+root.protocol("WM_DELETE_WINDOW", onclose)
 root.mainloop()

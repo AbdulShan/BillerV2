@@ -119,34 +119,31 @@ def delete_previous_frame(frame_name,frame_var):
     if frame_name=='company_details_frame':
         code='{}.destroy()'.format(frame_var)
         exec(code)
-        print(frame_var)
     elif frame_name=='purchase_frame':
         code='{}.destroy()'.format(frame_var)
         exec(code)
-        print(frame_var)
     elif frame_name=='dealer_frame':
         code='{}.destroy()'.format(frame_var)
         exec(code)
-        print('{}')
     elif frame_name=='item_frame':
         code='{}.destroy()'.format(frame_var)
         exec(code)
-        print(frame_var)
     elif frame_name=='report_frame':
         code='{}.destroy()'.format(frame_var)
         exec(code)
-        print(frame_var)
     elif frame_name=='billing_frame':
         code='{}.destroy()'.format(frame_var)
         exec(code)
-        print(frame_var)
+
+
+    
 
 def menu_frame_obj():
     image.place(relx = 0.45, rely = 0.075, anchor = CENTER)
 
     global company_details_btn,purchase_btn,dealer_btn,item_btn,reports_btn,billing_btn
     company_details_btn=Button(menu_frame,text="Company",width = 25,height=menu_button_height,fg=element_color,bg=menu_button_color,command=lambda:[company_details_obj()])
-    purchase_btn=Button(menu_frame,text="Purchase",width = 25,fg=element_color,height=menu_button_height,bg=menu_button_color,command=lambda:[purchase_obj()])
+    purchase_btn=Button(menu_frame,text="Purchased Items",width = 25,fg=element_color,height=menu_button_height,bg=menu_button_color,command=lambda:[purchase_obj()])
     dealer_btn=Button(menu_frame,text="Dealer",width = 25,fg=element_color,height=menu_button_height,bg=menu_button_color,command=lambda:[dealer_obj()])    
     '''customer_btn=Button(menu_frame,text="Customer",width = 25,fg=element_color,bg=menu_button_color,command=lambda:[customer_detail_obj()])
     customer_btn.place(relx = 0.475, rely = 0.35, anchor = CENTER)'''
@@ -174,7 +171,6 @@ def menu_frame_obj():
     top_scrollbar.place(relx = 0.95, rely = 0.5, anchor = CENTER)
     bottom_scrollbar=Button(menu_frame,text="^",width=2,fg=element_color,bg=menu_button_color,command=lambda:[place_menu(-0.1)])
     bottom_scrollbar.place(relx = 0.95, rely = 0.4, anchor = CENTER)'''
-
 
 def company_details_obj():
     company_details_btn.config(state='disabled',bg='darkblue')
@@ -245,7 +241,6 @@ def company_details_obj():
         company_gstin_tb.config(state='disabled')
         company_contact_number_tb.config(state='disabled')
         add_btn.config(state='disabled')
-        
 
     def details_updated_obj():
         if company_name_tb.get() =="" or company_adress_tb.get() =="" or company_gstin_tb.get() =="" or company_contact_number_tb.get() =="":
@@ -289,7 +284,7 @@ def purchase_obj():
     purchase_frame.grid(row=0,column=1)
     purchase_frame.propagate(0)
 
-    purchase_details_lbl=Label(purchase_frame,text="Purchase Products",font=book_antiqua_size18,bg=frame_color,fg=element_color)
+    purchase_details_lbl=Label(purchase_frame,text="Purchased Products",font=book_antiqua_size18,bg=frame_color,fg=element_color)
     purchase_details_lbl.place(relx = 0.4, rely = 0.008, anchor = NW)
 
     #Dealer name
@@ -422,18 +417,22 @@ def purchase_obj():
     def check_entry_condition():
         if len(invoice_number_tb.get()) ==0 or len(dealer_name_tb.get()) ==0 or len(purchase_dealer_address_tb.get(1.0, END)) ==0 or len(purchase_dealer_contact_tb.get()) ==0 or len(purchase_item_code_tb.get()) ==0 or len(purchase_item_name_tb.get()) ==0 or len(purchase_quantity_tb.get()) ==0 or len(purchase_price_tb.get()) ==0:
             messagebox.showerror(title='Error', message="Enter All Fields\n(GSTIN not Mandatory)")
-        elif any(ch.isdigit() or not ch.isalnum() for ch in dealer_name_tb.get()):
-            messagebox.showerror(title='Error', message="Dealer Name \ncannot have number or special charecter")
+        #elif any(ch.isdigit() or not ch.isalnum() for ch in dealer_name_tb.get()):
+            #messagebox.showerror(title='Error', message="Dealer Name \ncannot have number or special charecter")
         elif any(not ch.isdigit() for ch in purchase_dealer_contact_tb.get()):
             messagebox.showerror(title='Error', message="Contact Number \ncannot have Letter or special charecter")
-        elif len(purchase_dealer_contact_tb.get())>10:
-            messagebox.showerror(title='Error', message="Contact Number \ncannot exceed 10 Digits")
+        elif len(purchase_dealer_contact_tb.get())!=10:
+            messagebox.showerror(title='Error', message="Contact Number \nmust be 10 Digits")
         elif any(not ch.isdigit() for ch in purchase_item_code_tb.get()):
             messagebox.showerror(title='Error', message="Item Code \ncannot have Letter or special charecter")
         elif any(ch.isalpha() for ch in purchase_quantity_tb.get()):
             messagebox.showerror(title='Error', message="Quantity \ncannot have Letter or special charecter")
+        elif float(purchase_quantity_tb.get())<=0:
+            messagebox.showerror(title='Error', message="Invalid Quantity")
         elif any(ch.isalpha() for ch in purchase_price_tb.get()):
             messagebox.showerror(title='Error', message="Price \ncannot have Letter or special charecter")
+        elif float(purchase_price_tb.get())<=0:
+            messagebox.showerror(title='Error', message="Invalid Price")
         else:
             add_purchase_item()
     
@@ -486,39 +485,43 @@ def purchase_obj():
 
     def delete_purchase_item():
         selected_treeview_item=selected_item_from_treeview(purchase_tree_view,'purchase_tree_view')
-        try:
-            con=sqlite3.connect("Store_Data.sql")
-            cur=con.cursor()
-            cur.execute("DELETE FROM temp_item_purchase_details where item_id={}".format(selected_treeview_item))
-            cur.execute("SELECT item_id,item_name,purchase_quantity,buying_price,total_price FROM temp_item_purchase_details")
-            row=cur.fetchall()
-            clear_all(purchase_tree_view)
-            for i in row:
-                purchase_tree_view.insert("", 'end', text ="L1",values =(i[0],i[1],i[2],i[3],i[4]))
-            cur.execute("SELECT SUM(total_price) FROM temp_item_purchase_details")
-            total=cur.fetchall()
-            print(len(total))
-            print(total)
-            if str(total[0][0])=='None':
-                purchase_total_lbl.configure(text="0000.00")
-            else:
-                purchase_total_lbl.configure(text="{:.2f}".format(float(total[0][0])))
-            con.commit()
-            con.close()
-        except sqlite3.Error as err:
-            print("Error - ",err)
+        temp=messagebox.askquestion('Delete Product', 'Are you sure you want to Delete')
+        if temp=='yes':
+            try:
+                con=sqlite3.connect("Store_Data.sql")
+                cur=con.cursor()
+                cur.execute("DELETE FROM temp_item_purchase_details where item_id={}".format(selected_treeview_item))
+                cur.execute("SELECT item_id,item_name,purchase_quantity,buying_price,total_price FROM temp_item_purchase_details")
+                row=cur.fetchall()
+                clear_all(purchase_tree_view)
+                for i in row:
+                    purchase_tree_view.insert("", 'end', text ="L1",values =(i[0],i[1],i[2],i[3],i[4]))
+                cur.execute("SELECT SUM(total_price) FROM temp_item_purchase_details")
+                total=cur.fetchall()
+                print(len(total))
+                print(total)
+                if str(total[0][0])=='None':
+                    purchase_total_lbl.configure(text="0000.00")
+                else:
+                    purchase_total_lbl.configure(text="{:.2f}".format(float(total[0][0])))
+                con.commit()
+                con.close()
+            except sqlite3.Error as err:
+                print("Error - ",err)
 
     def delete_all_purchase_item():
-        clear_all(purchase_tree_view)
-        try:
-            con=sqlite3.connect("Store_Data.sql")
-            cur=con.cursor()
-            cur.execute("drop table temp_item_purchase_details")
-            purchase_total_lbl.configure(text="0000.00")
-            con.commit()
-            con.close()
-        except sqlite3.Error as err:
-            print("Error - ",err)
+        temp=messagebox.askquestion('Delete Product', 'Are you sure you want to Clear All')
+        if temp=='yes':
+            clear_all(purchase_tree_view)
+            try:
+                con=sqlite3.connect("Store_Data.sql")
+                cur=con.cursor()
+                cur.execute("drop table temp_item_purchase_details")
+                purchase_total_lbl.configure(text="0000.00")
+                con.commit()
+                con.close()
+            except sqlite3.Error as err:
+                print("Error - ",err)
 
     def save_purchase_data_to_database():
         try:
@@ -569,7 +572,11 @@ def purchase_obj():
     purchase_tree_view.heading("4",text="Price")
     purchase_tree_view.heading("5",text="Total")
 
-    delete_all_purchase_item()
+    con=sqlite3.connect("Store_Data.sql")
+    cur=con.cursor()
+    cur.execute("drop table temp_item_purchase_details")
+    con.commit()
+
 def dealer_obj():
     company_details_btn.config(state='normal',bg=menu_button_color)
     purchase_btn.config(state='normal',bg=menu_button_color)
@@ -595,17 +602,37 @@ def dealer_obj():
 
     dealer_name_tb=Entry(dealer_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=20)
     dealer_name_tb.place(relx = 0.105, rely = 0.075, anchor = NW)
-    #dealer_name_tb.bind('<Key>', Scankey)
 
-    #dealer add button
-    dealer_add_btn=Button(dealer_frame,fg=element_color,bg=frame_button_color,text="Search",width = 15,border=4,command=lambda:[])
-    dealer_add_btn.place(relx = 0.25, rely = 0.075, anchor = NW)
+    '''#dealer search button
+    dealer_search_btn=Button(dealer_frame,fg=element_color,bg=frame_button_color,text="Search",width = 15,border=4,command=lambda:[])
+    dealer_search_btn.place(relx = 0.25, rely = 0.075, anchor = NW)'''
 
     #item treeview element
     global dealer_tree_view
     dealer_tree_view= Treeview(dealer_frame,selectmode='browse',height=17)
-    dealer_tree_view.place(relx = 0.04, rely = 0.105, anchor = NW)
+    dealer_tree_view.place(relx = 0.04, rely = 0.175, anchor = NW)
 
+    products={}
+    def Scankey(event):
+        #val stores the selected value
+        val = event.widget.get()
+        if val==NULL:
+            name_data = products
+        else:
+            name_data = {}
+            for key,value in products.items():
+                if val.lower() in key.lower():
+                    name_data[key]=value
+                    Update(name_data)
+
+    #updates into treeview
+    global Update
+    def Update(data):
+        for item in dealer_tree_view.get_children():
+            dealer_tree_view.delete(item)
+        for key, value in data.items():
+            dealer_tree_view.insert("",'end',text="L1",values=(key, value[1],value[2],value[3]))
+            
     def dealer_info():
         try:
             con=sqlite3.connect("Store_Data.sql")
@@ -615,6 +642,7 @@ def dealer_obj():
             cur.execute("SELECT dealer_name,dealer_contact,dealer_address,dealer_gstin from dealer_purchase_details")
             row=cur.fetchall()
             for i in row:
+                products[i[0]]=[i[2],i[1],i[2],i[3]]
                 dealer_tree_view.insert("", 'end', text ="L1", values=(i[0],i[1],i[2],i[3]))
             con.commit()
             con.close()
@@ -665,21 +693,21 @@ def dealer_obj():
 
     #dealer refresh btn
     dealer_refresh_btn=Button(dealer_frame,fg=element_color,bg=frame_button_color,text="Delete",width = 15,border=4,command=lambda:[delete_dealer_info()])
-    dealer_refresh_btn.place(relx = 0.04, rely = 0.454, anchor = NW)
+    dealer_refresh_btn.place(relx = 0.04, rely = 0.524, anchor = NW)
 
     #dealer Delete btn
-    dealer_delete_btn=Button(dealer_frame,fg=element_color,bg=frame_button_color,text="Refresh",width = 15,border=4,command=lambda:[])
-    dealer_delete_btn.place(relx = 0.12, rely = 0.454, anchor = NW)
-
-    #dealer Edit btn
     dealer_edit_btn=Button(dealer_frame,fg=element_color,bg=frame_button_color,text="Edit",width = 15,border=4,command=lambda:[])
-    dealer_edit_btn.place(relx = 0.2, rely = 0.454, anchor = NW)
+    dealer_edit_btn.place(relx = 0.12, rely = 0.524, anchor = NW)
 
     #Show details btn
     dealer_show_details_btn=Button(dealer_frame,fg=element_color,bg=frame_button_color,text="Show Details",width = 16,border=4,command=lambda:[])
-    dealer_show_details_btn.place(relx = 0.38, rely = 0.454, anchor = NW)
-
+    dealer_show_details_btn.place(relx = 0.38, rely = 0.524, anchor = NW)
+    
     dealer_info()
+    dealer_name_tb.bind('<Key>', Scankey)
+
+    #def edit_dealer_info():
+
 
 '''def customer_detail_obj():
     customer_detail_frame=Frame(root,width=1670,height=1060,bg=frame_color)

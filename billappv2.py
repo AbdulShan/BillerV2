@@ -5,6 +5,7 @@ from genericpath import exists
 from tkinter import *
 import sqlite3
 from tkinter import messagebox
+from tkinter.simpledialog import askstring
 from tkinter.ttk import Style, Treeview
 from tkinter import ttk
 import atexit
@@ -134,9 +135,8 @@ def delete_previous_frame(frame_name,frame_var):
     elif frame_name=='billing_frame':
         code='{}.destroy()'.format(frame_var)
         exec(code)
-
-
-    
+    else:
+        print()
 
 def menu_frame_obj():
     image.place(relx = 0.45, rely = 0.075, anchor = CENTER)
@@ -651,7 +651,6 @@ def dealer_obj():
     
     def delete_dealer_info():
         selected_treeview_item=selected_item_from_treeview(dealer_tree_view,'dealer_tree_view')
-        print(selected_treeview_item)
         try:
             con=sqlite3.connect("Store_Data.sql")
             cur=con.cursor()
@@ -692,11 +691,11 @@ def dealer_obj():
     dealer_tree_view.heading("4",text="GSTIN No")
 
     #dealer refresh btn
-    dealer_refresh_btn=Button(dealer_frame,fg=element_color,bg=frame_button_color,text="Delete",width = 15,border=4,command=lambda:[delete_dealer_info()])
-    dealer_refresh_btn.place(relx = 0.04, rely = 0.524, anchor = NW)
+    dealer_delete_btn=Button(dealer_frame,fg=element_color,bg=frame_button_color,text="Delete",width = 15,border=4,command=lambda:[delete_dealer_info()])
+    dealer_delete_btn.place(relx = 0.04, rely = 0.524, anchor = NW)
 
-    #dealer Delete btn
-    dealer_edit_btn=Button(dealer_frame,fg=element_color,bg=frame_button_color,text="Edit",width = 15,border=4,command=lambda:[])
+    #dealer Edit btn
+    dealer_edit_btn=Button(dealer_frame,fg=element_color,bg=frame_button_color,text="Edit",width = 15,border=4,command=lambda:['''edit_dealer_info'''()])
     dealer_edit_btn.place(relx = 0.12, rely = 0.524, anchor = NW)
 
     #Show details btn
@@ -707,6 +706,24 @@ def dealer_obj():
     dealer_name_tb.bind('<Key>', Scankey)
 
     #def edit_dealer_info():
+    #selected_treeview_item=selected_item_from_treeview(dealer_tree_view,'dealer_tree_view')
+
+    #name = askstring('Name', 'What is your name?')
+    
+    dealer_name_tb=Entry(dealer_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=23)
+    dealer_name_tb.place(relx = 0.04, rely = 0.147, anchor = NW)
+
+    dealer_contact_tb=Entry(dealer_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=20)
+    dealer_contact_tb.place(relx = 0.1655, rely = 0.147, anchor = NW)
+
+    dealer_address_tb=Entry(dealer_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=29)
+    dealer_address_tb.place(relx = 0.23, rely = 0.147, anchor = NW)
+
+    dealer_gstin_tb=Entry(dealer_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=11)
+    dealer_gstin_tb.place(relx = 0.39, rely = 0.147, anchor = NW)
+        
+        
+
 
 
 '''def customer_detail_obj():

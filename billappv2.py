@@ -50,10 +50,11 @@ def read_counter(filename):
     if path.exists("{}.json".format(filename)):
             if filename=='company_details' or 'cleaner' or 'bool_for_cleaner':
                 return loads(open("{}.json".format(filename), "r").read())
-            elif filename=='bill_number':
-                return loads(open("{}.json".format(filename), "r").read()) + 1 if path.exists("{}.json".format(filename)) else 0
-            elif filename=='purchase_invoice_number':
-                return loads(open("{}.json".format(filename), "r").read()) + 1 if path.exists("{}.json".format(filename)) else 0
+            
+def bill_num(filename):
+    if path.exists("{}.json".format(filename)):
+        if filename=='bill_number':
+                    return loads(open("{}.json".format(filename), "r").read()) + 1 if path.exists("{}.json".format(filename)) else 0
     
 def write_counter(filename,data_to_write):
     #writes/saves the Bill Number in counter.json file
@@ -198,39 +199,131 @@ def company_details_obj():
 
     #Company Name
     company_name_lbl=Label(company_details_frame,text="Company Name",font=book_antiqua,bg=frame_color,fg=element_color)
-    company_name_lbl.place(relx = 0.1, rely = 0.2, anchor = NW)
+    company_name_lbl.place(relx = 0.1, rely = 0.1, anchor = NW)
 
     company_name_tb=Entry(company_details_frame,fg=element_color,bg=entry_box_color,font=arial,border=4)
-    company_name_tb.place(relx = 0.2, rely = 0.2, anchor = NW)
+    company_name_tb.place(relx = 0.2, rely = 0.1, anchor = NW)
 
     #Company Adress
     company_adress_lbl=Label(company_details_frame,text="Company Adress",font=book_antiqua,bg=frame_color,fg=element_color)
-    company_adress_lbl.place(relx = 0.1, rely = 0.24, anchor = NW)
+    company_adress_lbl.place(relx = 0.1, rely = 0.14, anchor = NW)
 
     company_adress_tb=Entry(company_details_frame,fg=element_color,bg=entry_box_color,font=arial,border=4)
-    company_adress_tb.place(relx = 0.2, rely = 0.24, anchor = NW)
+    company_adress_tb.place(relx = 0.2, rely = 0.14, anchor = NW)
 
     #Company GSTIN
     company_gstin_lbl=Label(company_details_frame,text="Company GSTIN",font=book_antiqua,bg=frame_color,fg=element_color)
-    company_gstin_lbl.place(relx = 0.1, rely = 0.28, anchor = NW)
+    company_gstin_lbl.place(relx = 0.1, rely = 0.18, anchor = NW)
 
     company_gstin_tb=Entry(company_details_frame,fg=element_color,bg=entry_box_color,font=arial,border=4)
-    company_gstin_tb.place(relx = 0.2, rely = 0.28, anchor = NW)
+    company_gstin_tb.place(relx = 0.2, rely = 0.18, anchor = NW)
 
     #Company Adress
     company_contact_number_lbl=Label(company_details_frame,text="Company Contact",font=book_antiqua,bg=frame_color,fg=element_color)
-    company_contact_number_lbl.place(relx = 0.1, rely = 0.32, anchor = NW)
+    company_contact_number_lbl.place(relx = 0.1, rely = 0.22, anchor = NW)
 
     company_contact_number_tb=Entry(company_details_frame,fg=element_color,bg=entry_box_color,font=arial,border=4)
-    company_contact_number_tb.place(relx = 0.2, rely = 0.32, anchor = NW)
+    company_contact_number_tb.place(relx = 0.2, rely = 0.22, anchor = NW)
 
     #Edit Button and message
     edit_btn=Button(company_details_frame,fg=element_color,bg=frame_button_color,text="Edit Details",width = 20,border=4,command=lambda:[enable_company__text_box(),add_btn.config(state='normal')])
-    edit_btn.place(relx = 0.1, rely = 0.38, anchor = NW)
+    edit_btn.place(relx = 0.1, rely = 0.28, anchor = NW)
 
     #Update Button and message
     add_btn=Button(company_details_frame,fg=element_color,bg=frame_button_color,text="Update Details",width = 20,border=4,command=lambda:[details_updated_obj(),edit_btn.config(state='normal')])
-    add_btn.place(relx = 0.205, rely = 0.38, anchor = NW)
+    add_btn.place(relx = 0.205, rely = 0.28, anchor = NW)
+
+    style.configure("TCombobox", fg= element_color, bg= entry_box_color)
+    category_tb=ttk.Combobox(company_details_frame,values='',font=arial,width=13)
+    category_tb.place(relx = 0.1, rely = 0.4, anchor = NW)
+
+    try:
+        con=sqlite3.connect("Store_Data.sql")
+        cur=con.cursor()
+        cur.execute("SELECT category,tax FROM category_tax_details")
+        row=cur.fetchall()
+        category_list=[]
+        for i in row:
+            category_list.append(i)
+        category_tb.configure(values=category_list)
+        con.commit()
+        con.close()
+    except sqlite3.Error as err:
+            print("Error - ",err)
+
+    #for combox and autofill
+    def callback(*args):
+        pos=int(category_tb.current())
+        item_no_array=[]
+        item_name_array=[]
+        for j in category_list:
+            item_no_array.append(j[0])
+            item_name_array.append(j[1])
+        category_tb.delete(0,END)
+        gst_tb.delete(0,END)
+        category_tb.insert(0,item_no_array[pos])
+        gst_tb.insert(0,item_name_array[pos])
+
+    category_tb.bind('<<ComboboxSelected>>', callback)
+
+    #gst
+    category=Label(company_details_frame,text="Categories",font=book_antiqua,bg=frame_color,fg=element_color)
+    category.place(relx = 0.1, rely = 0.37, anchor = NW)
+
+    gst=Label(company_details_frame,text="GST",font=book_antiqua,bg=frame_color,fg=element_color)
+    gst.place(relx = 0.22, rely = 0.37, anchor = NW)
+
+    gst_tb=Entry(company_details_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=12)
+    gst_tb.place(relx = 0.22, rely = 0.4, anchor = NW)
+
+    #Update Button Tax
+    save_tax=Button(company_details_frame,fg=element_color,bg=frame_button_color,text="Save/Update Tax",width = 20,border=4,height=2,command=lambda:[update_tax_details()])
+    save_tax.place(relx = 0.3, rely = 0.385, anchor = NW)
+
+    delete_tax=Button(company_details_frame,fg=element_color,bg=frame_button_color,text="Delete Tax",width = 20,border=4,height=2,command=lambda:[delete_tax_details()])
+    delete_tax.place(relx = 0.4, rely = 0.385, anchor = NW)
+
+    def update_tax_details():
+        if category_tb.get() =="" or gst_tb.get() =="":
+            messagebox.showerror(title='Error', message="Enter All Fields")
+        elif any(not ch.isdigit() for ch in gst_tb.get()):
+            messagebox.showerror(title='Error', message="GST \ncannot have Letter or special charecter")
+        elif any(not ch.isalpha() for ch in category_tb.get()):
+            messagebox.showerror(title='Error', message="CATEGORY \ncannot have Number or special charecter")
+        else:
+            try:
+                con=sqlite3.connect("Store_Data.sql")
+                cur=con.cursor()
+                cur.execute("CREATE TABLE IF NOT EXISTS category_tax_details(category varchar(20) PRIMARY KEY NOT NULL,tax int(2) NOT NULL)")
+                cur.execute("INSERT INTO category_tax_details(category,tax)VALUES('{}',{})".format(category_tb.get(),gst_tb.get()))
+                con.commit()
+                con.close()
+                messagebox.showinfo(title='Sucess', message="Deatils Updated")
+                company_details_frame.destroy()
+                company_details_obj()
+            except sqlite3.Error as err:
+                print("Error - ",err)
+        
+    def delete_tax_details():
+        if category_tb.get() =="" or gst_tb.get() =="":
+            messagebox.showerror(title='Error', message="Enter All Fields")
+        elif any(not ch.isdigit() for ch in gst_tb.get()):
+            messagebox.showerror(title='Error', message="GST \ncannot have Letter or special charecter")
+        elif any(not ch.isalpha() for ch in category_tb.get()):
+            messagebox.showerror(title='Error', message="CATEGORY \ncannot have Number or special charecter")
+        else:
+            try:
+                con=sqlite3.connect("Store_Data.sql")
+                cur=con.cursor()
+                cur.execute("DELETE FROM category_tax_details WHERE category='{}' AND tax={}".format(category_tb.get(),gst_tb.get()))
+                con.commit()
+                con.close()
+                messagebox.showinfo(title='Sucess', message="{} TAX Deleted".format(category_tb.get()))
+                company_details_frame.destroy()
+                company_details_obj()
+            except sqlite3.Error as err:
+                print("Error - ",err)
+
 
     def enable_company__text_box():
         company_name_tb.config(state='normal')
@@ -254,6 +347,8 @@ def company_details_obj():
             messagebox.showerror(title='Error', message="Contact Number \ncannot have Letter or special charecter")
         elif len(company_contact_number_tb.get()) >10:
             messagebox.showerror(title='Error', message="Contact Number Must be\n less than 10 Digits")
+        elif len(company_gstin_tb.get()) !=15:
+            messagebox.showerror(title='Error', message="GSTIN Number Must be\n 15 Digits")
         else:
             messagebox.showinfo(title='Sucess', message="Details Updated")
             #stores company data in company_details.json file
@@ -261,6 +356,7 @@ def company_details_obj():
             ,'company_contact':(company_contact_number_tb.get())}
             write_counter('company_details',company)
             disable_company__text_box()
+            
 
     if path.exists("company_details.json"):
         enable_company__text_box
@@ -314,13 +410,6 @@ def purchase_obj():
     today = date.today()
     purchase_date= DateEntry(purchase_frame, width= 16,height=0, background= "grey", foreground= "white",bd=4, maxdate=today)
     purchase_date.place(relx = 0.40, rely = 0.162, anchor = NW)
-
-    '''#Purchase INvoice Number
-    invoice_number_lbl=Label(purchase_frame,text="Invoice Number",font=book_antiqua,bg=frame_color,fg=element_color)
-    invoice_number_lbl.place(relx =0.23, rely = 0.16, anchor = NW)
-
-    invoice_number_tb=Entry(purchase_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=10)
-    invoice_number_tb.place(relx = 0.305, rely = 0.16, anchor = NW)'''
 
     #dealer Address
     purchase_dealer_address_lbl=Label(purchase_frame,text="Address",font=book_antiqua,bg=frame_color,fg=element_color)
@@ -399,25 +488,9 @@ def purchase_obj():
     purchase_total_lbl.place(relx = 0.41, rely = 0.575, anchor = NW)
 
     #Purchase save
-    purchase_print_button=Button(purchase_frame,fg=element_color,bg=frame_button_color,text="Save",width = 16,height=2,border=4,command=lambda:[save_purchase_data_to_database(),invoice_number_update()])
+    purchase_print_button=Button(purchase_frame,fg=element_color,bg=frame_button_color,text="Save",width = 16,height=2,border=4,command=lambda:[save_purchase_data_to_database()])
     purchase_print_button.place(relx = 0.32, rely = 0.575, anchor = NW)
-    
-    #get all data
-    def invoice_number_update():
-        purchase_invoice_no=read_counter('purchase_invoice_number')
-        if path.exists('purchase_invoice_number.json'):
-            write_counter('purchase_invoice_number',purchase_invoice_no)
-            '''invoice_number_tb.config(state='normal')
-            invoice_number_tb.delete(0,END)
-            invoice_number_tb.insert(0,purchase_invoice_no)
-            invoice_number_tb.config(state='disabled')'''
-        else:
-            write_counter('purchase_invoice_number',1000)
-            '''invoice_number_tb.config(state='normal')
-            invoice_number_tb.delete(0,END)
-            invoice_number_tb.insert(0,1000)
-            invoice_number_tb.config(state='disabled')'''
-    invoice_number_update()
+
 
     def check_entry_condition():
         if len(dealer_name_tb.get()) ==0 or len(purchase_dealer_address_tb.get(1.0, END)) ==0 or len(purchase_dealer_contact_tb.get()) ==0 or len(purchase_item_code_tb.get()) ==0 or len(purchase_item_name_tb.get()) ==0 or len(purchase_quantity_tb.get()) ==0 or len(purchase_price_tb.get()) ==0:
@@ -462,10 +535,8 @@ def purchase_obj():
         try:
             con=sqlite3.connect("Store_Data.sql")
             cur=con.cursor()
-            #cur.execute("CREATE TABLE IF NOT EXISTS temp_dealer_purchase_details(invoice_number int(10) PRIMARY KEY NOT NULL,dealer_name varhcar(20),dealer_gstin varhcar(20),dealer_address varhcar(30),dealer_contact int(12))")
-            cur.execute("CREATE TABLE IF NOT EXISTS temp_item_purchase_details(item_id int(15) PRIMARY KEY,date date,item_name varhcar(30),purchase_quantity FLOAT,buying_price FLOAT,total_price FLOAT)")
-            
-            #cur.execute("INSERT INTO temp_dealer_purchase_details(invoice_number,dealer_name,dealer_gstin,dealer_address,dealer_contact)VALUES({},'{}','{}','{}',{})".format(invoice_number,dealer_name,dealer_gstin,purchase_dealer_address,purchase_dealer_contact))
+            cur.execute("CREATE TABLE IF NOT EXISTS temp_item_purchase_details(item_id int(15) PRIMARY KEY,date date,item_name varchar(30),purchase_quantity FLOAT,buying_price FLOAT,total_price FLOAT)")
+
             cur.execute("INSERT INTO temp_item_purchase_details(item_id,date,item_name,purchase_quantity,buying_price,total_price)VALUES({},'{}','{}',{:.2f},{:.2f},{:.2f})".format(purchase_item_code,date,purchase_item_name,purchase_quantity,purchase_price,float(purchase_total)))
             
             cur.execute("SELECT item_id,item_name,purchase_quantity,buying_price,total_price FROM temp_item_purchase_details")
@@ -488,7 +559,6 @@ def purchase_obj():
             if error_message[0:24]=='UNIQUE constraint failed':
                 messagebox.showerror(title='Error', message="Item Code cannot repeat")
             con.close()
-
 
     def delete_purchase_item():
         selected_treeview_item=selected_item_from_treeview(purchase_tree_view,'purchase_tree_view')
@@ -531,24 +601,23 @@ def purchase_obj():
                 print("Error - ",err)
 
     def save_purchase_data_to_database():
-        try:
-            con=sqlite3.connect("Store_Data.sql")
-            cur=con.cursor()
-            cur.execute("CREATE TABLE IF NOT EXISTS dealer_purchase_details(dealer_name varhcar(20),dealer_gstin varhcar(20),dealer_address varhcar(30),dealer_contact int(12))")
-            cur.execute("CREATE TABLE IF NOT EXISTS item_purchase_details(item_id int(15) PRIMARY KEY,date date,item_name varhcar(30),purchase_quantity REAL,buying_price REAL,total_price REAL,selling_price REAL,item_category varchar)")
-            
-            cur.execute("INSERT INTO dealer_purchase_details(dealer_name,dealer_gstin,dealer_address,dealer_contact)VALUES('{}','{}','{}',{})".format(dealer_data['dealer_name'],dealer_data['dealer_gstin'],dealer_data['purchase_dealer_address'],dealer_data['purchase_dealer_contact']))
-
-            cur.execute("SELECT * from temp_item_purchase_details")
-            row=cur.fetchall()
-            for i in row:
-                cur.execute("INSERT INTO item_purchase_details(item_id,date,item_name,purchase_quantity,buying_price,total_price)VALUES({},'{}','{}',{:.2f},{:.2f},{:.2f})".format(i[0],i[1],i[2],i[3],i[4],i[5]))
-            messagebox.showinfo(title='Saved', message="Products Added to inventory")
-            con.commit()
-            con.close()
-            delete_all_purchase_item()
-        except sqlite3.Error as err:
-            print("Error - ",err)
+            try:
+                con=sqlite3.connect("Store_Data.sql")
+                cur=con.cursor()
+                cur.execute("CREATE TABLE IF NOT EXISTS dealer_purchase_details(dealer_name varchar(20),dealer_gstin varchar(20),dealer_address varchar(30),dealer_contact int(12))")
+                cur.execute("CREATE TABLE IF NOT EXISTS item_purchase_details(item_id int(15) PRIMARY KEY,date date,item_name varchar(30),purchase_quantity REAL,buying_price REAL,total_price REAL,selling_price REAL,item_category varchar)")
+                cur.execute("SELECT * from temp_item_purchase_details")
+                row=cur.fetchall()
+                for i in row:
+                    cur.execute("INSERT INTO item_purchase_details(item_id,date,item_name,purchase_quantity,buying_price,total_price)VALUES({},'{}','{}',{:.2f},{:.2f},{:.2f})".format(i[0],i[1],i[2],i[3],i[4],i[5]))
+                cur.execute("INSERT INTO dealer_purchase_details(dealer_name,dealer_gstin,dealer_address,dealer_contact)VALUES('{}','{}','{}',{})".format(dealer_data['dealer_name'],dealer_data['dealer_gstin'],dealer_data['purchase_dealer_address'],dealer_data['purchase_dealer_contact']))
+                messagebox.showinfo(title='Saved', message="Products Added to inventory")
+                con.commit()
+                con.close()
+                delete_all_purchase_item()
+            except sqlite3.Error as err:
+                print("Error - ",err)
+                messagebox.showerror(title='Error', message="No Data to Save")
 
     #treeview element
     purchase_tree_view= Treeview(purchase_frame,selectmode='browse',height=17)
@@ -1141,7 +1210,6 @@ def billing_obj():
     reports_btn.config(state='normal',bg=menu_button_color)
     billing_btn.config(state='disabled',bg=selection_color)
 
-
     r=read_counter('cleaner')
     delete_previous_frame('billing_frame',r)
     write_counter('cleaner','billing_frame')
@@ -1180,28 +1248,50 @@ def billing_obj():
     billing_billed_date.place(relx = 0.515, rely = 0.077, anchor = NW)
 
     #Item Code TextBox
-    billing_item_code_tb=Entry(billing_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=11)
-    billing_item_code_tb.place(relx = 0.03, rely = 0.15, anchor = NW)
-    billing_item_code_tb.insert(0, 'Item Code')
-    billing_item_code_tb.bind("<FocusIn>", lambda args: billing_item_code_tb.delete('0', 'end'))
+    style.configure("TCombobox", fg= element_color, bg= entry_box_color)
+    billing_item_code_tb=ttk.Combobox(billing_frame,values='',font=arial,width=9)
+    billing_item_code_tb.place(relx = 0.03, rely = 0.153, anchor = NW)
+    
+    try:
+        con=sqlite3.connect("Store_Data.sql")
+        cur=con.cursor()
+        cur.execute("SELECT item_id,item_name FROM item_purchase_details")
+        row=cur.fetchall()
+        item_codes=[]
+        for i in row:
+            item_codes.append(i)
+        billing_item_code_tb.configure(values=item_codes)
+        con.commit()
+        con.close()
+    except sqlite3.Error as err:
+            print("Error - ",err)
+
+    #for combox and autofill
+    def callback(*args):
+        pos=int(billing_item_code_tb.current())
+        item_no_array=[]
+        item_name_array=[]
+        for j in item_codes:
+            item_no_array.append(j[0])
+            item_name_array.append(j[1])
+        billing_item_code_tb.delete(0,END)
+        billing_item_name_tb.delete(0,END)
+        billing_item_code_tb.insert(0,item_no_array[pos])
+        billing_item_name_tb.insert(0,item_name_array[pos])
+    
+    billing_item_code_tb.bind('<<ComboboxSelected>>', callback)
 
     #Item Name TextBox
     billing_item_name_tb=Entry(billing_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=21)
     billing_item_name_tb.place(relx = 0.093, rely = 0.15, anchor = NW)
-    billing_item_name_tb.insert(0, 'Item Name')
-    billing_item_name_tb.bind("<FocusIn>", lambda args: billing_item_name_tb.delete('0', 'end'))
 
     #Quantity TextBox
     billing_quantity_tb=Entry(billing_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=8)
     billing_quantity_tb.place(relx = 0.21, rely = 0.15, anchor = NW)
-    billing_quantity_tb.insert(0, 'Quantity')
-    billing_quantity_tb.bind("<FocusIn>", lambda args: billing_quantity_tb.delete('0', 'end'))
 
     #Discoount TextBox
     billing_discount_tb=Entry(billing_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=10)
     billing_discount_tb.place(relx = 0.41, rely = 0.15, anchor = NW)
-    billing_discount_tb.insert(0, 'Discount')
-    billing_discount_tb.bind("<FocusIn>", lambda args: billing_discount_tb.delete('0', 'end'))
     
     #Add Button
     billing_add_update_btn=Button(billing_frame,fg=element_color,bg=frame_button_color,text="Add",width = 15,border=4,command=lambda:[check_entry_condition()])
@@ -1210,8 +1300,6 @@ def billing_obj():
     #treeview element
     billing_tree_view= Treeview(billing_frame,selectmode='browse',height=17)
     billing_tree_view.place(relx = 0.03, rely = 0.18, anchor = NW)
-    
-    
 
     #verticle scrollbar
     #vertical_scrollbar=Scrollbar(billing_frame,orient="vertical",command=tree_view.yview)
@@ -1246,12 +1334,11 @@ def billing_obj():
 
     billing_tree_view.insert("", 0, "item", text="item")
 
-
     #Delete Button
     delete_btn=Button(billing_frame,fg=element_color,bg=frame_button_color,text="Delete",width = 15,border=4,command=lambda:[])
     delete_btn.place(relx = 0.028, rely = 0.53, anchor = NW)
 
-    #Total Gst Label
+    '''#Total Gst Label
     total_cgst_lbl=Label(billing_frame,text="Total CGST",font=book_antiqua,bg=frame_color,fg=element_color)
     total_cgst_lbl.place(relx = 0.25, rely = 0.53, anchor = NW)
 
@@ -1263,32 +1350,75 @@ def billing_obj():
     total_sgst_lbl.place(relx = 0.25, rely = 0.555, anchor = NW)
 
     total_sgst_lbl2=Label(billing_frame,text="00.00%",font=book_antiqua,bg=frame_color,fg=element_color)
-    total_sgst_lbl2.place(relx = 0.305, rely = 0.555, anchor = NW)
+    total_sgst_lbl2.place(relx = 0.305, rely = 0.555, anchor = NW)'''
 
     #Save And Print Button
-    save_print_button=Button(billing_frame,fg=element_color,bg=frame_button_color,text="Save & Print",width = 13,height=2,border=4,command=lambda:[])
+    save_print_button=Button(billing_frame,fg=element_color,bg=frame_button_color,text="Save & Print",width = 13,height=2,border=4,command=lambda:[invoice_number_update()])
     save_print_button.place(relx = 0.39, rely = 0.535, anchor = NW)
+
+    #get all data
+    def invoice_number_update():
+        billing_bill_number=bill_num('bill_number')
+        if path.exists('bill_number.json'):
+            write_counter('bill_number',billing_bill_number)
+            billing_bill_number_tb.config(state='normal')
+            billing_bill_number_tb.delete(0,END)
+            billing_bill_number_tb.insert(0,billing_bill_number)
+            billing_bill_number_tb.config(state='disabled')
+        else:
+            write_counter('bill_number',1000)
+            billing_bill_number_tb.config(state='normal')
+            billing_bill_number_tb.delete(0,END)
+            billing_bill_number_tb.insert(0,1000)
+            billing_bill_number_tb.config(state='disabled')
+    invoice_number_update()
 
     #Total
     total_lbl=Label(billing_frame,text="RS.0000.00",font=book_antiqua_size18,bg=frame_color,fg=element_color)
     total_lbl.place(relx = 0.46, rely = 0.535, anchor = NW)
     
     def check_entry_condition():
-        if len(billing_customer_name_tb.get()) ==0 or len(billing_item_code_tb.get()) ==0 or len(billing_item_name_tb.get()) ==0 or len(billing_quantity_tb.get()) ==0:
+        if len(billing_customer_name_tb.get()) ==0 or len(billing_item_code_tb.get()) ==0 or len(billing_item_name_tb.get()) ==0 or len(billing_quantity_tb.get()) ==0 or len(billing_bill_number_tb.get()) ==0:
             messagebox.showerror(title='Error', message="Enter All Fields\n(GSTIN not Mandatory)")
         elif any(ch.isdigit() or not ch.isalnum() for ch in billing_customer_name_tb.get()):
             messagebox.showerror(title='Error', message="Customer Name \ncannot have number or special charecter")
         elif any(not ch.isdigit() for ch in billing_mobile_tb.get()):
             messagebox.showerror(title='Error', message="Mobile Number \ncannot have Letter or special charecter")
-        elif len(billing_mobile_tb.get())>10:
-            messagebox.showerror(title='Error', message="Mobile Number \ncannot exceed 10 Digits")
+        elif len(billing_mobile_tb.get())!=10:
+            messagebox.showerror(title='Error', message="Mobile Number \nmust be 10 Digits")
         elif any(not ch.isdigit() for ch in billing_item_code_tb.get()):
             messagebox.showerror(title='Error', message="Item Code \ncannot have Letter or special charecter")
+        elif float(billing_item_code_tb.get())<=0:
+            messagebox.showerror(title='Error', message="Invalid Item Code")
         elif any(ch.isalpha() for ch in billing_quantity_tb.get()):
             messagebox.showerror(title='Error', message="Quantity \ncannot have Letter")
+        elif float(billing_quantity_tb.get())<=0:
+            messagebox.showerror(title='Error', message="Invalid Item Quantity")
         else:
-            #continues
             print()
+            billing_customer_name_tb
+            billing_mobile_tb
+            billing_bill_number_tb
+            billing_item_code_tb
+            billing_item_name_tb
+            billing_quantity_tb
+            billing_discount_tb
+
+            customer_data={'dealer_name':billing_customer_name_tb.get(),'customer_mobile':int(billing_mobile_tb.get()),'customer_bill_number':int(billing_bill_number_tb.get())}
+
+            try:
+                con=sqlite3.connect("Store_Data.sql")
+                cur=con.cursor()
+                cur.execute("CREATE TABLE IF NOT EXISTS temp_item_sold_details(sold_item_id int(15) PRIMARY KEY,sold_item_name varchar(30),date date,sold_quantity FLOAT,sold_price FLOAT,sold_cgst FLOAT,sold_sgst FLOAT,sold_discount FLOAT,total_price FLOAT)")
+                con.commit()
+                con.close()
+            except sqlite3.Error as err:
+                print("Error - ",err)
+                error_message=str(err)
+                print(error_message[0:24])
+                if error_message[0:24]=='UNIQUE constraint failed':
+                    messagebox.showerror(title='Error', message="Item Code cannot repeat")
+                con.close()
 
 menu_frame_obj()
 

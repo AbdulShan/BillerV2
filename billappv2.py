@@ -535,7 +535,7 @@ def purchase_obj():
         try:
             con=sqlite3.connect("Store_Data.sql")
             cur=con.cursor()
-            cur.execute("CREATE TABLE IF NOT EXISTS temp_item_purchase_details(item_id int(15) PRIMARY KEY,date date,item_name varchar(30),purchase_quantity FLOAT,buying_price FLOAT,total_price FLOAT)")
+            cur.execute("CREATE TABLE IF NOT EXISTS temp_item_purchase_details(item_id int(8) PRIMARY KEY NOT NULL,date date NOT NULL,item_name varchar(25) NOT NULL,purchase_quantity FLOAT NOT NULL,buying_price FLOAT NOT NULL,total_price FLOAT NOT NULL)")
 
             cur.execute("INSERT INTO temp_item_purchase_details(item_id,date,item_name,purchase_quantity,buying_price,total_price)VALUES({},'{}','{}',{:.2f},{:.2f},{:.2f})".format(purchase_item_code,date,purchase_item_name,purchase_quantity,purchase_price,float(purchase_total)))
             
@@ -604,8 +604,8 @@ def purchase_obj():
             try:
                 con=sqlite3.connect("Store_Data.sql")
                 cur=con.cursor()
-                cur.execute("CREATE TABLE IF NOT EXISTS dealer_purchase_details(dealer_name varchar(20),dealer_gstin varchar(20),dealer_address varchar(30),dealer_contact int(12))")
-                cur.execute("CREATE TABLE IF NOT EXISTS item_purchase_details(item_id int(15) PRIMARY KEY,date date,item_name varchar(30),purchase_quantity REAL,buying_price REAL,total_price REAL,selling_price REAL,item_category varchar)")
+                cur.execute("CREATE TABLE IF NOT EXISTS dealer_purchase_details(dealer_name varchar(20) NOT NULL,dealer_gstin varchar(20),dealer_address varchar(30) NOT NULL,dealer_contact int(12) NOT NULL)")
+                cur.execute("CREATE TABLE IF NOT EXISTS item_purchase_details(item_id int(8) PRIMARY KEY NOT NULL,date date NOT NULL,item_name varchar(25) NOT NULL,purchase_quantity REAL NOT NULL,buying_price REAL NOT NULL,total_price REAL NOT NULL,selling_price REAL NOT NULL,item_category varchar(20))")
                 cur.execute("SELECT * from temp_item_purchase_details")
                 row=cur.fetchall()
                 for i in row:
@@ -1409,7 +1409,7 @@ def billing_obj():
             try:
                 con=sqlite3.connect("Store_Data.sql")
                 cur=con.cursor()
-                cur.execute("CREATE TABLE IF NOT EXISTS temp_item_sold_details(sold_item_id int(15) PRIMARY KEY,sold_item_name varchar(30),date date,sold_quantity FLOAT,sold_price FLOAT,sold_cgst FLOAT,sold_sgst FLOAT,sold_discount FLOAT,total_price FLOAT)")
+                cur.execute("CREATE TABLE IF NOT EXISTS temp_item_sold_details(sold_item_id int(8) PRIMARY KEY NOT NULL,sold_item_name varchar(25) NOT NULL,date date,sold_quantity FLOAT NOT NULL,sold_price FLOAT NOT NULL,sold_category varchar(20),sold_gst int(2),sold_discount FLOAT,total_price FLOAT)")
                 con.commit()
                 con.close()
             except sqlite3.Error as err:

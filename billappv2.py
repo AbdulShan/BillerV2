@@ -1008,16 +1008,12 @@ def item_obj():
     item_lbl.place(relx = 0.4, rely = 0.008, anchor = NW)
 
     #item refresh btn
-    item_refresh_btn=Button(item_frame,fg=element_color,bg=frame_button_color,text="Delete",width = 15,border=4,command=lambda:[delete_item_info()])
-    item_refresh_btn.place(relx = 0.03, rely = 0.496, anchor = NW)
-
-    #item Delete btn
-    item_delete_btn=Button(item_frame,fg=element_color,bg=frame_button_color,text="Refresh",width = 15,border=4,command=lambda:[])
-    item_delete_btn.place(relx = 0.11, rely = 0.496, anchor = NW)
+    item_delete_btn=Button(item_frame,fg=element_color,bg=frame_button_color,text="Delete",width = 15,border=4,command=lambda:[delete_item_info()])
+    item_delete_btn.place(relx = 0.03, rely = 0.496, anchor = NW)
 
     #item Edit btn
     item_edit_btn=Button(item_frame,fg=element_color,bg=frame_button_color,text="Edit",width = 15,border=4,command=lambda:[edit_item_info()])
-    item_edit_btn.place(relx = 0.19, rely = 0.496, anchor = NW)
+    item_edit_btn.place(relx = 0.11, rely = 0.496, anchor = NW)
 
     #item Save btn
     item_save_btn=Button(item_frame,fg=element_color,bg=frame_button_color,text="Save",width = 15,border=4,command=lambda:[])

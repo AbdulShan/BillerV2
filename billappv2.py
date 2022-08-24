@@ -537,8 +537,11 @@ def purchase_obj():
             cur=con.cursor()
             cur.execute("CREATE TABLE IF NOT EXISTS temp_item_purchase_details(item_id int(8) PRIMARY KEY NOT NULL,date date NOT NULL,item_name varchar(25) NOT NULL,purchase_quantity FLOAT NOT NULL,buying_price FLOAT NOT NULL,total_price FLOAT NOT NULL)")
 
-            cur.execute("INSERT INTO temp_item_purchase_details(item_id,date,item_name,purchase_quantity,buying_price,total_price)VALUES({},'{}','{}',{:.2f},{:.2f},{:.2f})".format(purchase_item_code,date,purchase_item_name,purchase_quantity,purchase_price,float(purchase_total)))
-            
+            cur.execute("INSERT INTO temp_item_purchase_details(item_id,date,item_name,purchase_quantity,buying_price,total_price)VALUES({},'{}','{}',{:.2f},{:.2f},{:.2f}) ON CONFLICT (item_id) DO UPDATE SET purchase_quantity=purchase_quantity+{:.2f},buying_price={:.2f},item_name='{}' returning item_id".format(purchase_item_code,date,purchase_item_name,purchase_quantity,purchase_price,float(purchase_total),float(purchase_quantity),float(purchase_price),purchase_item_name))
+            id_to_update=cur.fetchall()
+            cur.execute("UPDATE temp_item_purchase_details SET total_price=purchase_quantity*buying_price where item_id={}".format(id_to_update[0][0]))
+
+
             cur.execute("SELECT item_id,item_name,purchase_quantity,buying_price,total_price FROM temp_item_purchase_details")
             row=cur.fetchall()
             clear_all(purchase_tree_view)
@@ -594,6 +597,7 @@ def purchase_obj():
                 con=sqlite3.connect("Store_Data.sql")
                 cur=con.cursor()
                 cur.execute("drop table temp_item_purchase_details")
+                cur.execute("CREATE TABLE IF NOT EXISTS temp_item_purchase_details(item_id int(8) PRIMARY KEY NOT NULL,date date NOT NULL,item_name varchar(25) NOT NULL,purchase_quantity FLOAT NOT NULL,buying_price FLOAT NOT NULL,total_price FLOAT NOT NULL)")
                 purchase_total_lbl.configure(text="0000.00")
                 con.commit()
                 con.close()
@@ -605,12 +609,15 @@ def purchase_obj():
                 con=sqlite3.connect("Store_Data.sql")
                 cur=con.cursor()
                 cur.execute("CREATE TABLE IF NOT EXISTS dealer_purchase_details(dealer_name varchar(20) NOT NULL,dealer_gstin varchar(20),dealer_address varchar(30) NOT NULL,dealer_contact int(12) NOT NULL)")
-                cur.execute("CREATE TABLE IF NOT EXISTS item_purchase_details(item_id int(8) PRIMARY KEY NOT NULL,date date NOT NULL,item_name varchar(25) NOT NULL,purchase_quantity REAL NOT NULL,buying_price REAL NOT NULL,total_price REAL NOT NULL,selling_price REAL NOT NULL,item_category varchar(20))")
+                cur.execute("CREATE TABLE IF NOT EXISTS item_purchase_details(item_id int(8) PRIMARY KEY NOT NULL,date date NOT NULL,item_name varchar(25) NOT NULL,purchase_quantity REAL NOT NULL,buying_price REAL NOT NULL,total_price REAL NOT NULL,selling_price REAL,item_category varchar(20))")
                 cur.execute("SELECT * from temp_item_purchase_details")
                 row=cur.fetchall()
                 for i in row:
-                    cur.execute("INSERT INTO item_purchase_details(item_id,date,item_name,purchase_quantity,buying_price,total_price)VALUES({},'{}','{}',{:.2f},{:.2f},{:.2f})".format(i[0],i[1],i[2],i[3],i[4],i[5]))
-                cur.execute("INSERT INTO dealer_purchase_details(dealer_name,dealer_gstin,dealer_address,dealer_contact)VALUES('{}','{}','{}',{})".format(dealer_data['dealer_name'],dealer_data['dealer_gstin'],dealer_data['purchase_dealer_address'],dealer_data['purchase_dealer_contact']))
+                    cur.execute("INSERT INTO item_purchase_details(item_id,date,item_name,purchase_quantity,buying_price,total_price)VALUES({},'{}','{}',{:.2f},{:.2f},{:.2f}) ON CONFLICT (item_id) DO UPDATE SET purchase_quantity=purchase_quantity+{:.2f},buying_price={:.2f} returning item_id".format(i[0],i[1],i[2],i[3],i[4],i[5],i[3],i[4]))
+                    id_to_update=cur.fetchall()
+                    cur.execute("UPDATE item_purchase_details SET total_price=purchase_quantity*buying_price where item_id={}".format(id_to_update[0][0]))
+                
+                cur.execute("INSERT OR REPLACE INTO dealer_purchase_details(dealer_name,dealer_gstin,dealer_address,dealer_contact)VALUES('{}','{}','{}',{})".format(dealer_data['dealer_name'],dealer_data['dealer_gstin'],dealer_data['purchase_dealer_address'],dealer_data['purchase_dealer_contact']))
                 messagebox.showinfo(title='Saved', message="Products Added to inventory")
                 con.commit()
                 con.close()
@@ -642,7 +649,7 @@ def purchase_obj():
     purchase_tree_view.column("5",width=160)
 
     #assigning heading name
-    purchase_tree_view.heading("1",text="ItemCode")
+    purchase_tree_view.heading("1",text="Item Id")
     purchase_tree_view.heading("2",text="Item Name")
     purchase_tree_view.heading("3",text="Quantity")
     purchase_tree_view.heading("4",text="Price")
@@ -1063,18 +1070,17 @@ def item_obj():
             cur=con.cursor()
             cur.execute("DELETE FROM item_purchase_details where item_id={}".format(selected_treeview_item))
             con.commit()
-            cur.execute("SELECT item_id,item_name,purchase_quantity,buying_price,selling_price from item_purchase_details")
+            cur.execute("SELECT item_id,item_name,purchase_quantity,item_category,buying_price,selling_price from item_purchase_details")
             row=cur.fetchall()
             clear_all(item_tree_view)
             for i in row:
-                item_tree_view.insert("", 'end', text ="L1",values =(i[0],i[1],i[2],i[3]))
+                item_tree_view.insert("", 'end', text ="L1",values =(i[0],i[1],i[2],i[3],i[4],i[5]))
             con.commit()
             con.close()
         except sqlite3.Error as err:
             print("Error - ",err)
 
     def edit_item_info():
-        edit_item_placement()
         curItem = item_tree_view.focus()
         item_tree_view.item(curItem)
         selected_items =item_tree_view.item(curItem)
@@ -1089,6 +1095,7 @@ def item_obj():
             print(value)
         item_tree_view.configure(selectmode='none')
 
+        edit_item_placement()
         item_id_tb.insert(0,item_id)
         item_name_tb.insert(0,item_name)
         item_quantity_tb.insert(0,item_stock)
@@ -1103,19 +1110,39 @@ def item_obj():
         def item_update():
             if any(not ch.isdigit() for ch in item_id_tb.get()):
                 messagebox.showerror(title='Error', message="Item Id \ncannot have Letter or special charecter")
+            elif int(item_id_tb.get())<1:
+                messagebox.showerror(title='Error', message="Item Id \ncannot be less than 0")
+
             elif any(ch.isalpha() for ch in item_quantity_tb.get()):
-                messagebox.showerror(title='Error', message="Item Quantity \ncannot have Letter")
+                messagebox.showerror(title='Error', message="Item Stock \ncannot have Letter")
+            elif float(item_quantity_tb.get())<0:
+                messagebox.showerror(title='Error', message="Item Stock \ncannot be less than 0")
+
             elif any(ch.isalpha() for ch in item_price_tb.get()):
                 messagebox.showerror(title='Error', message="Item Price \ncannot have Letter")
+            elif float(item_price_tb.get())<0:
+                messagebox.showerror(title='Error', message="Item Price \ncannot be less than 0")
+
             elif any(ch.isalpha() for ch in selling_price_tb.get()):
                 messagebox.showerror(title='Error', message="Selling Price \ncannot have Letter")
+            elif float(selling_price_tb.get())<float(item_price_tb.get()):
+                messagebox.showerror(title='Error', message="Selling Price \ncannot be less than Buying price")
             else:
                 try:
                     con=sqlite3.connect("Store_Data.sql")
                     cur=con.cursor()
                     total_of_edited_item=float(item_price_tb.get())*float(item_quantity_tb.get())
-                    print(datesorted)
-                    cur.execute("INSERT OR REPLACE INTO item_purchase_details(item_id,date,item_name,purchase_quantity,buying_price,item_category,selling_price,total_price)VALUES({},'{}','{}',{},{},'{}',{},{})".format(int(item_id_tb.get()),datesorted,item_name_tb.get(),float(item_quantity_tb.get()),float(item_price_tb.get()),item_category_tb.get(),float(selling_price_tb.get()),float(total_of_edited_item)))
+                    cur.execute("SELECT item_id FROM item_purchase_details")
+                    select_item_id=cur.fetchall()
+                    temp_list=[]
+                    for i in select_item_id:
+                        temp_list.append(i[0])
+                    
+                    for j in temp_list:
+                        if item_id_tb.get()==j:
+                            print('EXISTS')
+                        else:
+                            cur.execute("INSERT OR REPLACE INTO item_purchase_details(item_id,date,item_name,purchase_quantity,buying_price,item_category,selling_price,total_price)VALUES({},'{}','{}',{},{},'{}',{},{})".format(int(item_id_tb.get()),datesorted,item_name_tb.get(),float(item_quantity_tb.get()),float(item_price_tb.get()),item_category_tb.get(),float(selling_price_tb.get()),float(total_of_edited_item)))
                     con.commit()
                     con.close()
                 except sqlite3.Error as err:
@@ -1291,11 +1318,11 @@ def billing_obj():
 
     #Discoount TextBox
     billing_discount_tb=Entry(billing_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=10)
-    billing_discount_tb.place(relx = 0.41, rely = 0.15, anchor = NW)
+    billing_discount_tb.place(relx = 0.36, rely = 0.15, anchor = NW)
     
     #Add Button
     billing_add_update_btn=Button(billing_frame,fg=element_color,bg=frame_button_color,text="Add",width = 15,border=4,command=lambda:[check_entry_condition()])
-    billing_add_update_btn.place(relx = 0.47, rely = 0.15, anchor = NW)
+    billing_add_update_btn.place(relx = 0.423, rely = 0.15, anchor = NW)
 
     #treeview element
     billing_tree_view= Treeview(billing_frame,selectmode='browse',height=17)
@@ -1307,7 +1334,7 @@ def billing_obj():
     #tree_view.configure(xscrollcommand=vertical_scrollbar.set)
 
     #Definning number of columns
-    billing_tree_view["columns"]=("1","2","3","4","5","6","7","8")
+    billing_tree_view["columns"]=("1","2","3","4","5","6","7")
 
     #defining heading
     billing_tree_view["show"]='headings'
@@ -1318,19 +1345,17 @@ def billing_obj():
     billing_tree_view.column("3",width=80)
     billing_tree_view.column("4",width=90)
     billing_tree_view.column("5",width=80)
-    billing_tree_view.column("6",width=80)
-    billing_tree_view.column("7",width=100)
-    billing_tree_view.column("8",width=120)
+    billing_tree_view.column("6",width=100)
+    billing_tree_view.column("7",width=120)
 
     #assigning heading name
     billing_tree_view.heading("1",text="ItemCode")
     billing_tree_view.heading("2",text="Item Name")
     billing_tree_view.heading("3",text="Quantity")
     billing_tree_view.heading("4",text="Price")
-    billing_tree_view.heading("5",text="CGST")
-    billing_tree_view.heading("6",text="SGST")
-    billing_tree_view.heading("7",text="Discount")
-    billing_tree_view.heading("8",text="Total")
+    billing_tree_view.heading("5",text="GST")
+    billing_tree_view.heading("6",text="Discount")
+    billing_tree_view.heading("7",text="Total")
 
     billing_tree_view.insert("", 0, "item", text="item")
 
@@ -1354,7 +1379,7 @@ def billing_obj():
 
     #Save And Print Button
     save_print_button=Button(billing_frame,fg=element_color,bg=frame_button_color,text="Save & Print",width = 13,height=2,border=4,command=lambda:[invoice_number_update()])
-    save_print_button.place(relx = 0.39, rely = 0.535, anchor = NW)
+    save_print_button.place(relx = 0.36, rely = 0.535, anchor = NW)
 
     #get all data
     def invoice_number_update():
@@ -1375,7 +1400,7 @@ def billing_obj():
 
     #Total
     total_lbl=Label(billing_frame,text="RS.0000.00",font=book_antiqua_size18,bg=frame_color,fg=element_color)
-    total_lbl.place(relx = 0.46, rely = 0.535, anchor = NW)
+    total_lbl.place(relx = 0.43, rely = 0.535, anchor = NW)
     
     def check_entry_condition():
         if len(billing_customer_name_tb.get()) ==0 or len(billing_item_code_tb.get()) ==0 or len(billing_item_name_tb.get()) ==0 or len(billing_quantity_tb.get()) ==0 or len(billing_bill_number_tb.get()) ==0:
@@ -1410,6 +1435,9 @@ def billing_obj():
                 con=sqlite3.connect("Store_Data.sql")
                 cur=con.cursor()
                 cur.execute("CREATE TABLE IF NOT EXISTS temp_item_sold_details(sold_item_id int(8) PRIMARY KEY NOT NULL,sold_item_name varchar(25) NOT NULL,date date,sold_quantity FLOAT NOT NULL,sold_price FLOAT NOT NULL,sold_category varchar(20),sold_gst int(2),sold_discount FLOAT,total_price FLOAT)")
+                
+                #cur.execute("INSERT INTO temp_item_sold_details(sold_item_id,sold_item_name,date,sold_quantity,sold_price,sold_category,sold_gst,sold_discount,total_price)VALUES({},'{}','{}',{},{},'{}',{},{},{})".format(billing_item_code_tb,billing_item_name_tb,date,billing_quantity_tb,billing_discount_tb))
+                
                 con.commit()
                 con.close()
             except sqlite3.Error as err:

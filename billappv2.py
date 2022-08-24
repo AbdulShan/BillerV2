@@ -950,7 +950,8 @@ def item_obj():
     item_quantity_tb=Entry(item_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=12)
 
     #Category
-    item_category_tb=Entry(item_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=13)
+    style.configure("TCombobox", fg= element_color, bg= entry_box_color)
+    item_category_tb=ttk.Combobox(item_frame,values='',font=arial,width=12,state="readonly")
 
     #Price
     item_price_tb=Entry(item_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=12)
@@ -962,7 +963,36 @@ def item_obj():
         item_id_tb.place(relx = 0.03, rely = 0.12, anchor = NW)
         item_name_tb.place(relx = 0.0925, rely = 0.12, anchor = NW)
         item_quantity_tb.place(relx = 0.209, rely = 0.12, anchor = NW)
-        item_category_tb.place(relx = 0.278, rely = 0.12, anchor = NW)
+        item_category_tb.place(relx = 0.278, rely = 0.123, anchor = NW)
+        
+
+        try:
+            con=sqlite3.connect("Store_Data.sql")
+            cur=con.cursor()
+            cur.execute("SELECT category FROM category_tax_details")
+            row=cur.fetchall()
+            category_list=[]
+            for i in row:
+                category_list.append(i)
+            item_category_tb.configure(values=category_list)
+            con.commit()
+            con.close()
+        except sqlite3.Error as err:
+            print("Error - ",err)
+
+        #for combox and autofill
+        def callback(*args):
+            pos=int(item_category_tb.current())
+            item_no_array=[]
+            item_name_array=[]
+            for j in category_list:
+                item_no_array.append(j[0])
+                item_name_array.append(j[1])
+            item_category_tb.delete(0,END)
+            item_category_tb.insert(0,item_no_array[pos])
+        
+        item_category_tb.bind('<<ComboboxSelected>>', callback)
+
         item_price_tb.place(relx = 0.355, rely = 0.12, anchor = NW)
         selling_price_tb.place(relx = 0.42, rely = 0.12, anchor = NW)
 
@@ -1079,6 +1109,14 @@ def item_obj():
             con.close()
         except sqlite3.Error as err:
             print("Error - ",err)
+    
+    def clear_all_tb(event):
+        item_id_tb.delete(0,END)
+        item_name_tb.delete(0,END)
+        item_quantity_tb.delete(0,END)
+        item_category_tb.delete(0,END)
+        item_price_tb.delete(0,END)
+        selling_price_tb.delete(0,END)
 
     def edit_item_info():
         curItem = item_tree_view.focus()
@@ -1102,6 +1140,8 @@ def item_obj():
         item_category_tb.insert(0,item_category)
         item_price_tb.insert(0,item_price)
         selling_price_tb.insert(0,item_selling_price)
+
+        item_id_tb.bind('<Button-1>',clear_all_tb)
         
         #Update Button
         item_update_btn=Button(item_frame,fg=element_color,bg=frame_button_color,text="Update",width = 16,height=2,border=4,command=lambda:[item_update()])
@@ -1132,17 +1172,7 @@ def item_obj():
                     con=sqlite3.connect("Store_Data.sql")
                     cur=con.cursor()
                     total_of_edited_item=float(item_price_tb.get())*float(item_quantity_tb.get())
-                    cur.execute("SELECT item_id FROM item_purchase_details")
-                    select_item_id=cur.fetchall()
-                    temp_list=[]
-                    for i in select_item_id:
-                        temp_list.append(i[0])
-                    
-                    for j in temp_list:
-                        if item_id_tb.get()==j:
-                            print('EXISTS')
-                        else:
-                            cur.execute("INSERT OR REPLACE INTO item_purchase_details(item_id,date,item_name,purchase_quantity,buying_price,item_category,selling_price,total_price)VALUES({},'{}','{}',{},{},'{}',{},{})".format(int(item_id_tb.get()),datesorted,item_name_tb.get(),float(item_quantity_tb.get()),float(item_price_tb.get()),item_category_tb.get(),float(selling_price_tb.get()),float(total_of_edited_item)))
+                    cur.execute("INSERT OR REPLACE INTO item_purchase_details(item_id,date,item_name,purchase_quantity,buying_price,item_category,selling_price,total_price)VALUES({},'{}','{}',{},{},'{}',{},{})".format(int(item_id_tb.get()),datesorted,item_name_tb.get(),float(item_quantity_tb.get()),float(item_price_tb.get()),item_category_tb.get(),float(selling_price_tb.get()),float(total_of_edited_item)))
                     con.commit()
                     con.close()
                 except sqlite3.Error as err:

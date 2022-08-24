@@ -1079,7 +1079,7 @@ def item_obj():
         try:
             con=sqlite3.connect("Store_Data.sql")
             cur=con.cursor()
-            cur.execute("SELECT item_id,item_name,purchase_quantity,item_category,buying_price,selling_price from item_purchase_details")
+            cur.execute("SELECT item_id,item_name,purchase_quantity,item_category,buying_price,selling_price from item_purchase_details ORDER BY item_id ASC")
             row=cur.fetchall()
             print(row)
             for i in row:
@@ -1100,7 +1100,7 @@ def item_obj():
             cur=con.cursor()
             cur.execute("DELETE FROM item_purchase_details where item_id={}".format(selected_treeview_item))
             con.commit()
-            cur.execute("SELECT item_id,item_name,purchase_quantity,item_category,buying_price,selling_price from item_purchase_details")
+            cur.execute("SELECT item_id,item_name,purchase_quantity,item_category,buying_price,selling_price from item_purchase_details ORDER BY item_id ASC")
             row=cur.fetchall()
             clear_all(item_tree_view)
             for i in row:

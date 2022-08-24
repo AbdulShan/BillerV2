@@ -1302,8 +1302,12 @@ def billing_obj():
 
     #Item Code TextBox
     style.configure("TCombobox", fg= element_color, bg= entry_box_color)
-    billing_item_code_tb=ttk.Combobox(billing_frame,values='',font=arial,width=9)
+    billing_item_code_tb=ttk.Combobox(billing_frame,values='',font=arial,width=9,state='readonly')
     billing_item_code_tb.place(relx = 0.03, rely = 0.153, anchor = NW)
+
+    #Item Name TextBox
+    billing_item_name_tb=Entry(billing_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=21)
+    billing_item_name_tb.place(relx = 0.093, rely = 0.15, anchor = NW)
     
     try:
         con=sqlite3.connect("Store_Data.sql")
@@ -1327,28 +1331,58 @@ def billing_obj():
         for j in item_codes:
             item_no_array.append(j[0])
             item_name_array.append(j[1])
+
+        billing_item_code_tb.configure(state='normal')
         billing_item_code_tb.delete(0,END)
         billing_item_name_tb.delete(0,END)
         billing_item_code_tb.insert(0,item_no_array[pos])
         billing_item_name_tb.insert(0,item_name_array[pos])
+        billing_item_code_tb.configure(state='readonly')
     
     billing_item_code_tb.bind('<<ComboboxSelected>>', callback)
 
-    #Item Name TextBox
-    billing_item_name_tb=Entry(billing_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=21)
-    billing_item_name_tb.place(relx = 0.093, rely = 0.15, anchor = NW)
+
+    #category cb
+    style.configure("TCombobox", fg= element_color, bg= entry_box_color)
+    billing_category_tb=ttk.Combobox(billing_frame,values='',font=arial,width=12,state='readonly')
+    billing_category_tb.place(relx = 0.214, rely = 0.153, anchor = NW)
+    
+    try:
+        con=sqlite3.connect("Store_Data.sql")
+        cur=con.cursor()
+        cur.execute("SELECT category FROM category_tax_details")
+        row=cur.fetchall()
+        item_cat=[]
+        for i in row:
+            item_cat.append(i)
+        billing_category_tb.configure(values=item_cat)
+        con.commit()
+        con.close()
+    except sqlite3.Error as err:
+            print("Error - ",err)
+
+    #for combox and autofill
+    def callback2(*args):
+        pos=int(billing_category_tb.current())
+        item_no_array2=[]
+        for j in item_cat:
+            item_no_array2.append(j[0])
+        billing_category_tb.delete(0,END)
+        billing_category_tb.insert(0,item_no_array2[pos])
+    
+    billing_category_tb.bind('<<ComboboxSelected>>', callback2)
 
     #Quantity TextBox
     billing_quantity_tb=Entry(billing_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=8)
-    billing_quantity_tb.place(relx = 0.21, rely = 0.15, anchor = NW)
+    billing_quantity_tb.place(relx = 0.294, rely = 0.15, anchor = NW)
 
-    #Discoount TextBox
+    #Discount TextBox
     billing_discount_tb=Entry(billing_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=10)
-    billing_discount_tb.place(relx = 0.36, rely = 0.15, anchor = NW)
+    billing_discount_tb.place(relx = 0.444, rely = 0.15, anchor = NW)
     
     #Add Button
-    billing_add_update_btn=Button(billing_frame,fg=element_color,bg=frame_button_color,text="Add",width = 15,border=4,command=lambda:[check_entry_condition()])
-    billing_add_update_btn.place(relx = 0.423, rely = 0.15, anchor = NW)
+    billing_add_update_btn=Button(billing_frame,fg=element_color,bg=frame_button_color,text="Add",width = 16,border=4,command=lambda:[check_entry_condition()])
+    billing_add_update_btn.place(relx = 0.503, rely = 0.15, anchor = NW)
 
     #treeview element
     billing_tree_view= Treeview(billing_frame,selectmode='browse',height=17)
@@ -1360,7 +1394,7 @@ def billing_obj():
     #tree_view.configure(xscrollcommand=vertical_scrollbar.set)
 
     #Definning number of columns
-    billing_tree_view["columns"]=("1","2","3","4","5","6","7")
+    billing_tree_view["columns"]=("1","2","3","4","5","6","7","8")
 
     #defining heading
     billing_tree_view["show"]='headings'
@@ -1368,20 +1402,22 @@ def billing_obj():
     #modifying the size of the columns
     billing_tree_view.column("1",width=100)
     billing_tree_view.column("2",width=200)
-    billing_tree_view.column("3",width=80)
-    billing_tree_view.column("4",width=90)
-    billing_tree_view.column("5",width=80)
-    billing_tree_view.column("6",width=100)
-    billing_tree_view.column("7",width=120)
+    billing_tree_view.column("3",width=140)
+    billing_tree_view.column("4",width=80)
+    billing_tree_view.column("5",width=90)
+    billing_tree_view.column("6",width=80)
+    billing_tree_view.column("7",width=100)
+    billing_tree_view.column("8",width=120)
 
     #assigning heading name
     billing_tree_view.heading("1",text="ItemCode")
     billing_tree_view.heading("2",text="Item Name")
-    billing_tree_view.heading("3",text="Quantity")
-    billing_tree_view.heading("4",text="Price")
-    billing_tree_view.heading("5",text="GST")
-    billing_tree_view.heading("6",text="Discount")
-    billing_tree_view.heading("7",text="Total")
+    billing_tree_view.heading("3",text="Category")
+    billing_tree_view.heading("4",text="Quantity")
+    billing_tree_view.heading("5",text="Price")
+    billing_tree_view.heading("6",text="TAX")
+    billing_tree_view.heading("7",text="Discount")
+    billing_tree_view.heading("8",text="Total")
 
     billing_tree_view.insert("", 0, "item", text="item")
 
@@ -1405,7 +1441,7 @@ def billing_obj():
 
     #Save And Print Button
     save_print_button=Button(billing_frame,fg=element_color,bg=frame_button_color,text="Save & Print",width = 13,height=2,border=4,command=lambda:[invoice_number_update()])
-    save_print_button.place(relx = 0.36, rely = 0.535, anchor = NW)
+    save_print_button.place(relx = 0.44, rely = 0.535, anchor = NW)
 
     #get all data
     def invoice_number_update():
@@ -1425,12 +1461,16 @@ def billing_obj():
     invoice_number_update()
 
     #Total
-    total_lbl=Label(billing_frame,text="RS.0000.00",font=book_antiqua_size18,bg=frame_color,fg=element_color)
-    total_lbl.place(relx = 0.43, rely = 0.535, anchor = NW)
+    total_lbl=Label(billing_frame,text="0000.00",font=book_antiqua_size18,bg=frame_color,fg=element_color)
+    total_lbl.place(relx = 0.51, rely = 0.535, anchor = NW)
     
     def check_entry_condition():
         if len(billing_customer_name_tb.get()) ==0 or len(billing_item_code_tb.get()) ==0 or len(billing_item_name_tb.get()) ==0 or len(billing_quantity_tb.get()) ==0 or len(billing_bill_number_tb.get()) ==0:
-            messagebox.showerror(title='Error', message="Enter All Fields\n(GSTIN not Mandatory)")
+            messagebox.showerror(title='Error', message="Enter All Fields")
+
+        elif int(billing_item_code_tb.get())<1:
+            messagebox.showerror(title='Error', message="Item Id \ncannot be less than 0")
+
         elif any(ch.isdigit() or not ch.isalnum() for ch in billing_customer_name_tb.get()):
             messagebox.showerror(title='Error', message="Customer Name \ncannot have number or special charecter")
         elif any(not ch.isdigit() for ch in billing_mobile_tb.get()):
@@ -1462,7 +1502,7 @@ def billing_obj():
                 cur=con.cursor()
                 cur.execute("CREATE TABLE IF NOT EXISTS temp_item_sold_details(sold_item_id int(8) PRIMARY KEY NOT NULL,sold_item_name varchar(25) NOT NULL,date date,sold_quantity FLOAT NOT NULL,sold_price FLOAT NOT NULL,sold_category varchar(20),sold_gst int(2),sold_discount FLOAT,total_price FLOAT)")
                 
-                #cur.execute("INSERT INTO temp_item_sold_details(sold_item_id,sold_item_name,date,sold_quantity,sold_price,sold_category,sold_gst,sold_discount,total_price)VALUES({},'{}','{}',{},{},'{}',{},{},{})".format(billing_item_code_tb,billing_item_name_tb,date,billing_quantity_tb,billing_discount_tb))
+                cur.execute("INSERT INTO temp_item_sold_details(sold_item_id,sold_item_name,date,sold_quantity,sold_price,sold_category,sold_gst,sold_discount,total_price)VALUES({},'{}','{}',{},{},'{}',{},{},{})".format(billing_item_code_tb,billing_item_name_tb,date,billing_quantity_tb,billing_discount_tb))
                 
                 con.commit()
                 con.close()

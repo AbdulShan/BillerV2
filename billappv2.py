@@ -1529,9 +1529,9 @@ def billing_obj():
             try:
                 con=sqlite3.connect("Store_Data.sql")
                 cur=con.cursor()
-                cur.execute("CREATE TABLE IF NOT EXISTS temp_item_sold_details(sold_item_id int(8) PRIMARY KEY NOT NULL,sold_item_name varchar(25) NOT NULL,date date,sold_quantity FLOAT NOT NULL,sold_price FLOAT NOT NULL,sold_category varchar(20),sold_gst FLOAT,sold_discount FLOAT,total_price FLOAT)")
+                cur.execute("CREATE TABLE IF NOT EXISTS temp_item_sold_details(sold_item_id int(8) PRIMARY KEY NOT NULL,sold_item_name varchar(25) NOT NULL,sold_quantity FLOAT NOT NULL,sold_price FLOAT NOT NULL,sold_category varchar(20),sold_gst FLOAT,sold_discount FLOAT,total_price FLOAT)")
                 
-                cur.execute("INSERT INTO temp_item_sold_details(sold_item_id,sold_item_name,date,sold_quantity,sold_price,sold_category,sold_gst,sold_discount,total_price)VALUES({},'{}','{}',{:.2f},{:.2f},'{}',{:.2f},{:.2f},{:.2f}) ON CONFLICT (sold_item_id) DO UPDATE SET sold_quantity=sold_quantity+{:.2f},sold_discount={:.2f} returning sold_item_id".format(int(billing_item_code_tb.get()),billing_item_name_tb.get(),date,float(billing_quantity_tb.get()),float(billing_price_tb.get()),billing_category_tb.get(),float(tax_amount),float(discount_amount),float(total_amount),float(billing_quantity_tb.get()),float(discount_amount)))
+                cur.execute("INSERT INTO temp_item_sold_details(sold_item_id,sold_item_name,sold_quantity,sold_price,sold_category,sold_gst,sold_discount,total_price)VALUES({},'{}',{:.2f},{:.2f},'{}',{:.2f},{:.2f},{:.2f}) ON CONFLICT (sold_item_id) DO UPDATE SET sold_quantity=sold_quantity+{:.2f},sold_discount={:.2f} returning sold_item_id".format(int(billing_item_code_tb.get()),billing_item_name_tb.get(),float(billing_quantity_tb.get()),float(billing_price_tb.get()),billing_category_tb.get(),float(tax_amount),float(discount_amount),float(total_amount),float(billing_quantity_tb.get()),float(discount_amount)))
                 id_to_update=cur.fetchall()
                 
                 cur.execute("SELECT sold_quantity FROM temp_item_sold_details where sold_item_id={:.2f}".format(id_to_update[0][0]))
@@ -1569,7 +1569,7 @@ def billing_obj():
                 con=sqlite3.connect("Store_Data.sql")
                 cur=con.cursor()
                 cur.execute("drop table temp_item_sold_details")
-                cur.execute("CREATE TABLE IF NOT EXISTS temp_item_sold_details(sold_item_id int(8) PRIMARY KEY NOT NULL,sold_item_name varchar(25) NOT NULL,date date,sold_quantity FLOAT NOT NULL,sold_price FLOAT NOT NULL,sold_category varchar(20),sold_gst FLOAT,sold_discount FLOAT,total_price FLOAT)")
+                cur.execute("CREATE TABLE IF NOT EXISTS temp_item_sold_details(sold_item_id int(8) PRIMARY KEY NOT NULL,sold_item_name varchar(25) NOT NULL,sold_quantity FLOAT NOT NULL,sold_price FLOAT NOT NULL,sold_category varchar(20),sold_gst FLOAT,sold_discount FLOAT,total_price FLOAT)")
                 total_lbl.configure(text="0000.00")
                 con.commit()
                 con.close()
@@ -1606,8 +1606,8 @@ def billing_obj():
             try:
                 con=sqlite3.connect("Store_Data.sql")
                 cur=con.cursor()
-                cur.execute("CREATE TABLE IF NOT EXISTS customer_details(customer_name varchar(20) NOT NULL,dealer_gstin varchar(20),dealer_address varchar(30) NOT NULL,dealer_contact int(12) NOT NULL)")
-                cur.execute("CREATE TABLE IF NOT EXISTS temp_item_sold_details(sold_item_id int(8) PRIMARY KEY NOT NULL,sold_item_name varchar(25) NOT NULL,date date,sold_quantity FLOAT NOT NULL,sold_price FLOAT NOT NULL,sold_category varchar(20),sold_gst FLOAT,sold_discount FLOAT,total_price FLOAT)")
+                cur.execute("CREATE TABLE IF NOT EXISTS customer_details(customer_name varchar(20) NOT NULL,mobile_number varchar(10),bill_number varchar(30) NOT NULL,date date)")
+                cur.execute("CREATE TABLE IF NOT EXISTS temp_item_sold_details(sold_item_id int(8) PRIMARY KEY NOT NULL,sold_item_name varchar(25) NOT NULL,sold_quantity FLOAT NOT NULL,sold_price FLOAT NOT NULL,sold_category varchar(20),sold_gst FLOAT,sold_discount FLOAT,total_price FLOAT)")
                 cur.execute("SELECT * from temp_item_purchase_details")
                 row=cur.fetchall()
                 for i in row:
@@ -1627,7 +1627,7 @@ def billing_obj():
     con=sqlite3.connect("Store_Data.sql")
     cur=con.cursor()
     cur.execute("drop table temp_item_sold_details")
-    cur.execute("CREATE TABLE IF NOT EXISTS temp_item_sold_details(sold_item_id int(8) PRIMARY KEY NOT NULL,sold_item_name varchar(25) NOT NULL,date date,sold_quantity FLOAT NOT NULL,sold_price FLOAT NOT NULL,sold_category varchar(20),sold_gst FLOAT,sold_discount FLOAT,total_price FLOAT,updated_price FLOAT)")
+    cur.execute("CREATE TABLE IF NOT EXISTS temp_item_sold_details(sold_item_id int(8) PRIMARY KEY NOT NULL,sold_item_name varchar(25) NOT NULL,sold_quantity FLOAT NOT NULL,sold_price FLOAT NOT NULL,sold_category varchar(20),sold_gst FLOAT,sold_discount FLOAT,total_price FLOAT,updated_price FLOAT)")
     con.commit()
 
 menu_frame_obj()

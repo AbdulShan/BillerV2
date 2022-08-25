@@ -1308,6 +1308,10 @@ def billing_obj():
     #Item Name TextBox
     billing_item_name_tb=Entry(billing_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=21)
     billing_item_name_tb.place(relx = 0.093, rely = 0.15, anchor = NW)
+
+    #category cb
+    billing_category_tb=Entry(billing_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=14)
+    billing_category_tb.place(relx = 0.214, rely = 0.15, anchor = NW)
     
     try:
         con=sqlite3.connect("Store_Data.sql")
@@ -1332,45 +1336,32 @@ def billing_obj():
             item_no_array.append(j[0])
             item_name_array.append(j[1])
 
-        billing_item_code_tb.configure(state='normal')
-        billing_item_code_tb.delete(0,END)
-        billing_item_name_tb.delete(0,END)
-        billing_item_code_tb.insert(0,item_no_array[pos])
-        billing_item_name_tb.insert(0,item_name_array[pos])
-        billing_item_code_tb.configure(state='readonly')
+        try:
+            con=sqlite3.connect("Store_Data.sql")
+            cur=con.cursor()
+            cur.execute("SELECT item_category FROM item_purchase_details where item_id={}".format(item_no_array[pos]))
+            row=cur.fetchall()
+            if (row[0][0] is None):
+                messagebox.showerror(title='Error', message="Category Not Set\n Set the Category First")
+                billing_item_name_tb.delete(0,END)
+                billing_category_tb.delete(0,END)
+                billing_item_code_tb.configure(state='normal')
+                billing_item_code_tb.delete(0,END)
+                billing_item_code_tb.configure(state='readonly')
+            else:
+                billing_item_code_tb.configure(state='normal')
+                billing_item_code_tb.delete(0,END)
+                billing_item_name_tb.delete(0,END)
+                billing_category_tb.delete(0,END)
+                billing_item_code_tb.insert(0,item_no_array[pos])
+                billing_item_name_tb.insert(0,item_name_array[pos])
+                billing_category_tb.insert(0,row[0][0])
+                billing_item_code_tb.configure(state='readonly')
+            con.close()
+        except sqlite3.Error as err:
+            print("Error - ",err)
     
     billing_item_code_tb.bind('<<ComboboxSelected>>', callback)
-
-
-    #category cb
-    style.configure("TCombobox", fg= element_color, bg= entry_box_color)
-    billing_category_tb=ttk.Combobox(billing_frame,values='',font=arial,width=12,state='readonly')
-    billing_category_tb.place(relx = 0.214, rely = 0.153, anchor = NW)
-    
-    try:
-        con=sqlite3.connect("Store_Data.sql")
-        cur=con.cursor()
-        cur.execute("SELECT category FROM category_tax_details")
-        row=cur.fetchall()
-        item_cat=[]
-        for i in row:
-            item_cat.append(i)
-        billing_category_tb.configure(values=item_cat)
-        con.commit()
-        con.close()
-    except sqlite3.Error as err:
-            print("Error - ",err)
-
-    #for combox and autofill
-    def callback2(*args):
-        pos=int(billing_category_tb.current())
-        item_no_array2=[]
-        for j in item_cat:
-            item_no_array2.append(j[0])
-        billing_category_tb.delete(0,END)
-        billing_category_tb.insert(0,item_no_array2[pos])
-    
-    billing_category_tb.bind('<<ComboboxSelected>>', callback2)
 
     #Quantity TextBox
     billing_quantity_tb=Entry(billing_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=8)

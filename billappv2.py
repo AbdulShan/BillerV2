@@ -1133,7 +1133,9 @@ def item_obj():
         item_id_tb.insert(0,item_id)
         item_name_tb.insert(0,item_name)
         item_quantity_tb.insert(0,item_stock)
+        item_category_tb.configure(state='normal')
         item_category_tb.insert(0,item_category)
+        item_category_tb.configure(state='readonly')
         item_price_tb.insert(0,item_price)
         selling_price_tb.insert(0,item_selling_price)
 
@@ -1306,12 +1308,22 @@ def billing_obj():
     billing_item_code_tb.place(relx = 0.03, rely = 0.153, anchor = NW)
 
     #Item Name TextBox
-    billing_item_name_tb=Entry(billing_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=21)
+    billing_item_name_tb=Entry(billing_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=21,state='disabled')
     billing_item_name_tb.place(relx = 0.093, rely = 0.15, anchor = NW)
 
     #category cb
-    billing_category_tb=Entry(billing_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=14)
+    billing_category_tb=Entry(billing_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=14,state='disabled')
     billing_category_tb.place(relx = 0.214, rely = 0.15, anchor = NW)
+
+    #item Price
+    billing_price_tb=Entry(billing_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=9,state='disabled')
+    billing_price_tb.place(relx = 0.344, rely = 0.15, anchor = NW)
+
+    #item TAX
+    billing_tax_tb=Entry(billing_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=8,state='disabled')
+    billing_tax_tb.place(relx = 0.396, rely = 0.15, anchor = NW)
+
+
     
     try:
         con=sqlite3.connect("Store_Data.sql")
@@ -1339,24 +1351,48 @@ def billing_obj():
         try:
             con=sqlite3.connect("Store_Data.sql")
             cur=con.cursor()
-            cur.execute("SELECT item_category FROM item_purchase_details where item_id={}".format(item_no_array[pos]))
+            cur.execute("SELECT item_category,selling_price FROM item_purchase_details where item_id={}".format(item_no_array[pos]))
             row=cur.fetchall()
-            if (row[0][0] is None):
+            if (row[0][0] is None) or (row[0][1] is None):
                 messagebox.showerror(title='Error', message="Category Not Set\n Set the Category First")
+                billing_item_code_tb.configure(state='normal')
+                billing_item_name_tb.configure(state='normal')
+                billing_category_tb.configure(state='normal')
+                billing_price_tb.configure(state='normal')
+                billing_tax_tb.configure(state='normal')
+                billing_price_tb.delete(0,END)
                 billing_item_name_tb.delete(0,END)
                 billing_category_tb.delete(0,END)
-                billing_item_code_tb.configure(state='normal')
                 billing_item_code_tb.delete(0,END)
+                billing_tax_tb.delete(0,END)
+                billing_price_tb.configure(state='disabled')
                 billing_item_code_tb.configure(state='readonly')
+                billing_item_name_tb.configure(state='disabled')
+                billing_category_tb.configure(state='disabled')
+                billing_tax_tb.configure(state='disabled')
             else:
+                cur.execute("SELECT tax FROM category_tax_details where category='{}'".format(row[0][0]))
+                tax=cur.fetchall()
                 billing_item_code_tb.configure(state='normal')
+                billing_item_name_tb.configure(state='normal')
+                billing_category_tb.configure(state='normal')
+                billing_price_tb.configure(state='normal')
+                billing_tax_tb.configure(state='normal')
+                billing_price_tb.delete(0,END)
                 billing_item_code_tb.delete(0,END)
                 billing_item_name_tb.delete(0,END)
                 billing_category_tb.delete(0,END)
+                billing_tax_tb.delete(0,END)
                 billing_item_code_tb.insert(0,item_no_array[pos])
                 billing_item_name_tb.insert(0,item_name_array[pos])
                 billing_category_tb.insert(0,row[0][0])
+                billing_price_tb.insert(0,row[0][1])
+                billing_tax_tb.insert(0,tax[0][0])
                 billing_item_code_tb.configure(state='readonly')
+                billing_item_name_tb.configure(state='disabled')
+                billing_category_tb.configure(state='disabled')
+                billing_price_tb.configure(state='disabled')
+                billing_tax_tb.configure(state='disabled')
             con.close()
         except sqlite3.Error as err:
             print("Error - ",err)

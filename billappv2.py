@@ -1645,7 +1645,11 @@ def billing_obj():
 
                 cur.execute("SELECT SUM(total_price) FROM temp_item_sold_details")
                 total_pdf=cur.fetchall()
-                total_pdf1=total_pdf[0]
+                cur.execute("SELECT SUM(sold_discount) FROM temp_item_sold_details")
+                total_discount=cur.fetchall()
+                cur.execute("SELECT SUM(sold_gst) FROM temp_item_sold_details")
+                total_gst=cur.fetchall()
+    
                 con.commit()
                 con.close()
         except sqlite3.Error as err:
@@ -1660,7 +1664,19 @@ def billing_obj():
         pdf_arial_bold()
         pdf.cell(30, 7, txt = "{}".format("Total"),ln = 0, align = 'L', border=0)
         pdf_arial()
-        pdf.cell(30, 7, txt = "{}".format(total_pdf1[0]),ln = 1, align = 'L', border=0)
+        pdf.cell(30, 7, txt = "{}".format(total_pdf[0][0]),ln = 1, align = 'L', border=0)
+        pdf_arial_bold()
+        
+        pdf.cell(30, 7, txt = "{}".format("Total Discount"),ln = 0, align = 'L', border=0)
+        pdf_arial()
+        pdf.cell(10, 7,ln = 0, align = 'L', border=0)
+        pdf.cell(30, 7, txt = "{}".format(total_discount[0][0]),ln = 1, align = 'L', border=0)
+        pdf_arial_bold()
+        
+        pdf.cell(30, 7, txt = "{}".format("Total Tax"),ln = 0, align = 'L', border=0)
+        pdf_arial()
+        pdf.cell(10, 7,ln = 0, align = 'L', border=0)
+        pdf.cell(30, 7, txt = "{}".format(total_gst[0][0]),ln = 0, align = 'L', border=0)
         pdf.output("{}.pdf".format(billing_bill_number_tb.get()))
     
     def save_sold_data_to_database():

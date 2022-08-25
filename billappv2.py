@@ -786,9 +786,9 @@ def dealer_obj():
     dealer_edit_btn.place(relx = 0.12, rely = 0.524, anchor = NW)
 
     #Show details btn
-    dealer_show_details_btn=Button(dealer_frame,fg=element_color,bg=frame_button_color,text="Show Details",width = 16,border=4,command=lambda:[])
+    dealer_show_details_btn=Button(dealer_frame,fg=element_color,bg=frame_button_color,text="Refresh",width = 16,border=4,command=lambda:[])
     dealer_show_details_btn.place(relx = 0.38, rely = 0.524, anchor = NW)
-    
+
     dealer_info()
     dealer_name_tb.bind('<Key>', Scankey)
 
@@ -1016,8 +1016,8 @@ def item_obj():
     item_edit_btn.place(relx = 0.11, rely = 0.496, anchor = NW)
 
     #item Save btn
-    item_save_btn=Button(item_frame,fg=element_color,bg=frame_button_color,text="Save",width = 15,border=4,command=lambda:[])
-    item_save_btn.place(relx = 0.422, rely = 0.496, anchor = NW)
+    item_refresh_btn=Button(item_frame,fg=element_color,bg=frame_button_color,text="Refresh",width = 15,border=4,command=lambda:[])
+    item_refresh_btn.place(relx = 0.422, rely = 0.496, anchor = NW)
 
     #item treeview element
     item_tree_view= Treeview(item_frame,selectmode='browse',height=17)

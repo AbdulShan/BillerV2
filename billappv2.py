@@ -861,71 +861,6 @@ def dealer_obj():
                 dealer_frame.destroy()
                 dealer_obj()
 
-
-
-'''def customer_detail_obj():
-    customer_detail_frame=Frame(root,width=1670,height=1060,bg=frame_color)
-    customer_detail_frame.grid(row=0,column=1)
-    customer_detail_frame.propagate(0)
-
-    customer_detail_customer_details_lbl=Label(customer_detail_frame,text="Customer Details",font=book_antiqua_size18,bg=frame_color,fg=element_color)
-    customer_detail_customer_details_lbl.place(relx = 0.4, rely = 0.065, anchor = NW)
-    
-    #customer_detail_ Customer Name
-    customer_detail_customer_name_lbl=Label(customer_detail_frame,text="Customer Name",font=book_antiqua,bg=frame_color,fg=element_color)
-    customer_detail_customer_name_lbl.place(relx = 0.04, rely = 0.14, anchor = NW)
-
-    customer_detail_customer_name_tb=Entry(customer_detail_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=30)
-    customer_detail_customer_name_tb.place(relx = 0.115, rely = 0.14, anchor = NW)
-
-    #customer_detail_ Customer Mobile NUmber
-    customer_detail_mobile_lbl=Label(customer_detail_frame,text="Mobile",font=book_antiqua,bg=frame_color,fg=element_color)
-    customer_detail_mobile_lbl.place(relx = 0.31, rely = 0.14, anchor = NW)
-
-    customer_detail_mobile_tb=Entry(customer_detail_frame,fg=element_color,bg=entry_box_color,font=arial,border=4)
-    customer_detail_mobile_tb.place(relx = 0.345, rely = 0.14, anchor = NW)
-
-    #customer_detail add button
-    customer_detail_add_btn=Button(customer_detail_frame,fg=element_color,bg=entry_box_color,text="Add",width = 25,border=4,command=lambda:[])
-    customer_detail_add_btn.place(relx = 0.5, rely = 0.14, anchor = NW)
-
-    #customer_detail_ refresh btn
-    customer_detail_refresh_btn=Button(customer_detail_frame,fg=element_color,bg=entry_box_color,text="Delete",width = 15,border=4,command=lambda:[])
-    customer_detail_refresh_btn.place(relx = 0.03, rely = 0.67, anchor = NW)
-
-    #customer_detail_ Delete btn
-    customer_detail_delete_btn=Button(customer_detail_frame,fg=element_color,bg=entry_box_color,text="Refresh",width = 15,border=4,command=lambda:[])
-    customer_detail_delete_btn.place(relx = 0.11, rely = 0.67, anchor = NW)
-
-    #customer_detail_ Edit btn
-    customer_detail_edit_btn=Button(customer_detail_frame,fg=element_color,bg=entry_box_color,text="Edit",width = 15,border=4,command=lambda:[])
-    customer_detail_edit_btn.place(relx = 0.19, rely = 0.67, anchor = NW)
-
-    #customer_detail_treeview element
-    customer_detail_tree_view= Treeview(customer_detail_frame,selectmode='browse',height=23)
-    customer_detail_tree_view.place(relx = 0.03, rely = 0.2, anchor = NW)
-
-    #verticle scrollbar
-    #vertical_scrollbar=Scrollbar(billing_frame,orient="vertical",command=tree_view.yview)
-    #vertical_scrollbar.place(relx = 0.03, rely = 0.3, anchor = NW)
-    #tree_view.configure(xscrollcommand=vertical_scrollbar.set)
-
-    #Definning number of columns
-    customer_detail_tree_view["columns"]=("1","2","3")
-
-    #defining heading
-    customer_detail_tree_view["show"]='headings'
-
-    #modifying the size of the columns
-    customer_detail_tree_view.column("1",width=100)
-    customer_detail_tree_view.column("2",width=250)
-    customer_detail_tree_view.column("3",width=200)
-
-    #assigning heading name
-    customer_detail_tree_view.heading("1",text="Customer Id")
-    customer_detail_tree_view.heading("2",text="Customer Name")
-    customer_detail_tree_view.heading("3",text="Mobile Number")'''
-
 def item_obj():
     company_details_btn.config(state='normal',bg=menu_button_color)
     purchase_btn.config(state='normal',bg=menu_button_color)
@@ -1524,35 +1459,45 @@ def billing_obj():
             product_price_overall=product_price_after_tax*float(billing_quantity_tb.get())
             total_amount=product_price_overall-discount_amount
 
-            customer_data={'dealer_name':billing_customer_name_tb.get(),'customer_mobile':int(billing_mobile_tb.get()),'customer_bill_number':int(billing_bill_number_tb.get())}
+            global customer_data
+            customer_data={'customer_name':billing_customer_name_tb.get(),'customer_mobile':int(billing_mobile_tb.get()),'customer_bill_number':int(billing_bill_number_tb.get())}
 
             try:
                 con=sqlite3.connect("Store_Data.sql")
                 cur=con.cursor()
                 cur.execute("CREATE TABLE IF NOT EXISTS temp_item_sold_details(sold_item_id int(8) PRIMARY KEY NOT NULL,sold_item_name varchar(25) NOT NULL,sold_quantity FLOAT NOT NULL,sold_price FLOAT NOT NULL,sold_category varchar(20),sold_gst FLOAT,sold_discount FLOAT,total_price FLOAT)")
                 
-                cur.execute("INSERT INTO temp_item_sold_details(sold_item_id,sold_item_name,sold_quantity,sold_price,sold_category,sold_gst,sold_discount,total_price)VALUES({},'{}',{:.2f},{:.2f},'{}',{:.2f},{:.2f},{:.2f}) ON CONFLICT (sold_item_id) DO UPDATE SET sold_quantity=sold_quantity+{:.2f},sold_discount={:.2f} returning sold_item_id".format(int(billing_item_code_tb.get()),billing_item_name_tb.get(),float(billing_quantity_tb.get()),float(billing_price_tb.get()),billing_category_tb.get(),float(tax_amount),float(discount_amount),float(total_amount),float(billing_quantity_tb.get()),float(discount_amount)))
-                id_to_update=cur.fetchall()
-                
-                cur.execute("SELECT sold_quantity FROM temp_item_sold_details where sold_item_id={:.2f}".format(id_to_update[0][0]))
-                updated_quantity=cur.fetchall()
-                print(updated_quantity)
-                cur.execute("UPDATE temp_item_sold_details SET total_price=({}*(sold_price+sold_gst))-sold_discount where sold_item_id={:.2f}".format(float(updated_quantity[0][0]),id_to_update[0][0]))
-                con.commit()
-                cur.execute("SELECT sold_item_id,sold_item_name,sold_category,sold_quantity,sold_price,sold_gst,sold_discount,total_price FROM temp_item_sold_details ORDER BY sold_item_id ASC")
-                row=cur.fetchall()
-                clear_all(billing_tree_view)
-                for i in row:
-                    billing_tree_view.insert("", 'end', text ="L1",values =(i[0],i[1],i[2],i[3],i[4],i[5],i[6],i[7]))
-                cur.execute("SELECT SUM(total_price) FROM temp_item_sold_details")
-                total1=cur.fetchall()
-                con.commit()
-                if len(total1)<1:
-                    total_lbl.configure(text="0000.00")
-                else:
-                    total_lbl.configure(text="{:.2f}".format(float(total1[0][0])))
-                con.commit()
-                con.close()
+                cur.execute("SELECT purchase_quantity from item_purchase_details where item_id={}".format(int(billing_item_code_tb.get())))
+                stock=cur.fetchall()
+                if stock[0][0]>0:
+                    cur.execute("INSERT INTO temp_item_sold_details(sold_item_id,sold_item_name,sold_quantity,sold_price,sold_category,sold_gst,sold_discount,total_price)VALUES({},'{}',{:.2f},{:.2f},'{}',{:.2f},{:.2f},{:.2f}) ON CONFLICT (sold_item_id) DO UPDATE SET sold_quantity=sold_quantity+{:.2f},sold_discount={:.2f} returning sold_item_id".format(int(billing_item_code_tb.get()),billing_item_name_tb.get(),float(billing_quantity_tb.get()),float(billing_price_tb.get()),billing_category_tb.get(),float(tax_amount),float(discount_amount),float(total_amount),float(billing_quantity_tb.get()),float(discount_amount)))
+                    id_to_update=cur.fetchall()
+                    cur.execute("SELECT sold_quantity FROM temp_item_sold_details where sold_item_id={}".format(id_to_update[0][0]))
+                    updated_quantity=cur.fetchall()
+                    cur.execute("UPDATE temp_item_sold_details SET total_price=({}*(sold_price+sold_gst))-sold_discount where sold_item_id={:.2f}".format(float(updated_quantity[0][0]),id_to_update[0][0]))
+                    con.commit()
+                    cur.execute("SELECT sold_item_id,sold_item_name,sold_category,sold_quantity,sold_price,sold_gst,sold_discount,total_price FROM temp_item_sold_details ORDER BY sold_item_id ASC")
+                    row=cur.fetchall()
+                    clear_all(billing_tree_view)
+                    for i in row:
+                        billing_tree_view.insert("", 'end', text ="L1",values =(i[0],i[1],i[2],i[3],i[4],i[5],i[6],i[7]))
+                    cur.execute("SELECT SUM(total_price) FROM temp_item_sold_details")
+                    total1=cur.fetchall()
+                    con.commit()
+                    if len(total1)<1:
+                        total_lbl.configure(text="0000.00")
+                    else:
+                        total_lbl.configure(text="{:.2f}".format(float(total1[0][0])))
+                    con.commit()
+                    cur.execute("UPDATE item_purchase_details SET purchase_quantity=purchase_quantity-{:.2f} where item_id={}".format(float(billing_quantity_tb.get()),int(billing_item_code_tb.get())))
+                    
+                    cur.execute("SELECT purchase_quantity FROM item_purchase_details WHERE item_id={}".format(int(billing_item_code_tb.get())))
+                    updated_stock=cur.fetchall()
+                    if updated_stock[0][0]<0:
+                        con.rollback()
+                        messagebox.showerror(title='Error', message="Stock Empty\ only '{}' stock left".format(stock[0][0]))
+                    con.commit()
+                    con.close()
             except sqlite3.Error as err:
                 print("Error - ",err)
                 error_message=str(err)
@@ -1586,37 +1531,157 @@ def billing_obj():
                 cur.execute("DELETE FROM temp_item_sold_details where sold_item_id={}".format(selected_treeview_item))
                 cur.execute("SELECT sold_item_id,sold_item_name,sold_category,sold_quantity,sold_price,sold_gst,sold_discount,total_price FROM temp_item_sold_details ORDER BY sold_item_id ASC")
                 row=cur.fetchall()
+
+                #fixing to be done
+                curItem = billing_tree_view.focus()
+                billing_tree_view.item(curItem)
+                selected_items1 =billing_tree_view.item(curItem)
+                print(selected_items1)
+                for key, value in selected_items1.items():
+                    if key == 'values':
+                        selected_treeview_item3=value[3]
+
                 clear_all(billing_tree_view)
                 for i in row:
                     billing_tree_view.insert("", 'end', text ="L1",values =(i[0],i[1],i[2],i[3],i[4],i[5],i[6],i[7]))
                 cur.execute("SELECT SUM(total_price) FROM temp_item_sold_details")
                 total=cur.fetchall()
-                print(len(total))
-                print(total)
+
                 if str(total[0][0])=='None':
                     total_lbl.configure(text="0000.00")
                 else:
                     total_lbl.configure(text="{:.2f}".format(float(total[0][0])))
+
+                cur.execute("UPDATE item_purchase_details SET purchase_quantity=purchase_quantity+{:.2f} where item_id={}".format(float(selected_treeview_item3),selected_treeview_item))
+                #####
                 con.commit()
                 con.close()
             except sqlite3.Error as err:
                 print("Error - ",err)
+    def pdf_output():
+        pdf= fpdf.FPDF()
+        pdf.add_page()
+
+        def pdf_arial():
+            pdf.set_font("Arial", size = 12)
+
+        def pdf_arial_bold():
+            pdf.set_font("Arial",style="B", size = 12)
+
+        #invoice
+        pdf.set_font("Times",style="BU", size = 55)
+        pdf.cell(93, 28, txt = "INVOICE",ln = 2, align = 'L', border=0)
+        
+
+
+        #celspacer
+        def cellspacer():
+            pdf.cell(30, 7,ln = 0, align = 'L', border=0)
+
+        def cellspacer_bottom():
+            pdf.cell(30, 5,ln = 1, align = 'L', border=0)
+
+
+        #row1
+        pdf.set_font("Arial",style="B", size = 12)
+        pdf.cell(30, 5, txt = "Bill Number",ln = 0, align = 'L', border=0)
+        cellspacer()
+        pdf.cell(30, 5, txt = "Date of Issue",ln = 1, align = 'L', border=0)
+
+        #row2
+        pdf_arial()
+        pdf.cell(30, 7, txt = "{}".format(int(billing_bill_number_tb.get())),ln = 0, align = 'L', border=0)
+        cellspacer()
+        pdf.cell(30, 7, txt = "{}".format(datesorted),ln = 1, align = 'L', border=0)
+
+        #row3
+        cellspacer_bottom()
+
+        #row4
+        pdf_arial_bold()
+        pdf.cell(30, 5, txt = "Billed To",ln = 0, align = 'L', border=0)
+        cellspacer()
+        pdf.cell(30, 5, txt = "The-Mart",ln = 1, align = 'L', border=0)
+
+        #row5
+        pdf_arial()
+        pdf.cell(30, 7, txt = "{}".format(billing_customer_name_tb.get()),ln = 0, align = 'L', border=0)
+        cellspacer()
+        pdf.cell(30, 7, txt = "{}".format("5th Street"),ln = 1, align = 'L', border=0)
+        cellspacer()
+        cellspacer()
+        pdf.cell(30, 7, txt = "{}".format("#company mail"),ln = 1, align = 'L', border=0)
+        cellspacer()
+        cellspacer()
+        pdf.cell(30, 7, txt = "{}".format("#contact number"),ln = 1, align = 'L', border=0)
+        cellspacer_bottom()
+        cellspacer_bottom()
+        pdf_arial_bold()
+        pdf.cell(10, 7, txt = "{}".format("no."),ln = 0, align = 'L', border=0)
+        pdf.cell(30, 7, txt = "{}".format("Item Name"),ln = 0, align = 'L', border=0)
+        pdf.cell(30, 7, txt = "{}".format("Units/Kg"),ln = 0, align = 'L', border=0)
+        pdf.cell(30, 7, txt = "{}".format("Unit Cost"),ln = 0, align = 'L', border=0)
+        pdf.cell(30, 7, txt = "{}".format("Tax"),ln = 0, align = 'L', border=0)
+        pdf.cell(30, 7, txt = "{}".format("Discount"),ln = 0, align = 'L', border=0)
+        pdf.cell(30, 7, txt = "{}".format("Amount"),ln = 1, align = 'L', border=0)
+        pdf.line(11, 99, 187, 99)
+
+        cellspacer_bottom()
+        try:
+                con=sqlite3.connect('Store_Data.sql')
+                cur=con.cursor()
+                cur.execute("SELECT ROWID,sold_item_name,sold_quantity,sold_price,sold_gst,sold_discount,total_price FROM temp_item_sold_details ORDER BY ROWID ASC")
+                rec=cur.fetchall()
+                for i in rec:
+                    number_of_items=len(rec)
+                    pdf_arial()
+                    pdf.cell(10, 7, txt = "{}".format(i[0]),ln = 0, align = 'L', border=0)
+                    pdf.cell(30, 7, txt = "{}".format(i[1]),ln = 0, align = 'L', border=0)
+                    pdf.cell(30, 7, txt = "{}".format(i[2]),ln = 0, align = 'L', border=0)
+                    pdf.cell(30, 7, txt = "{}".format(i[3]),ln = 0, align = 'L', border=0)
+                    pdf.cell(30, 7, txt = "{}".format(i[4]),ln = 0, align = 'L', border=0)
+                    pdf.cell(30, 7, txt = "{}".format(i[5]),ln = 0, align = 'L', border=0)
+                    pdf.cell(30, 7, txt = "{}".format(i[6]),ln = 1, align = 'L', border=0)
+
+                cur.execute("SELECT SUM(total_price) FROM temp_item_sold_details")
+                total_pdf=cur.fetchall()
+                total_pdf1=total_pdf[0]
+                con.commit()
+                con.close()
+        except sqlite3.Error as err:
+            print("Error: ",err)
+
+        pdf.cell(30, 7, txt = "{}".format("-----------------------------------------------------------------------------------------------------------------------------"),ln = 1, align = 'L', border=0)
+        pdf.cell(10, 7,ln = 0, align = 'L', border=0)
+        cellspacer()
+        cellspacer()
+        cellspacer()
+        cellspacer()
+        pdf_arial_bold()
+        pdf.cell(30, 7, txt = "{}".format("Total"),ln = 0, align = 'L', border=0)
+        pdf_arial()
+        pdf.cell(30, 7, txt = "{}".format(total_pdf1[0]),ln = 1, align = 'L', border=0)
+        pdf.output("{}.pdf".format(billing_bill_number_tb.get()))
     
     def save_sold_data_to_database():
             try:
                 con=sqlite3.connect("Store_Data.sql")
                 cur=con.cursor()
-                cur.execute("CREATE TABLE IF NOT EXISTS customer_details(customer_name varchar(20) NOT NULL,mobile_number varchar(10),bill_number varchar(30) NOT NULL,date date)")
-                cur.execute("CREATE TABLE IF NOT EXISTS temp_item_sold_details(sold_item_id int(8) PRIMARY KEY NOT NULL,sold_item_name varchar(25) NOT NULL,sold_quantity FLOAT NOT NULL,sold_price FLOAT NOT NULL,sold_category varchar(20),sold_gst FLOAT,sold_discount FLOAT,total_price FLOAT)")
-                cur.execute("SELECT * from temp_item_purchase_details")
+                cur.execute("CREATE TABLE IF NOT EXISTS customer_details(customer_name varchar(20) NOT NULL,mobile_number int(10),bill_number int(8) NOT NULL,date date,amount FLOAT)")
+                cur.execute("CREATE TABLE IF NOT EXISTS item_sold_details(bill_number int(8),sold_item_name varchar(25),sold_quantity FLOAT,sold_price FLOAT ,sold_category varchar(20),sold_gst FLOAT,sold_discount FLOAT,total_price FLOAT)")
+                cur.execute("SELECT * from temp_item_sold_details")
                 row=cur.fetchall()
+                cur.execute("SELECT SUM(total_price) FROM temp_item_sold_details")
+                total=cur.fetchall()
                 for i in row:
-                    cur.execute("INSERT INTO item_purchase_details(item_id,date,item_name,purchase_quantity,buying_price,total_price)VALUES({},'{}','{}',{:.2f},{:.2f},{:.2f}) ON CONFLICT (item_id) DO UPDATE SET purchase_quantity=purchase_quantity+{:.2f},buying_price={:.2f} returning item_id".format(i[0],i[1],i[2],i[3],i[4],i[5],i[3],i[4]))
+                    cur.execute("INSERT INTO item_sold_details(bill_number,sold_item_name,sold_quantity,sold_price,sold_category,sold_gst,sold_discount,total_price)VALUES({},'{}',{:.2f},{:.2f},'{}',{:.2f},{:.2f},{:.2f})".format(int(billing_bill_number_tb.get()),i[1],i[2],i[3],i[4],i[5],i[6],i[7]))
                     id_to_update=cur.fetchall()
-                    cur.execute("UPDATE item_purchase_details SET total_price=purchase_quantity*buying_price where item_id={}".format(id_to_update[0][0]))
+                    #cur.execute("UPDATE item_purchase_details SET total_price=purchase_quantity*buying_price where item_id={}".format(id_to_update[0][0]))
                 
-                cur.execute("INSERT OR REPLACE INTO dealer_purchase_details(dealer_name,dealer_gstin,dealer_address,dealer_contact)VALUES('{}','{}','{}',{})".format(dealer_data['dealer_name'],dealer_data['dealer_gstin'],dealer_data['purchase_dealer_address'],dealer_data['purchase_dealer_contact']))
+                cur.execute("INSERT INTO customer_details(bill_number,date,customer_name,mobile_number,amount)VALUES({},'{}','{}',{},{})".format(customer_data['customer_bill_number'],datesorted,customer_data['customer_name'],customer_data['customer_mobile'],float(total[0][0])))
                 messagebox.showinfo(title='Saved', message="Products Added to inventory")
+                pdf_output()
+                cur.execute("drop table temp_item_sold_details")
                 con.commit()
                 con.close()
                 delete_all_sold_item()
@@ -1629,6 +1694,8 @@ def billing_obj():
     cur.execute("drop table temp_item_sold_details")
     cur.execute("CREATE TABLE IF NOT EXISTS temp_item_sold_details(sold_item_id int(8) PRIMARY KEY NOT NULL,sold_item_name varchar(25) NOT NULL,sold_quantity FLOAT NOT NULL,sold_price FLOAT NOT NULL,sold_category varchar(20),sold_gst FLOAT,sold_discount FLOAT,total_price FLOAT,updated_price FLOAT)")
     con.commit()
+
+    
 
 menu_frame_obj()
 

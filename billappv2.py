@@ -658,6 +658,7 @@ def purchase_obj():
     con=sqlite3.connect("Store_Data.sql")
     cur=con.cursor()
     cur.execute("drop table temp_item_purchase_details")
+    cur.execute("CREATE TABLE IF NOT EXISTS temp_item_purchase_details(item_id int(8) PRIMARY KEY NOT NULL,date date NOT NULL,item_name varchar(25) NOT NULL,purchase_quantity FLOAT NOT NULL,buying_price FLOAT NOT NULL,total_price FLOAT NOT NULL)")
     con.commit()
 
 def dealer_obj():
@@ -1470,7 +1471,7 @@ def billing_obj():
     total_sgst_lbl2.place(relx = 0.305, rely = 0.555, anchor = NW)'''
 
     #Save And Print Button
-    save_print_button=Button(billing_frame,fg=element_color,bg=frame_button_color,text="Save & Print",width = 13,height=2,border=4,command=lambda:[invoice_number_update()])
+    save_print_button=Button(billing_frame,fg=element_color,bg=frame_button_color,text="Save & Print",width = 13,height=2,border=4,command=lambda:[save_sold_data_to_database(),invoice_number_update()])
     save_print_button.place(relx = 0.44, rely = 0.535, anchor = NW)
 
     #get all data
@@ -1518,11 +1519,10 @@ def billing_obj():
         else:
             print()
             tax_amount=(float(billing_tax_tb.get())*float(billing_price_tb.get()))/100
-
             discount_amount=(float(billing_discount_tb.get())*(float(tax_amount)+float(billing_price_tb.get())))/100
-            temp1=float(billing_price_tb.get())+tax_amount
-            temp2=temp1*float(billing_quantity_tb.get())
-            total_amount=temp2-discount_amount
+            product_price_after_tax=float(billing_price_tb.get())+float(tax_amount)
+            product_price_overall=product_price_after_tax*float(billing_quantity_tb.get())
+            total_amount=product_price_overall-discount_amount
 
             customer_data={'dealer_name':billing_customer_name_tb.get(),'customer_mobile':int(billing_mobile_tb.get()),'customer_bill_number':int(billing_bill_number_tb.get())}
 
@@ -1531,11 +1531,14 @@ def billing_obj():
                 cur=con.cursor()
                 cur.execute("CREATE TABLE IF NOT EXISTS temp_item_sold_details(sold_item_id int(8) PRIMARY KEY NOT NULL,sold_item_name varchar(25) NOT NULL,date date,sold_quantity FLOAT NOT NULL,sold_price FLOAT NOT NULL,sold_category varchar(20),sold_gst FLOAT,sold_discount FLOAT,total_price FLOAT)")
                 
-                cur.execute("INSERT INTO temp_item_sold_details(sold_item_id,sold_item_name,date,sold_quantity,sold_price,sold_category,sold_gst,sold_discount,total_price)VALUES({},'{}','{}',{:.2f},{:.2f},'{}',{:.2f},{:.2f},{:.2f}) ON CONFLICT (sold_item_id) DO UPDATE SET sold_quantity=sold_quantity+{:.2f} returning sold_item_id".format(int(billing_item_code_tb.get()),billing_item_name_tb.get(),date,float(billing_quantity_tb.get()),float(billing_price_tb.get()),billing_category_tb.get(),float(tax_amount),float(discount_amount),float(total_amount),float(billing_quantity_tb.get())))
+                cur.execute("INSERT INTO temp_item_sold_details(sold_item_id,sold_item_name,date,sold_quantity,sold_price,sold_category,sold_gst,sold_discount,total_price)VALUES({},'{}','{}',{:.2f},{:.2f},'{}',{:.2f},{:.2f},{:.2f}) ON CONFLICT (sold_item_id) DO UPDATE SET sold_quantity=sold_quantity+{:.2f},sold_discount={:.2f} returning sold_item_id".format(int(billing_item_code_tb.get()),billing_item_name_tb.get(),date,float(billing_quantity_tb.get()),float(billing_price_tb.get()),billing_category_tb.get(),float(tax_amount),float(discount_amount),float(total_amount),float(billing_quantity_tb.get()),float(discount_amount)))
                 id_to_update=cur.fetchall()
-                print(id_to_update)
-                #cur.execute("UPDATE temp_item_sold_details SET total_price=sold_quantity*sold_price-sold_gst-sold_discount where sold_item_id={}".format(id_to_update[0][0]))
-
+                
+                cur.execute("SELECT sold_quantity FROM temp_item_sold_details where sold_item_id={:.2f}".format(id_to_update[0][0]))
+                updated_quantity=cur.fetchall()
+                print(updated_quantity)
+                cur.execute("UPDATE temp_item_sold_details SET total_price=({}*(sold_price+sold_gst))-sold_discount where sold_item_id={:.2f}".format(float(updated_quantity[0][0]),id_to_update[0][0]))
+                con.commit()
                 cur.execute("SELECT sold_item_id,sold_item_name,sold_category,sold_quantity,sold_price,sold_gst,sold_discount,total_price FROM temp_item_sold_details ORDER BY sold_item_id ASC")
                 row=cur.fetchall()
                 clear_all(billing_tree_view)
@@ -1598,6 +1601,34 @@ def billing_obj():
                 con.close()
             except sqlite3.Error as err:
                 print("Error - ",err)
+    
+    def save_sold_data_to_database():
+            try:
+                con=sqlite3.connect("Store_Data.sql")
+                cur=con.cursor()
+                cur.execute("CREATE TABLE IF NOT EXISTS customer_details(customer_name varchar(20) NOT NULL,dealer_gstin varchar(20),dealer_address varchar(30) NOT NULL,dealer_contact int(12) NOT NULL)")
+                cur.execute("CREATE TABLE IF NOT EXISTS temp_item_sold_details(sold_item_id int(8) PRIMARY KEY NOT NULL,sold_item_name varchar(25) NOT NULL,date date,sold_quantity FLOAT NOT NULL,sold_price FLOAT NOT NULL,sold_category varchar(20),sold_gst FLOAT,sold_discount FLOAT,total_price FLOAT)")
+                cur.execute("SELECT * from temp_item_purchase_details")
+                row=cur.fetchall()
+                for i in row:
+                    cur.execute("INSERT INTO item_purchase_details(item_id,date,item_name,purchase_quantity,buying_price,total_price)VALUES({},'{}','{}',{:.2f},{:.2f},{:.2f}) ON CONFLICT (item_id) DO UPDATE SET purchase_quantity=purchase_quantity+{:.2f},buying_price={:.2f} returning item_id".format(i[0],i[1],i[2],i[3],i[4],i[5],i[3],i[4]))
+                    id_to_update=cur.fetchall()
+                    cur.execute("UPDATE item_purchase_details SET total_price=purchase_quantity*buying_price where item_id={}".format(id_to_update[0][0]))
+                
+                cur.execute("INSERT OR REPLACE INTO dealer_purchase_details(dealer_name,dealer_gstin,dealer_address,dealer_contact)VALUES('{}','{}','{}',{})".format(dealer_data['dealer_name'],dealer_data['dealer_gstin'],dealer_data['purchase_dealer_address'],dealer_data['purchase_dealer_contact']))
+                messagebox.showinfo(title='Saved', message="Products Added to inventory")
+                con.commit()
+                con.close()
+                delete_all_sold_item()
+            except sqlite3.Error as err:
+                print("Error - ",err)
+                messagebox.showerror(title='Error', message="No Data to Save")
+    
+    con=sqlite3.connect("Store_Data.sql")
+    cur=con.cursor()
+    cur.execute("drop table temp_item_sold_details")
+    cur.execute("CREATE TABLE IF NOT EXISTS temp_item_sold_details(sold_item_id int(8) PRIMARY KEY NOT NULL,sold_item_name varchar(25) NOT NULL,date date,sold_quantity FLOAT NOT NULL,sold_price FLOAT NOT NULL,sold_category varchar(20),sold_gst FLOAT,sold_discount FLOAT,total_price FLOAT,updated_price FLOAT)")
+    con.commit()
 
 menu_frame_obj()
 

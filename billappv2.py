@@ -1,23 +1,13 @@
 #All necessary Packages
+from tkinter import messagebox, ttk, Button, Frame, Label, Scrollbar, Toplevel, PhotoImage, BOTTOM, LEFT, RIGHT, CENTER, X, Y, Tk, Entry, NW, END, Text
+from tkinter.ttk import Style, Treeview
+from tkcalendar import DateEntry
 from asyncio.windows_events import NULL
 import datetime
-import errno
-from faulthandler import disable
-from genericpath import exists
-from tkinter import *
 import sqlite3
-from tkinter import messagebox
-from tkinter.simpledialog import askstring
-from tkinter.ttk import Style, Treeview
-from tkinter import ttk
-import atexit
-from os import path
-import sys
-import traceback
+from os import path, mkdir
 import fpdf
 from json import dumps, loads
-import atexit
-from tkcalendar import Calendar, DateEntry
 
 #font
 book_antiqua=("Helvetica Neue Light",12,"normal")
@@ -39,6 +29,17 @@ selection_color='darkblue'
 
 menu_button_height=4
 
+def make_directory(directory_name):
+    try:
+        mkdir('{}'.format(directory_name))
+    except FileExistsError:
+        print('file exists')
+
+make_directory('Billed Bills')
+make_directory('JSON Files')
+make_directory('Database')
+make_directory('LOGO')
+make_directory('GIT')
 
 #date and time, sorting date into dd/mm/yyyy
 date=datetime.date.today()
@@ -47,18 +48,18 @@ datesorted=date.strftime("%d-%m-%Y")
 #Bill Number Counter
 def read_counter(filename):
     #reads the Bill number from the counter.json file
-    if path.exists("{}.json".format(filename)):
+    if path.exists("JSON Files/{}.json".format(filename)):
             if filename=='company_details' or 'cleaner' or 'bool_for_cleaner':
-                return loads(open("{}.json".format(filename), "r").read())
+                return loads(open("JSON Files/{}.json".format(filename), "r").read())
             
 def bill_num(filename):
-    if path.exists("{}.json".format(filename)):
+    if path.exists("JSON Files/{}.json".format(filename)):
         if filename=='bill_number':
-                    return loads(open("{}.json".format(filename), "r").read()) + 1 if path.exists("{}.json".format(filename)) else 0
+                    return loads(open("JSON Files/{}.json".format(filename), "r").read()) + 1 if path.exists("JSON Files/{}.json".format(filename)) else 0
     
 def write_counter(filename,data_to_write):
     #writes/saves the Bill Number in counter.json file
-    with open("{}.json".format(filename), "w") as f:
+    with open("JSON Files/{}.json".format(filename), "w") as f:
         f.write(dumps(data_to_write))
 
 #bill_number = read_counter('bill_number')
@@ -79,7 +80,7 @@ def scroll_bar(frame_name,widget):
 if "__main__"==__name__:
     root=Tk()
     root.title("Billing App")
-    root.iconbitmap('logo.png')
+    root.iconbitmap('LOGO/logo.png')
     #get your Windows width/height, set size to full window
     width = root.winfo_screenwidth()
     height = root.winfo_screenheight()
@@ -101,7 +102,7 @@ menu_frame= Frame(root,bg="#161719",width=250,height=1060)
 menu_frame.grid(row=0,column=0)
 menu_frame.propagate(0)
 
-img=PhotoImage(file='logo.png')
+img=PhotoImage(file='LOGO/logo.png')
 image = Label(menu_frame,image=img)
 
 style = Style(root)
@@ -238,9 +239,9 @@ def company_details_obj():
     category_tb.place(relx = 0.1, rely = 0.4, anchor = NW)
 
     try:
-        con=sqlite3.connect("Store_Data.sql")
+        con=sqlite3.connect("Database/Store_Data.sql")
         cur=con.cursor()
-        cur.execute("SELECT category,tax FROM category_tax_details")
+        cur.execute("SELECT category,tax FROM category_tax_details ORDER BY tax ASC")
         row=cur.fetchall()
         category_list=[]
         for i in row:
@@ -292,7 +293,7 @@ def company_details_obj():
             messagebox.showerror(title='Error', message="CATEGORY \ncannot have Number or special charecter")
         else:
             try:
-                con=sqlite3.connect("Store_Data.sql")
+                con=sqlite3.connect("Database/Store_Data.sql")
                 cur=con.cursor()
                 cur.execute("CREATE TABLE IF NOT EXISTS category_tax_details(category varchar(20) PRIMARY KEY NOT NULL,tax int(2) NOT NULL)")
                 cur.execute("INSERT INTO category_tax_details(category,tax)VALUES('{}',{})".format(category_tb.get(),gst_tb.get()))
@@ -313,7 +314,7 @@ def company_details_obj():
             messagebox.showerror(title='Error', message="CATEGORY \ncannot have Number or special charecter")
         else:
             try:
-                con=sqlite3.connect("Store_Data.sql")
+                con=sqlite3.connect("Database/Store_Data.sql")
                 cur=con.cursor()
                 cur.execute("DELETE FROM category_tax_details WHERE category='{}' AND tax={}".format(category_tb.get(),gst_tb.get()))
                 con.commit()
@@ -431,9 +432,9 @@ def purchase_obj():
     purchase_item_code_tb.place(relx = 0.03, rely = 0.202, anchor = NW)
     
     try:
-        con=sqlite3.connect("Store_Data.sql")
+        con=sqlite3.connect("Database/Store_Data.sql")
         cur=con.cursor()
-        cur.execute("SELECT item_id,item_name FROM item_purchase_details")
+        cur.execute("SELECT item_id,item_name FROM item_purchase_details ORDER BY item_id ASC")
         row=cur.fetchall()
         item_codes=[]
         for i in row:
@@ -533,7 +534,7 @@ def purchase_obj():
         purchase_price=float(purchase_price_tb.get())
         purchase_total=purchase_quantity*purchase_price
         try:
-            con=sqlite3.connect("Store_Data.sql")
+            con=sqlite3.connect("Database/Store_Data.sql")
             cur=con.cursor()
             cur.execute("CREATE TABLE IF NOT EXISTS temp_item_purchase_details(item_id int(8) PRIMARY KEY NOT NULL,date date NOT NULL,item_name varchar(25) NOT NULL,purchase_quantity FLOAT NOT NULL,buying_price FLOAT NOT NULL,total_price FLOAT NOT NULL)")
 
@@ -542,7 +543,7 @@ def purchase_obj():
             cur.execute("UPDATE temp_item_purchase_details SET total_price=purchase_quantity*buying_price where item_id={}".format(id_to_update[0][0]))
 
 
-            cur.execute("SELECT item_id,item_name,purchase_quantity,buying_price,total_price FROM temp_item_purchase_details")
+            cur.execute("SELECT item_id,item_name,purchase_quantity,buying_price,total_price FROM temp_item_purchase_details ORDER BY item_id ASC")
             row=cur.fetchall()
             clear_all(purchase_tree_view)
             for i in row:
@@ -568,10 +569,10 @@ def purchase_obj():
         temp=messagebox.askquestion('Delete Product', 'Are you sure you want to Delete')
         if temp=='yes':
             try:
-                con=sqlite3.connect("Store_Data.sql")
+                con=sqlite3.connect("Database/Store_Data.sql")
                 cur=con.cursor()
                 cur.execute("DELETE FROM temp_item_purchase_details where item_id={}".format(selected_treeview_item))
-                cur.execute("SELECT item_id,item_name,purchase_quantity,buying_price,total_price FROM temp_item_purchase_details")
+                cur.execute("SELECT item_id,item_name,purchase_quantity,buying_price,total_price FROM temp_item_purchase_details ORDER BY item_id ASC")
                 row=cur.fetchall()
                 clear_all(purchase_tree_view)
                 for i in row:
@@ -594,7 +595,7 @@ def purchase_obj():
         if temp=='yes':
             clear_all(purchase_tree_view)
             try:
-                con=sqlite3.connect("Store_Data.sql")
+                con=sqlite3.connect("Database/Store_Data.sql")
                 cur=con.cursor()
                 cur.execute("drop table temp_item_purchase_details")
                 cur.execute("CREATE TABLE IF NOT EXISTS temp_item_purchase_details(item_id int(8) PRIMARY KEY NOT NULL,date date NOT NULL,item_name varchar(25) NOT NULL,purchase_quantity FLOAT NOT NULL,buying_price FLOAT NOT NULL,total_price FLOAT NOT NULL)")
@@ -606,7 +607,7 @@ def purchase_obj():
 
     def save_purchase_data_to_database():
             try:
-                con=sqlite3.connect("Store_Data.sql")
+                con=sqlite3.connect("Database/Store_Data.sql")
                 cur=con.cursor()
                 cur.execute("CREATE TABLE IF NOT EXISTS dealer_purchase_details(dealer_name varchar(20) NOT NULL,dealer_gstin varchar(20),dealer_address varchar(30) NOT NULL,dealer_contact int(12) NOT NULL)")
                 cur.execute("CREATE TABLE IF NOT EXISTS item_purchase_details(item_id int(8) PRIMARY KEY NOT NULL,date date NOT NULL,item_name varchar(25) NOT NULL,purchase_quantity REAL NOT NULL,buying_price REAL NOT NULL,total_price REAL NOT NULL,selling_price REAL,item_category varchar(20))")
@@ -655,7 +656,7 @@ def purchase_obj():
     purchase_tree_view.heading("4",text="Price")
     purchase_tree_view.heading("5",text="Total")
 
-    con=sqlite3.connect("Store_Data.sql")
+    con=sqlite3.connect("Database/Store_Data.sql")
     cur=con.cursor()
     cur.execute("drop table temp_item_purchase_details")
     cur.execute("CREATE TABLE IF NOT EXISTS temp_item_purchase_details(item_id int(8) PRIMARY KEY NOT NULL,date date NOT NULL,item_name varchar(25) NOT NULL,purchase_quantity FLOAT NOT NULL,buying_price FLOAT NOT NULL,total_price FLOAT NOT NULL)")
@@ -718,11 +719,11 @@ def dealer_obj():
             
     def dealer_info():
         try:
-            con=sqlite3.connect("Store_Data.sql")
+            con=sqlite3.connect("Database/Store_Data.sql")
             cur=con.cursor()
             '''#for i in range(100):
                 #cur.execute("INSERT INTO dealer_purchase_details (dealer_name,dealer_contact,dealer_address,dealer_gstin) VALUES({},'{}',{},'{}','{}')".format(i+1321,'asdf',4656546,'asdfsfad',"asdfasdf"))'''
-            cur.execute("SELECT dealer_name,dealer_contact,dealer_address,dealer_gstin from dealer_purchase_details")
+            cur.execute("SELECT dealer_name,dealer_contact,dealer_address,dealer_gstin from dealer_purchase_details ORDER BY dealer_name ASC")
             row=cur.fetchall()
             for i in row:
                 products[i[0]]=[i[2],i[1],i[2],i[3]]
@@ -740,11 +741,11 @@ def dealer_obj():
             if key == 'values':
                 selected_treeview_item1=value[1]
         try:
-            con=sqlite3.connect("Store_Data.sql")
+            con=sqlite3.connect("Database/Store_Data.sql")
             cur=con.cursor()
             cur.execute("DELETE FROM dealer_purchase_details where dealer_contact='{}'".format(selected_treeview_item1))
             con.commit()
-            cur.execute("SELECT dealer_name,dealer_contact,dealer_address,dealer_gstin from dealer_purchase_details")
+            cur.execute("SELECT dealer_name,dealer_contact,dealer_address,dealer_gstin from dealer_purchase_details ORDER BY dealer_name ASC")
             row=cur.fetchall()
             clear_all(dealer_tree_view)
             for i in row:
@@ -848,7 +849,7 @@ def dealer_obj():
                 messagebox.showerror(title='Error', message="GSTIN Number \nmust Have 15 Charecters")
             else:
                 try:
-                    con=sqlite3.connect("Store_Data.sql")
+                    con=sqlite3.connect("Database/Store_Data.sql")
                     cur=con.cursor()
                     cur.execute("DELETE from dealer_purchase_details where dealer_name='{}' and dealer_gstin='{}'".format(dealer_name,dealer_gstin))
                     con.commit()
@@ -903,9 +904,9 @@ def item_obj():
         
 
         try:
-            con=sqlite3.connect("Store_Data.sql")
+            con=sqlite3.connect("Database/Store_Data.sql")
             cur=con.cursor()
-            cur.execute("SELECT category FROM category_tax_details")
+            cur.execute("SELECT category FROM category_tax_details ORDER BY category ASC")
             row=cur.fetchall()
             category_list=[]
             for i in row:
@@ -1009,7 +1010,7 @@ def item_obj():
     
     def item_info():
         try:
-            con=sqlite3.connect("Store_Data.sql")
+            con=sqlite3.connect("Database/Store_Data.sql")
             cur=con.cursor()
             cur.execute("SELECT item_id,item_name,purchase_quantity,item_category,buying_price,selling_price from item_purchase_details ORDER BY item_id ASC")
             row=cur.fetchall()
@@ -1028,7 +1029,7 @@ def item_obj():
         selected_treeview_item=selected_item_from_treeview(item_tree_view,'item_tree_view')
         print(selected_treeview_item)
         try:
-            con=sqlite3.connect("Store_Data.sql")
+            con=sqlite3.connect("Database/Store_Data.sql")
             cur=con.cursor()
             cur.execute("DELETE FROM item_purchase_details where item_id={}".format(selected_treeview_item))
             con.commit()
@@ -1103,7 +1104,7 @@ def item_obj():
                 messagebox.showerror(title='Error', message="Selling Price \ncannot be less than Buying price")
             else:
                 try:
-                    con=sqlite3.connect("Store_Data.sql")
+                    con=sqlite3.connect("Database/Store_Data.sql")
                     cur=con.cursor()
                     total_of_edited_item=float(item_price_tb.get())*float(item_quantity_tb.get())
                     cur.execute("INSERT OR REPLACE INTO item_purchase_details(item_id,date,item_name,purchase_quantity,buying_price,item_category,selling_price,total_price)VALUES({},'{}','{}',{},{},'{}',{},{})".format(int(item_id_tb.get()),datesorted,item_name_tb.get(),float(item_quantity_tb.get()),float(item_price_tb.get()),item_category_tb.get(),float(selling_price_tb.get()),float(total_of_edited_item)))
@@ -1239,13 +1240,13 @@ def billing_obj():
     billing_billed_date.place(relx = 0.515, rely = 0.077, anchor = NW)
 
     #Item Code TextBox
-    style.configure("TCombobox", fg= element_color, bg= entry_box_color)
-    billing_item_code_tb=ttk.Combobox(billing_frame,values='',font=arial,width=9,state='readonly')
-    billing_item_code_tb.place(relx = 0.03, rely = 0.153, anchor = NW)
+    billing_item_code_tb=Entry(billing_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=10,state='disabled')
+    billing_item_code_tb.place(relx = 0.03, rely = 0.15, anchor = NW)
 
     #Item Name TextBox
-    billing_item_name_tb=Entry(billing_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=21,state='disabled')
-    billing_item_name_tb.place(relx = 0.093, rely = 0.15, anchor = NW)
+    style.configure("TCombobox", fg= element_color, bg= entry_box_color)
+    billing_item_name_tb=ttk.Combobox(billing_frame,values='',font=arial,width=20,state='readonly')
+    billing_item_name_tb.place(relx = 0.0925, rely = 0.1535, anchor = NW)
 
     #category cb
     billing_category_tb=Entry(billing_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=14,state='disabled')
@@ -1258,18 +1259,16 @@ def billing_obj():
     #item TAX
     billing_tax_tb=Entry(billing_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=8,state='disabled')
     billing_tax_tb.place(relx = 0.396, rely = 0.15, anchor = NW)
-
-
     
     try:
-        con=sqlite3.connect("Store_Data.sql")
+        con=sqlite3.connect("Database/Store_Data.sql")
         cur=con.cursor()
-        cur.execute("SELECT item_id,item_name FROM item_purchase_details")
+        cur.execute("SELECT item_id,item_name FROM item_purchase_details ORDER BY item_id ASC")
         row=cur.fetchall()
         item_codes=[]
         for i in row:
             item_codes.append(i)
-        billing_item_code_tb.configure(values=item_codes)
+        billing_item_name_tb.configure(values=item_codes)
         con.commit()
         con.close()
     except sqlite3.Error as err:
@@ -1277,7 +1276,7 @@ def billing_obj():
 
     #for combox and autofill
     def callback(*args):
-        pos=int(billing_item_code_tb.current())
+        pos=int(billing_item_name_tb.current())
         item_no_array=[]
         item_name_array=[]
         for j in item_codes:
@@ -1285,7 +1284,7 @@ def billing_obj():
             item_name_array.append(j[1])
 
         try:
-            con=sqlite3.connect("Store_Data.sql")
+            con=sqlite3.connect("Database/Store_Data.sql")
             cur=con.cursor()
             cur.execute("SELECT item_category,selling_price FROM item_purchase_details where item_id={}".format(item_no_array[pos]))
             row=cur.fetchall()
@@ -1302,7 +1301,7 @@ def billing_obj():
                 billing_item_code_tb.delete(0,END)
                 billing_tax_tb.delete(0,END)
                 billing_price_tb.configure(state='disabled')
-                billing_item_code_tb.configure(state='readonly')
+                billing_item_code_tb.configure(state='disabled')
                 billing_item_name_tb.configure(state='disabled')
                 billing_category_tb.configure(state='disabled')
                 billing_tax_tb.configure(state='disabled')
@@ -1324,8 +1323,8 @@ def billing_obj():
                 billing_category_tb.insert(0,row[0][0])
                 billing_price_tb.insert(0,row[0][1])
                 billing_tax_tb.insert(0,tax[0][0])
-                billing_item_code_tb.configure(state='readonly')
-                billing_item_name_tb.configure(state='disabled')
+                billing_item_code_tb.configure(state='disabled')
+                billing_item_name_tb.configure(state='readonly')
                 billing_category_tb.configure(state='disabled')
                 billing_price_tb.configure(state='disabled')
                 billing_tax_tb.configure(state='disabled')
@@ -1333,7 +1332,7 @@ def billing_obj():
         except sqlite3.Error as err:
             print("Error - ",err)
     
-    billing_item_code_tb.bind('<<ComboboxSelected>>', callback)
+    billing_item_name_tb.bind('<<ComboboxSelected>>', callback)
 
     #Quantity TextBox
     billing_quantity_tb=Entry(billing_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=8)
@@ -1391,19 +1390,20 @@ def billing_obj():
     clear_btn=Button(billing_frame,fg=element_color,bg=frame_button_color,text="Clear All",width = 15,border=4,command=lambda:[delete_all_sold_item()])
     clear_btn.place(relx = 0.101, rely = 0.53, anchor = NW)
 
-    '''#Total Gst Label
-    total_cgst_lbl=Label(billing_frame,text="Total CGST",font=book_antiqua,bg=frame_color,fg=element_color)
-    total_cgst_lbl.place(relx = 0.25, rely = 0.53, anchor = NW)
+    Total_discount_lbl=Label(billing_frame,text="Total Discount",font=book_antiqua,bg=frame_color,fg=element_color)
+    Total_discount_lbl.place(relx = 0.2, rely = 0.53, anchor = NW)
+    Total_discount_lbl2=Label(billing_frame,text="Rs 00.00",font=book_antiqua,bg=frame_color,fg=element_color)
+    Total_discount_lbl2.place(relx = 0.28, rely = 0.53, anchor = NW)
 
-    total_cgst_lbl2=Label(billing_frame,text="00.00%",font=book_antiqua,bg=frame_color,fg=element_color)
-    total_cgst_lbl2.place(relx = 0.305, rely = 0.53, anchor = NW)
+    Total_tax_lbl=Label(billing_frame,text="Total Tax ",font=book_antiqua,bg=frame_color,fg=element_color)
+    Total_tax_lbl.place(relx = 0.2, rely = 0.55, anchor = NW)
+    Total_tax_lbl2=Label(billing_frame,text="Rs 00.00",font=book_antiqua,bg=frame_color,fg=element_color)
+    Total_tax_lbl2.place(relx = 0.28, rely = 0.55, anchor = NW)
 
-    #Total Sgst Label
-    total_sgst_lbl=Label(billing_frame,text="Total SGST",font=book_antiqua,bg=frame_color,fg=element_color)
-    total_sgst_lbl.place(relx = 0.25, rely = 0.555, anchor = NW)
-
-    total_sgst_lbl2=Label(billing_frame,text="00.00%",font=book_antiqua,bg=frame_color,fg=element_color)
-    total_sgst_lbl2.place(relx = 0.305, rely = 0.555, anchor = NW)'''
+    Total_items_lbl=Label(billing_frame,text="Total Items ",font=book_antiqua,bg=frame_color,fg=element_color)
+    Total_items_lbl.place(relx = 0.2, rely = 0.57, anchor = NW)
+    Total_items_lbl2=Label(billing_frame,text="Rs 00",font=book_antiqua,bg=frame_color,fg=element_color)
+    Total_items_lbl2.place(relx = 0.28, rely = 0.57, anchor = NW)
 
     #Save And Print Button
     save_print_button=Button(billing_frame,fg=element_color,bg=frame_button_color,text="Save & Print",width = 13,height=2,border=4,command=lambda:[save_sold_data_to_database(),invoice_number_update()])
@@ -1412,7 +1412,7 @@ def billing_obj():
     #get all data
     def invoice_number_update():
         billing_bill_number=bill_num('bill_number')
-        if path.exists('bill_number.json'):
+        if path.exists('JSON Files/bill_number.json'):
             write_counter('bill_number',billing_bill_number)
             billing_bill_number_tb.config(state='normal')
             billing_bill_number_tb.delete(0,END)
@@ -1463,7 +1463,7 @@ def billing_obj():
             customer_data={'customer_name':billing_customer_name_tb.get(),'customer_mobile':int(billing_mobile_tb.get()),'customer_bill_number':int(billing_bill_number_tb.get())}
 
             try:
-                con=sqlite3.connect("Store_Data.sql")
+                con=sqlite3.connect("Database/Store_Data.sql")
                 cur=con.cursor()
                 cur.execute("CREATE TABLE IF NOT EXISTS temp_item_sold_details(sold_item_id int(8) PRIMARY KEY NOT NULL,sold_item_name varchar(25) NOT NULL,sold_quantity FLOAT NOT NULL,sold_price FLOAT NOT NULL,sold_category varchar(20),sold_gst FLOAT,sold_discount FLOAT,total_price FLOAT)")
                 
@@ -1482,12 +1482,24 @@ def billing_obj():
                     for i in row:
                         billing_tree_view.insert("", 'end', text ="L1",values =(i[0],i[1],i[2],i[3],i[4],i[5],i[6],i[7]))
                     cur.execute("SELECT SUM(total_price) FROM temp_item_sold_details")
-                    total1=cur.fetchall()
+                    total=cur.fetchall()
+                    cur.execute("SELECT * FROM temp_item_sold_details")
+                    total_products=cur.fetchall()
+                    cur.execute("SELECT SUM(sold_discount) FROM temp_item_sold_details")
+                    total_discount=cur.fetchall()
+                    cur.execute("SELECT SUM(sold_gst) FROM temp_item_sold_details")
+                    total_tax=cur.fetchall()
                     con.commit()
-                    if len(total1)<1:
+                    if len(total)<1:
                         total_lbl.configure(text="0000.00")
+                        Total_discount_lbl2.configure(text="Rs 00.00")
+                        Total_tax_lbl2.configure(text="Rs 00.00")
+                        Total_items_lbl2.configure(text="Rs 00")
                     else:
-                        total_lbl.configure(text="{:.2f}".format(float(total1[0][0])))
+                        total_lbl.configure(text="{:.2f}".format(float(total[0][0])))
+                        Total_discount_lbl2.configure(text="Rs {:.2f}".format(float(total_discount[0][0])))
+                        Total_tax_lbl2.configure(text="Rs {:.2f}".format(float(total_tax[0][0])))
+                        Total_items_lbl2.configure(text="Rs {}".format(len(total_products)))
                     con.commit()
                     cur.execute("UPDATE item_purchase_details SET purchase_quantity=purchase_quantity-{:.2f} where item_id={}".format(float(billing_quantity_tb.get()),int(billing_item_code_tb.get())))
                     
@@ -1511,11 +1523,14 @@ def billing_obj():
         if temp=='yes':
             clear_all(billing_tree_view)
             try:
-                con=sqlite3.connect("Store_Data.sql")
+                con=sqlite3.connect("Database/Store_Data.sql")
                 cur=con.cursor()
                 cur.execute("drop table temp_item_sold_details")
                 cur.execute("CREATE TABLE IF NOT EXISTS temp_item_sold_details(sold_item_id int(8) PRIMARY KEY NOT NULL,sold_item_name varchar(25) NOT NULL,sold_quantity FLOAT NOT NULL,sold_price FLOAT NOT NULL,sold_category varchar(20),sold_gst FLOAT,sold_discount FLOAT,total_price FLOAT)")
                 total_lbl.configure(text="0000.00")
+                Total_discount_lbl2.configure(text="Rs 00.00")
+                Total_tax_lbl2.configure(text="Rs 00.00")
+                Total_items_lbl2.configure(text="Rs 00")
                 con.commit()
                 con.close()
             except sqlite3.Error as err:
@@ -1526,7 +1541,7 @@ def billing_obj():
         temp=messagebox.askquestion('Delete Product', 'Are you sure you want to Delete')
         if temp=='yes':
             try:
-                con=sqlite3.connect("Store_Data.sql")
+                con=sqlite3.connect("Database/Store_Data.sql")
                 cur=con.cursor()
                 cur.execute("DELETE FROM temp_item_sold_details where sold_item_id={}".format(selected_treeview_item))
                 cur.execute("SELECT sold_item_id,sold_item_name,sold_category,sold_quantity,sold_price,sold_gst,sold_discount,total_price FROM temp_item_sold_details ORDER BY sold_item_id ASC")
@@ -1546,11 +1561,22 @@ def billing_obj():
                     billing_tree_view.insert("", 'end', text ="L1",values =(i[0],i[1],i[2],i[3],i[4],i[5],i[6],i[7]))
                 cur.execute("SELECT SUM(total_price) FROM temp_item_sold_details")
                 total=cur.fetchall()
-
+                cur.execute("SELECT * FROM temp_item_sold_details")
+                total_products=cur.fetchall()
+                cur.execute("SELECT SUM(sold_discount) FROM temp_item_sold_details")
+                total_discount=cur.fetchall()
+                cur.execute("SELECT SUM(sold_gst) FROM temp_item_sold_details")
+                total_tax=cur.fetchall()
                 if str(total[0][0])=='None':
                     total_lbl.configure(text="0000.00")
+                    Total_discount_lbl2.configure(text="Rs 00.00")
+                    Total_tax_lbl2.configure(text="Rs 00.00")
+                    Total_items_lbl2.configure(text="Rs 00")
                 else:
                     total_lbl.configure(text="{:.2f}".format(float(total[0][0])))
+                    Total_discount_lbl2.configure(text="Rs {:.2f}".format(float(total_discount[0][0])))
+                    Total_tax_lbl2.configure(text="Rs {:.2f}".format(float(total_tax[0][0])))
+                    Total_items_lbl2.configure(text="Rs {}".format(len(total_products)))
 
                 cur.execute("UPDATE item_purchase_details SET purchase_quantity=purchase_quantity+{:.2f} where item_id={}".format(float(selected_treeview_item3),selected_treeview_item))
                 #####
@@ -1628,7 +1654,7 @@ def billing_obj():
 
         cellspacer_bottom()
         try:
-                con=sqlite3.connect('Store_Data.sql')
+                con=sqlite3.connect('Database/Store_Data.sql')
                 cur=con.cursor()
                 cur.execute("SELECT ROWID,sold_item_name,sold_quantity,sold_price,sold_gst,sold_discount,total_price FROM temp_item_sold_details ORDER BY ROWID ASC")
                 rec=cur.fetchall()
@@ -1677,15 +1703,16 @@ def billing_obj():
         pdf_arial()
         pdf.cell(10, 7,ln = 0, align = 'L', border=0)
         pdf.cell(30, 7, txt = "{}".format(total_gst[0][0]),ln = 0, align = 'L', border=0)
-        pdf.output("{}.pdf".format(billing_bill_number_tb.get()))
+        make_directory('Billed Bills')
+        pdf.output("Billed Bills/{}.pdf".format(billing_bill_number_tb.get()))
     
     def save_sold_data_to_database():
             try:
-                con=sqlite3.connect("Store_Data.sql")
+                con=sqlite3.connect("Database/Store_Data.sql")
                 cur=con.cursor()
                 cur.execute("CREATE TABLE IF NOT EXISTS customer_details(customer_name varchar(20) NOT NULL,mobile_number int(10),bill_number int(8) NOT NULL,date date,amount FLOAT)")
                 cur.execute("CREATE TABLE IF NOT EXISTS item_sold_details(bill_number int(8),sold_item_name varchar(25),sold_quantity FLOAT,sold_price FLOAT ,sold_category varchar(20),sold_gst FLOAT,sold_discount FLOAT,total_price FLOAT)")
-                cur.execute("SELECT * from temp_item_sold_details")
+                cur.execute("SELECT * from temp_item_sold_details ORDER BY sold_item_name ASC")
                 row=cur.fetchall()
                 cur.execute("SELECT SUM(total_price) FROM temp_item_sold_details")
                 total=cur.fetchall()
@@ -1705,16 +1732,15 @@ def billing_obj():
                 print("Error - ",err)
                 messagebox.showerror(title='Error', message="No Data to Save")
     
-    con=sqlite3.connect("Store_Data.sql")
+    con=sqlite3.connect("Database/Store_Data.sql")
     cur=con.cursor()
-    cur.execute("drop table temp_item_sold_details")
+    cur.execute("drop table if exists temp_item_sold_details")
     cur.execute("CREATE TABLE IF NOT EXISTS temp_item_sold_details(sold_item_id int(8) PRIMARY KEY NOT NULL,sold_item_name varchar(25) NOT NULL,sold_quantity FLOAT NOT NULL,sold_price FLOAT NOT NULL,sold_category varchar(20),sold_gst FLOAT,sold_discount FLOAT,total_price FLOAT,updated_price FLOAT)")
     con.commit()
 
     
 
 menu_frame_obj()
-
 def onclose():
     write_counter('bool_for_cleaner','False')
     root.destroy()

@@ -77,6 +77,18 @@ def scroll_bar(frame_name,widget):
 
     #t = Text(widget, width = 15, height = 15, wrap = NONE,xscrollcommand = h.set,yscrollcommand = v.set)
 
+def validation_10charecters(event):
+    val = event.widget.get()
+    print(val)
+    if len(val)>9:
+        event.widget.delete(9)
+
+def validation_15charecters(event):
+    val = event.widget.get()
+    print(val)
+    if len(val)>14:
+        event.widget.delete(14)
+
 #Tkinter window configs
 if "__main__"==__name__:
     root=Tk()
@@ -220,12 +232,16 @@ def company_details_obj():
     company_gstin_tb=Entry(company_details_frame,fg=element_color,bg=entry_box_color,font=arial,border=4)
     company_gstin_tb.place(relx = 0.2, rely = 0.18, anchor = NW)
 
+    company_gstin_tb.bind('<Key>',validation_15charecters)
+
     #Company Adress
     company_contact_number_lbl=Label(company_details_frame,text="Company Contact",font=book_antiqua,bg=frame_color,fg=element_color)
     company_contact_number_lbl.place(relx = 0.1, rely = 0.22, anchor = NW)
 
     company_contact_number_tb=Entry(company_details_frame,fg=element_color,bg=entry_box_color,font=arial,border=4)
     company_contact_number_tb.place(relx = 0.2, rely = 0.22, anchor = NW)
+
+    company_contact_number_tb.bind('<Key>',validation_10charecters)
 
     #Edit Button and message
     edit_btn=Button(company_details_frame,fg=element_color,bg=frame_button_color,text="Edit Details",width = 20,border=4,command=lambda:[enable_company__text_box(),add_btn.config(state='normal')])
@@ -403,7 +419,7 @@ def purchase_obj():
 
     dealer_gstin_tb=Entry(purchase_frame,fg=element_color,bg=entry_box_color,font=arial,border=4)
     dealer_gstin_tb.place(relx = 0.305, rely = 0.075, anchor = NW)
-
+    dealer_gstin_tb.bind('<Key>',validation_15charecters)
     #Purchase Date
     purchase_date_lbl=Label(purchase_frame,text="Date",font=book_antiqua,bg=frame_color,fg=element_color)
     purchase_date_lbl.place(relx = 0.37, rely = 0.162, anchor = NW)
@@ -426,6 +442,7 @@ def purchase_obj():
 
     purchase_dealer_contact_tb=Entry(purchase_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=20)
     purchase_dealer_contact_tb.place(relx = 0.305, rely = 0.12, anchor = NW)
+    purchase_dealer_contact_tb.bind('<Key>',validation_10charecters)
     
     #Purchase Item Code TextBox
     style.configure("TCombobox", fg= element_color, bg= entry_box_color)
@@ -1277,6 +1294,7 @@ def billing_obj():
 
     billing_mobile_tb=Entry(billing_frame,font=arial,fg=element_color,bg=entry_box_color,border=4,width=17)
     billing_mobile_tb.place(relx = 0.275, rely = 0.075, anchor = NW)
+    billing_mobile_tb.bind('<Key>',validation_10charecters)
 
     #Bill Number
     billing_bill_number_lbl=Label(billing_frame,text="Bill Number",font=book_antiqua,bg=frame_color,fg=element_color)

@@ -6,6 +6,7 @@ from asyncio.windows_events import NULL
 import datetime
 import sqlite3
 from os import path, mkdir
+import subprocess
 import fpdf
 from json import dumps, loads
 
@@ -117,7 +118,7 @@ def selected_item_from_treeview(treeview_name,treeview_name_string):
     curItem = treeview_name.focus()
     treeview_name.item(curItem)
     selected_items =treeview_name.item(curItem)
-    if treeview_name_string=='purchase_tree_view' or 'item_tree_view':
+    if treeview_name_string=='purchase_tree_view' or 'item_tree_view' or 'report_tree_view':
         for key, value in selected_items.items():
             if key == 'values':
                 selected_treeview_item=value[0]
@@ -1158,7 +1159,7 @@ def report_obj():
     report_filter_btn.place(relx = 0.27, rely = 0.19, anchor = NW)
     
     #Show details btn
-    report_show_details_btn=Button(report_frame,fg=element_color,bg=frame_button_color,text="Show Details",width = 16,border=4,command=lambda:[])
+    report_show_details_btn=Button(report_frame,fg=element_color,bg=frame_button_color,text="Show Details",width = 16,border=4,command=lambda:[open_bill()])
     report_show_details_btn.place(relx = 0.365, rely = 0.19, anchor = NW)
 
     #treeview element
@@ -1234,6 +1235,12 @@ def report_obj():
         except sqlite3.Error as err:
             print("Error - ",err)
 
+    def open_bill():
+        bill_no=selected_item_from_treeview(report_tree_view,'report_tree_view')
+        if path.exists('Billed Bills/{}.pdf'.format(bill_no)):
+            subprocess.Popen(['Billed Bills/{}.pdf'.format(bill_no)],shell=True)
+        else:
+            messagebox.showerror("Error", message="Bill Doesn't Exist")
 
     report_info()
     report_filter_tb.bind('<Key>', Scankey3)

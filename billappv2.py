@@ -339,6 +339,7 @@ def company_details_obj():
         company_gstin_tb.config(state='disabled')
         company_contact_number_tb.config(state='disabled')
         add_btn.config(state='disabled')
+        edit_btn.config(state='normal')
 
     def details_updated_obj():
         if company_name_tb.get() =="" or company_adress_tb.get() =="" or company_gstin_tb.get() =="" or company_contact_number_tb.get() =="":
@@ -360,7 +361,6 @@ def company_details_obj():
 
     if path.exists("JSON Files/company_details.json"):
         enable_company__text_box()
-        
         current_company_details=read_counter('company_details')
         company_name_tb.insert(0,current_company_details['company_name'])
         company_adress_tb.insert(0,current_company_details['company_address'])
@@ -1132,7 +1132,7 @@ def report_obj():
     report_lbl.place(relx = 0.4, rely = 0.065, anchor = NW)
 
     #Filter
-    report_filter_lbl=Label(report_frame,text="Filter",font=book_antiqua,bg=frame_color,fg=element_color)
+    report_filter_lbl=Label(report_frame,text="Search",font=book_antiqua,bg=frame_color,fg=element_color)
     report_filter_lbl.place(relx = 0.04, rely = 0.15, anchor = NW)
 
     report_filter_tb=Entry(report_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=15)
@@ -1143,19 +1143,19 @@ def report_obj():
     report_date_lbl.place(relx = 0.04, rely = 0.19, anchor = NW)
     
     today = date.today()
-    report_date_tb = DateEntry(report_frame, width= 16,height=0, background= "grey", foreground= "white",bd=4, maxdate=today)
-    report_date_tb.place(relx = 0.07, rely = 0.19, anchor = NW)
+    report_from_date_tb = DateEntry(report_frame, width= 16,height=0, background= "grey", foreground= "white",bd=4, maxdate=today)
+    report_from_date_tb.place(relx = 0.07, rely = 0.19, anchor = NW)
 
     #to date
     report_date_lbl=Label(report_frame,text="To",font=book_antiqua,bg=frame_color,fg=element_color)
     report_date_lbl.place(relx = 0.16, rely = 0.19, anchor = NW)
     
-    report_date_tb = DateEntry(report_frame, width= 16,height=0, background= "grey", foreground= "white",bd=4, maxdate=today)
-    report_date_tb.place(relx = 0.177, rely = 0.19, anchor = NW)
+    report_to_date_tb = DateEntry(report_frame, width= 16,height=0, background= "grey", foreground= "white",bd=4, maxdate=today)
+    report_to_date_tb.place(relx = 0.177, rely = 0.19, anchor = NW)
 
     #Search btn
-    report_seacrh_btn=Button(report_frame,fg=element_color,bg=frame_button_color,text="Search",width = 16,border=4,command=lambda:[])
-    report_seacrh_btn.place(relx = 0.27, rely = 0.19, anchor = NW)
+    report_filter_btn=Button(report_frame,fg=element_color,bg=frame_button_color,text="Filter",width = 16,border=4,command=lambda:[report_filter()])
+    report_filter_btn.place(relx = 0.27, rely = 0.19, anchor = NW)
     
     #Show details btn
     report_show_details_btn=Button(report_frame,fg=element_color,bg=frame_button_color,text="Show Details",width = 16,border=4,command=lambda:[])
@@ -1210,7 +1210,7 @@ def report_obj():
         try:
             con=sqlite3.connect("Database/Store_Data.sql")
             cur=con.cursor()
-            cur.execute("SELECT bill_number,date,customer_name,mobile_number,amount FROM customer_details ORDER BY date ASC")
+            cur.execute("SELECT bill_number,bill_date,customer_name,mobile_number,amount FROM customer_details ORDER BY bill_date ASC")
             report=cur.fetchall()
             for i in report:
                 report_tree_view.insert("", 'end', text ="L1",values =(i[0],i[1],i[2],i[3],i[4]))
@@ -1218,6 +1218,22 @@ def report_obj():
             con.close()
         except sqlite3.Error as err:
             print("Error - ",err)
+    
+    def report_filter():
+        clear_all(report_tree_view)
+        try:
+            con=sqlite3.connect("Database/Store_Data.sql")
+            cur=con.cursor()
+            from_date=report_from_date_tb.get_date().strftime("%d-%m-%Y")
+            to_date=report_to_date_tb.get_date().strftime("%d-%m-%Y")
+            cur.execute("SELECT bill_number,bill_date,customer_name,mobile_number,amount FROM customer_details WHERE bill_date BETWEEN '{}' and '{}' ORDER BY bill_date".format(from_date,to_date))
+            report=cur.fetchall()
+            for i in report:
+                report_tree_view.insert("", 'end', text ="L1",values =(i[0],i[1],i[2],i[3],i[4]))
+            con.close()
+        except sqlite3.Error as err:
+            print("Error - ",err)
+
 
     report_info()
     report_filter_tb.bind('<Key>', Scankey3)
@@ -1736,7 +1752,7 @@ def billing_obj():
             try:
                 con=sqlite3.connect("Database/Store_Data.sql")
                 cur=con.cursor()
-                cur.execute("CREATE TABLE IF NOT EXISTS customer_details(customer_name varchar(20) NOT NULL,mobile_number int(10),bill_number int(8) NOT NULL,date date,amount FLOAT)")
+                cur.execute("CREATE TABLE IF NOT EXISTS customer_details(customer_name varchar(20) NOT NULL,mobile_number int(10),bill_number int(8) NOT NULL,bill_date date,amount FLOAT)")
                 cur.execute("CREATE TABLE IF NOT EXISTS item_sold_details(bill_number int(8),sold_item_name varchar(25),sold_quantity FLOAT,sold_price FLOAT ,sold_category varchar(20),sold_gst FLOAT,sold_discount FLOAT,total_price FLOAT)")
                 cur.execute("SELECT * from temp_item_sold_details ORDER BY sold_item_name ASC")
                 row=cur.fetchall()
@@ -1747,7 +1763,7 @@ def billing_obj():
                     id_to_update=cur.fetchall()
                     #cur.execute("UPDATE item_purchase_details SET total_price=purchase_quantity*buying_price where item_id={}".format(id_to_update[0][0]))
                 
-                cur.execute("INSERT INTO customer_details(bill_number,date,customer_name,mobile_number,amount)VALUES({},'{}','{}',{},{})".format(customer_data['customer_bill_number'],datesorted,customer_data['customer_name'],customer_data['customer_mobile'],float(total[0][0])))
+                cur.execute("INSERT INTO customer_details(bill_number,bill_date,customer_name,mobile_number,amount)VALUES({},'{}','{}',{},{})".format(customer_data['customer_bill_number'],datesorted,customer_data['customer_name'],customer_data['customer_mobile'],float(total[0][0])))
                 messagebox.showinfo(title='Saved', message="Products Added to inventory")
                 pdf_output()
                 cur.execute("drop table temp_item_sold_details")

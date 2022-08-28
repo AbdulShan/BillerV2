@@ -247,7 +247,6 @@ def company_details_obj():
         for i in row:
             category_list.append(i)
         category_tb.configure(values=category_list)
-        con.commit()
         con.close()
     except sqlite3.Error as err:
             print("Error - ",err)
@@ -359,8 +358,9 @@ def company_details_obj():
             disable_company__text_box()
             
 
-    if path.exists("company_details.json"):
-        enable_company__text_box
+    if path.exists("JSON Files/company_details.json"):
+        enable_company__text_box()
+        
         current_company_details=read_counter('company_details')
         company_name_tb.insert(0,current_company_details['company_name'])
         company_adress_tb.insert(0,current_company_details['company_address'])
@@ -440,7 +440,6 @@ def purchase_obj():
         for i in row:
             item_codes.append(i)
         purchase_item_code_tb.configure(values=item_codes)
-        con.commit()
         con.close()
     except sqlite3.Error as err:
             print("Error - ",err)
@@ -550,11 +549,11 @@ def purchase_obj():
                 purchase_tree_view.insert("", 'end', text ="L1",values =(i[0],i[1],i[2],i[3],i[4]))
             cur.execute("SELECT SUM(total_price) FROM temp_item_purchase_details")
             total=cur.fetchall()
-            con.commit()
             if len(total)<1:
                 purchase_total_lbl.configure(text="0000.00")
             else:
                 purchase_total_lbl.configure(text="{:.2f}".format(float(total[0][0])))
+            con.commit()
             con.close()
         except sqlite3.Error as err:
             print("Error - ",err)
@@ -661,6 +660,7 @@ def purchase_obj():
     cur.execute("drop table temp_item_purchase_details")
     cur.execute("CREATE TABLE IF NOT EXISTS temp_item_purchase_details(item_id int(8) PRIMARY KEY NOT NULL,date date NOT NULL,item_name varchar(25) NOT NULL,purchase_quantity FLOAT NOT NULL,buying_price FLOAT NOT NULL,total_price FLOAT NOT NULL)")
     con.commit()
+    con.close()
 
 def dealer_obj():
     company_details_btn.config(state='normal',bg=menu_button_color)
@@ -701,8 +701,9 @@ def dealer_obj():
     def Scankey(event):
         #val stores the selected value
         val = event.widget.get()
-        if val==NULL:
-            name_data = products
+        if len(val)==1 or len(val)==0:
+            clear_all(dealer_tree_view)
+            dealer_info()
         else:
             name_data = {}
             for key,value in products.items():
@@ -716,19 +717,17 @@ def dealer_obj():
             dealer_tree_view.delete(item)
         for key, value in data.items():
             dealer_tree_view.insert("",'end',text="L1",values=(key, value[1],value[2],value[3]))
-            
+
     def dealer_info():
         try:
             con=sqlite3.connect("Database/Store_Data.sql")
             cur=con.cursor()
-            '''#for i in range(100):
-                #cur.execute("INSERT INTO dealer_purchase_details (dealer_name,dealer_contact,dealer_address,dealer_gstin) VALUES({},'{}',{},'{}','{}')".format(i+1321,'asdf',4656546,'asdfsfad',"asdfasdf"))'''
+            
             cur.execute("SELECT dealer_name,dealer_contact,dealer_address,dealer_gstin from dealer_purchase_details ORDER BY dealer_name ASC")
             row=cur.fetchall()
             for i in row:
                 products[i[0]]=[i[2],i[1],i[2],i[3]]
                 dealer_tree_view.insert("", 'end', text ="L1", values=(i[0],i[1],i[2],i[3]))
-            con.commit()
             con.close()
         except sqlite3.Error as err:
             print("Error - ",err)
@@ -901,8 +900,6 @@ def item_obj():
         item_name_tb.place(relx = 0.0925, rely = 0.12, anchor = NW)
         item_quantity_tb.place(relx = 0.209, rely = 0.12, anchor = NW)
         item_category_tb.place(relx = 0.278, rely = 0.123, anchor = NW)
-        
-
         try:
             con=sqlite3.connect("Database/Store_Data.sql")
             cur=con.cursor()
@@ -912,7 +909,6 @@ def item_obj():
             for i in row:
                 category_list.append(i)
             item_category_tb.configure(values=category_list)
-            con.commit()
             con.close()
         except sqlite3.Error as err:
             print("Error - ",err)
@@ -991,8 +987,9 @@ def item_obj():
     def Scankey2(event):
         #val stores the selected value
         val = event.widget.get()
-        if val==NULL:
-            name_data = item
+        if len(val)==1 or len(val)==0:
+            clear_all(item_tree_view)
+            item_info()
         else:
             name_data = {}
             for key,value in item.items():
@@ -1018,7 +1015,6 @@ def item_obj():
             for i in row:
                 item[i[1]]=[i[0],i[2],i[3],i[4],i[5]]
                 item_tree_view.insert("", 'end', text ="L1", values=(i[0],i[1],i[2],i[3],i[4],i[5]))
-            con.commit()
             con.close()
         except sqlite3.Error as err:
             print("Error - ",err)
@@ -1169,11 +1165,6 @@ def report_obj():
     report_tree_view= Treeview(report_frame,selectmode='browse',height=17)
     report_tree_view.place(relx = 0.03, rely = 0.23, anchor = NW)
 
-    #verticle scrollbar
-    #vertical_scrollbar=Scrollbar(billing_frame,orient="vertical",command=tree_view.yview)
-    #vertical_scrollbar.place(relx = 0.03, rely = 0.3, anchor = NW)
-    #tree_view.configure(xscrollcommand=vertical_scrollbar.set)
-
     #Definning number of columns
     report_tree_view["columns"]=("1","2","3","4","5")
 
@@ -1193,6 +1184,43 @@ def report_obj():
     report_tree_view.heading("3",text="Customer Name")
     report_tree_view.heading("4",text="Customer Number")
     report_tree_view.heading("5",text="Amount")
+
+    reports_tv={}
+    def Scankey3(event):
+        #val stores the selected value
+        val = event.widget.get()
+        if len(val)==1 or len(val)==0:
+            clear_all(report_tree_view)
+            report_info()
+        else:
+            name_data = {}
+            for key,value in reports_tv.items():
+                if val.lower() in key.lower():
+                    name_data[key]=value
+                    Update3(name_data)
+
+    #updates into treeview
+    def Update3(data):
+        for reports_tv in report_tree_view.get_children():
+            report_tree_view.delete(reports_tv)
+        for key, value in data.items():
+            report_tree_view.insert("",'end',text="L1",values=(value[0],value[1], key,value[2],value[3]))
+
+    def report_info():
+        try:
+            con=sqlite3.connect("Database/Store_Data.sql")
+            cur=con.cursor()
+            cur.execute("SELECT bill_number,date,customer_name,mobile_number,amount FROM customer_details ORDER BY date ASC")
+            report=cur.fetchall()
+            for i in report:
+                report_tree_view.insert("", 'end', text ="L1",values =(i[0],i[1],i[2],i[3],i[4]))
+                reports_tv[i[2]]=[i[0],i[1],i[3],i[4]]
+            con.close()
+        except sqlite3.Error as err:
+            print("Error - ",err)
+
+    report_info()
+    report_filter_tb.bind('<Key>', Scankey3)
 
 def billing_obj():
     company_details_btn.config(state='normal',bg=menu_button_color)
@@ -1668,14 +1696,12 @@ def billing_obj():
                     pdf.cell(30, 7, txt = "{}".format(i[4]),ln = 0, align = 'L', border=0)
                     pdf.cell(30, 7, txt = "{}".format(i[5]),ln = 0, align = 'L', border=0)
                     pdf.cell(30, 7, txt = "{}".format(i[6]),ln = 1, align = 'L', border=0)
-
                 cur.execute("SELECT SUM(total_price) FROM temp_item_sold_details")
                 total_pdf=cur.fetchall()
                 cur.execute("SELECT SUM(sold_discount) FROM temp_item_sold_details")
                 total_discount=cur.fetchall()
                 cur.execute("SELECT SUM(sold_gst) FROM temp_item_sold_details")
                 total_gst=cur.fetchall()
-    
                 con.commit()
                 con.close()
         except sqlite3.Error as err:
@@ -1737,8 +1763,7 @@ def billing_obj():
     cur.execute("drop table if exists temp_item_sold_details")
     cur.execute("CREATE TABLE IF NOT EXISTS temp_item_sold_details(sold_item_id int(8) PRIMARY KEY NOT NULL,sold_item_name varchar(25) NOT NULL,sold_quantity FLOAT NOT NULL,sold_price FLOAT NOT NULL,sold_category varchar(20),sold_gst FLOAT,sold_discount FLOAT,total_price FLOAT,updated_price FLOAT)")
     con.commit()
-
-    
+    con.close()
 
 menu_frame_obj()
 def onclose():

@@ -76,6 +76,11 @@ def scroll_bar(frame_name,widget):
         v.pack(side = RIGHT, fill = Y)
 
     #t = Text(widget, width = 15, height = 15, wrap = NONE,xscrollcommand = h.set,yscrollcommand = v.set)
+def validation_2charecters(event):
+    val = event.widget.get()
+    print(val)
+    if len(val)>1:
+        event.widget.delete(1)
 
 def validation_10charecters(event):
     val = event.widget.get()
@@ -88,6 +93,18 @@ def validation_15charecters(event):
     print(val)
     if len(val)>14:
         event.widget.delete(14)
+
+def validation_25charecters(event):
+    val = event.widget.get()
+    print(val)
+    if len(val)>24:
+        event.widget.delete(24)
+
+def validation_95charecters(event):
+    val = event.widget.get(1.0, END)
+    print(val)
+    if len(val)>94.0:
+        event.widget.delete(1.94)
 
 #Tkinter window configs
 if "__main__"==__name__:
@@ -121,6 +138,7 @@ image = Label(menu_frame,image=img)
 style = Style(root)
 style.theme_use("clam")
 style.configure("Treeview", background=tree_view_color_bg,fieldbackground=tree_view_color_fg, foreground="white")
+style.configure("TCombobox",fieldbackground= entry_box_color,foreground= element_color)
 
 def clear_all(treeview_name):
         for item in treeview_name.get_children():
@@ -217,39 +235,41 @@ def company_details_obj():
 
     company_name_tb=Entry(company_details_frame,fg=element_color,bg=entry_box_color,font=arial,border=4)
     company_name_tb.place(relx = 0.2, rely = 0.1, anchor = NW)
+    company_name_tb.bind('<Key>',validation_25charecters)
 
     #Company Adress
     company_adress_lbl=Label(company_details_frame,text="Company Adress",font=book_antiqua,bg=frame_color,fg=element_color)
     company_adress_lbl.place(relx = 0.1, rely = 0.14, anchor = NW)
 
-    company_adress_tb=Entry(company_details_frame,fg=element_color,bg=entry_box_color,font=arial,border=4)
+    company_adress_tb=Text(company_details_frame, width=20, height=3,fg='grey',bg='white',font=arial,border=4)
     company_adress_tb.place(relx = 0.2, rely = 0.14, anchor = NW)
+    company_adress_tb.bind('<Key>',validation_95charecters)
 
     #Company GSTIN
     company_gstin_lbl=Label(company_details_frame,text="Company GSTIN",font=book_antiqua,bg=frame_color,fg=element_color)
-    company_gstin_lbl.place(relx = 0.1, rely = 0.18, anchor = NW)
+    company_gstin_lbl.place(relx = 0.1, rely = 0.22, anchor = NW)
 
     company_gstin_tb=Entry(company_details_frame,fg=element_color,bg=entry_box_color,font=arial,border=4)
-    company_gstin_tb.place(relx = 0.2, rely = 0.18, anchor = NW)
+    company_gstin_tb.place(relx = 0.2, rely = 0.22, anchor = NW)
 
     company_gstin_tb.bind('<Key>',validation_15charecters)
 
     #Company Adress
     company_contact_number_lbl=Label(company_details_frame,text="Company Contact",font=book_antiqua,bg=frame_color,fg=element_color)
-    company_contact_number_lbl.place(relx = 0.1, rely = 0.22, anchor = NW)
+    company_contact_number_lbl.place(relx = 0.1, rely = 0.26, anchor = NW)
 
     company_contact_number_tb=Entry(company_details_frame,fg=element_color,bg=entry_box_color,font=arial,border=4)
-    company_contact_number_tb.place(relx = 0.2, rely = 0.22, anchor = NW)
+    company_contact_number_tb.place(relx = 0.2, rely = 0.26, anchor = NW)
 
     company_contact_number_tb.bind('<Key>',validation_10charecters)
 
     #Edit Button and message
-    edit_btn=Button(company_details_frame,fg=element_color,bg=frame_button_color,text="Edit Details",width = 20,border=4,command=lambda:[enable_company__text_box(),add_btn.config(state='normal')])
-    edit_btn.place(relx = 0.1, rely = 0.28, anchor = NW)
+    edit_btn=Button(company_details_frame,fg=element_color,bg=frame_button_color,text="Edit Details",width = 20,border=4,command=lambda:[enable_company__text_box(),add_btn.config(state='normal'),company_adress_tb.config(bg=entry_box_color,fg=element_color)])
+    edit_btn.place(relx = 0.1, rely = 0.32, anchor = NW)
 
     #Update Button and message
-    add_btn=Button(company_details_frame,fg=element_color,bg=frame_button_color,text="Update Details",width = 20,border=4,command=lambda:[details_updated_obj(),edit_btn.config(state='normal')])
-    add_btn.place(relx = 0.205, rely = 0.28, anchor = NW)
+    add_btn=Button(company_details_frame,fg=element_color,bg=frame_button_color,text="Update Details",width = 20,border=4,command=lambda:[details_updated_obj(),edit_btn.config(state='normal'),company_adress_tb.config(fg='grey',bg='white',)])
+    add_btn.place(relx = 0.205, rely = 0.32, anchor = NW)
 
     style.configure("TCombobox", fg= element_color, bg= entry_box_color)
     category_tb=ttk.Combobox(company_details_frame,values='',font=arial,width=13)
@@ -282,6 +302,7 @@ def company_details_obj():
         gst_tb.insert(0,item_name_array[pos])
 
     category_tb.bind('<<ComboboxSelected>>', callback)
+    category_tb.bind('<Key>',validation_15charecters)
 
     #gst
     category=Label(company_details_frame,text="Categories",font=book_antiqua,bg=frame_color,fg=element_color)
@@ -292,6 +313,7 @@ def company_details_obj():
 
     gst_tb=Entry(company_details_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=12)
     gst_tb.place(relx = 0.22, rely = 0.4, anchor = NW)
+    gst_tb.bind('<Key>',validation_2charecters)
 
     #Update Button Tax
     save_tax=Button(company_details_frame,fg=element_color,bg=frame_button_color,text="Save/Update Tax",width = 20,border=4,height=2,command=lambda:[update_tax_details()])
@@ -311,7 +333,7 @@ def company_details_obj():
             try:
                 con=sqlite3.connect("Database/Store_Data.sql")
                 cur=con.cursor()
-                cur.execute("CREATE TABLE IF NOT EXISTS category_tax_details(category varchar(20) PRIMARY KEY NOT NULL,tax int(2) NOT NULL)")
+                cur.execute("CREATE TABLE IF NOT EXISTS category_tax_details(category varchar(15) PRIMARY KEY NOT NULL,tax int(2) NOT NULL)")
                 cur.execute("INSERT INTO category_tax_details(category,tax)VALUES('{}',{})".format(category_tb.get(),gst_tb.get()))
                 con.commit()
                 con.close()
@@ -332,7 +354,7 @@ def company_details_obj():
             try:
                 con=sqlite3.connect("Database/Store_Data.sql")
                 cur=con.cursor()
-                cur.execute("DELETE FROM category_tax_details WHERE category='{}' AND tax={}".format(category_tb.get(),gst_tb.get()))
+                cur.execute("DELETE FROM category_tax_details WHERE category='{}'".format(category_tb.get()))
                 con.commit()
                 con.close()
                 messagebox.showinfo(title='Sucess', message="{} TAX Deleted".format(category_tb.get()))
@@ -359,7 +381,7 @@ def company_details_obj():
         edit_btn.config(state='normal')
 
     def details_updated_obj():
-        if company_name_tb.get() =="" or company_adress_tb.get() =="" or company_gstin_tb.get() =="" or company_contact_number_tb.get() =="":
+        if company_name_tb.get() =="" or company_adress_tb.get(1.0,END) =="" or company_gstin_tb.get() =="" or company_contact_number_tb.get() =="":
             messagebox.showerror(title='Error', message="Enter All Fields")
         elif any(not ch.isdigit() for ch in company_contact_number_tb.get()):
             messagebox.showerror(title='Error', message="Contact Number \ncannot have Letter or special charecter")
@@ -370,17 +392,16 @@ def company_details_obj():
         else:
             messagebox.showinfo(title='Sucess', message="Details Updated")
             #stores company data in company_details.json file
-            company={'company_name':(company_name_tb.get()),'company_address':(company_adress_tb.get()),'company_gstin':(company_gstin_tb.get())
+            company={'company_name':(company_name_tb.get()),'company_address':(company_adress_tb.get(1.0,END)),'company_gstin':(company_gstin_tb.get())
             ,'company_contact':(company_contact_number_tb.get())}
             write_counter('company_details',company)
             disable_company__text_box()
             
-
     if path.exists("JSON Files/company_details.json"):
         enable_company__text_box()
         current_company_details=read_counter('company_details')
         company_name_tb.insert(0,current_company_details['company_name'])
-        company_adress_tb.insert(0,current_company_details['company_address'])
+        company_adress_tb.insert(1.0,current_company_details['company_address'])
         company_gstin_tb.insert(0,current_company_details['company_gstin'])
         company_contact_number_tb.insert(0,current_company_details['company_contact'])
         disable_company__text_box()
@@ -412,6 +433,7 @@ def purchase_obj():
 
     dealer_name_tb=Entry(purchase_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=20)
     dealer_name_tb.place(relx = 0.105, rely = 0.075, anchor = NW)
+    dealer_name_tb.bind('<Key>',validation_25charecters)
 
     #Dealer Gstin
     dealer_gstin_lbl=Label(purchase_frame,text="GSTIN",font=book_antiqua,bg=frame_color,fg=element_color)
@@ -435,6 +457,7 @@ def purchase_obj():
 
     purchase_dealer_address_tb=Text(purchase_frame, width=20, height=3,fg=element_color,bg=entry_box_color,font=arial,border=4)
     purchase_dealer_address_tb.place(relx = 0.105, rely = 0.12, anchor = NW)
+    purchase_dealer_address_tb.bind('<Key>',validation_95charecters)
 
     #dealer contact
     purchase_dealer_contact_lbl=Label(purchase_frame,text="Contact",font=book_antiqua,bg=frame_color,fg=element_color)
@@ -445,10 +468,11 @@ def purchase_obj():
     purchase_dealer_contact_tb.bind('<Key>',validation_10charecters)
     
     #Purchase Item Code TextBox
-    style.configure("TCombobox", fg= element_color, bg= entry_box_color)
     purchase_item_code_tb=ttk.Combobox(purchase_frame,values='',font=arial,width=13)
     purchase_item_code_tb.place(relx = 0.03, rely = 0.202, anchor = NW)
-    
+    purchase_item_code_tb.bind('<Key>',validation_10charecters)
+
+
     try:
         con=sqlite3.connect("Database/Store_Data.sql")
         cur=con.cursor()
@@ -480,6 +504,7 @@ def purchase_obj():
     #Purchase Item Name TextBox
     purchase_item_name_tb=Entry(purchase_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=28)
     purchase_item_name_tb.place(relx = 0.11, rely = 0.198, anchor = NW)
+    purchase_item_name_tb.bind('<Key>',validation_25charecters)
 
     #Purchase Quantity TextBox
     purchase_quantity_tb=Entry(purchase_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=10)
@@ -553,7 +578,7 @@ def purchase_obj():
         try:
             con=sqlite3.connect("Database/Store_Data.sql")
             cur=con.cursor()
-            cur.execute("CREATE TABLE IF NOT EXISTS temp_item_purchase_details(item_id int(8) PRIMARY KEY NOT NULL,date date NOT NULL,item_name varchar(25) NOT NULL,purchase_quantity FLOAT NOT NULL,buying_price FLOAT NOT NULL,total_price FLOAT NOT NULL)")
+            cur.execute("CREATE TABLE IF NOT EXISTS temp_item_purchase_details(item_id int(10) PRIMARY KEY NOT NULL,date date NOT NULL,item_name varchar(25) NOT NULL,purchase_quantity FLOAT NOT NULL,buying_price FLOAT NOT NULL,total_price FLOAT NOT NULL)")
 
             cur.execute("INSERT INTO temp_item_purchase_details(item_id,date,item_name,purchase_quantity,buying_price,total_price)VALUES({},'{}','{}',{:.2f},{:.2f},{:.2f}) ON CONFLICT (item_id) DO UPDATE SET purchase_quantity=purchase_quantity+{:.2f},buying_price={:.2f},item_name='{}' returning item_id".format(purchase_item_code,date,purchase_item_name,purchase_quantity,purchase_price,float(purchase_total),float(purchase_quantity),float(purchase_price),purchase_item_name))
             id_to_update=cur.fetchall()
@@ -615,7 +640,7 @@ def purchase_obj():
                 con=sqlite3.connect("Database/Store_Data.sql")
                 cur=con.cursor()
                 cur.execute("drop table temp_item_purchase_details")
-                cur.execute("CREATE TABLE IF NOT EXISTS temp_item_purchase_details(item_id int(8) PRIMARY KEY NOT NULL,date date NOT NULL,item_name varchar(25) NOT NULL,purchase_quantity FLOAT NOT NULL,buying_price FLOAT NOT NULL,total_price FLOAT NOT NULL)")
+                cur.execute("CREATE TABLE IF NOT EXISTS temp_item_purchase_details(item_id int(10) PRIMARY KEY NOT NULL,date date NOT NULL,item_name varchar(25) NOT NULL,purchase_quantity FLOAT NOT NULL,buying_price FLOAT NOT NULL,total_price FLOAT NOT NULL)")
                 purchase_total_lbl.configure(text="0000.00")
                 con.commit()
                 con.close()
@@ -626,8 +651,8 @@ def purchase_obj():
             try:
                 con=sqlite3.connect("Database/Store_Data.sql")
                 cur=con.cursor()
-                cur.execute("CREATE TABLE IF NOT EXISTS dealer_purchase_details(dealer_name varchar(20) NOT NULL,dealer_gstin varchar(20),dealer_address varchar(30) NOT NULL,dealer_contact int(12) NOT NULL)")
-                cur.execute("CREATE TABLE IF NOT EXISTS item_purchase_details(item_id int(8) PRIMARY KEY NOT NULL,date date NOT NULL,item_name varchar(25) NOT NULL,purchase_quantity REAL NOT NULL,buying_price REAL NOT NULL,total_price REAL NOT NULL,selling_price REAL,item_category varchar(20))")
+                cur.execute("CREATE TABLE IF NOT EXISTS dealer_purchase_details(dealer_name varchar(25) NOT NULL,dealer_gstin varchar(15),dealer_address varchar(95) NOT NULL,dealer_contact int(10) NOT NULL)")
+                cur.execute("CREATE TABLE IF NOT EXISTS item_purchase_details(item_id int(10) PRIMARY KEY NOT NULL,date date NOT NULL,item_name varchar(25) NOT NULL,purchase_quantity REAL NOT NULL,buying_price REAL NOT NULL,total_price REAL NOT NULL,selling_price REAL,item_category varchar(15))")
                 cur.execute("SELECT * from temp_item_purchase_details")
                 row=cur.fetchall()
                 for i in row:
@@ -676,7 +701,7 @@ def purchase_obj():
     con=sqlite3.connect("Database/Store_Data.sql")
     cur=con.cursor()
     cur.execute("drop table temp_item_purchase_details")
-    cur.execute("CREATE TABLE IF NOT EXISTS temp_item_purchase_details(item_id int(8) PRIMARY KEY NOT NULL,date date NOT NULL,item_name varchar(25) NOT NULL,purchase_quantity FLOAT NOT NULL,buying_price FLOAT NOT NULL,total_price FLOAT NOT NULL)")
+    cur.execute("CREATE TABLE IF NOT EXISTS temp_item_purchase_details(item_id int(10) PRIMARY KEY NOT NULL,date date NOT NULL,item_name varchar(25) NOT NULL,purchase_quantity FLOAT NOT NULL,buying_price FLOAT NOT NULL,total_price FLOAT NOT NULL)")
     con.commit()
     con.close()
 
@@ -705,6 +730,7 @@ def dealer_obj():
 
     dealer_name_tb=Entry(dealer_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=20)
     dealer_name_tb.place(relx = 0.105, rely = 0.075, anchor = NW)
+    dealer_name_tb.bind('<Key>',validation_25charecters)
 
     '''#dealer search button
     dealer_search_btn=Button(dealer_frame,fg=element_color,bg=frame_button_color,text="Search",width = 15,border=4,command=lambda:[])
@@ -829,24 +855,28 @@ def dealer_obj():
         dealer_name_lbl.grid(row=0,column=0)
         dealer_name_tb=Entry(edit_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=20)
         dealer_name_tb.insert(0,dealer_name)
+        dealer_name_tb.bind('<Key>',validation_25charecters)
         dealer_name_tb.grid(row=0,column=1)
 
         dealer_contact_lbl=Label(edit_frame,text="Dealer Contact",font=book_antiqua,bg=frame_color,fg=element_color)
         dealer_contact_lbl.grid(row=1,column=0)
         dealer_contact_tb=Entry(edit_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=20)
         dealer_contact_tb.insert(0,dealer_contact)
+        dealer_contact_tb.bind('<Key>',validation_10charecters)
         dealer_contact_tb.grid(row=1,column=1)
 
         dealer_address_lbl=Label(edit_frame,text="Dealer Address",font=book_antiqua,bg=frame_color,fg=element_color)
         dealer_address_lbl.grid(row=2,column=0)
         dealer_address_tb=Entry(edit_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=20)
         dealer_address_tb.insert(0,dealer_address)
+        dealer_address_tb.bind('<Key>',validation_95charecters)
         dealer_address_tb.grid(row=2,column=1)
 
         dealer_gstin_lbl=Label(edit_frame,text="Dealer Gstin",font=book_antiqua,bg=frame_color,fg=element_color)
         dealer_gstin_lbl.grid(row=3,column=0)
         dealer_gstin_tb=Entry(edit_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=20)
         dealer_gstin_tb.insert(0,dealer_gstin)
+        dealer_gstin_tb.bind('<Key>',validation_15charecters)
         dealer_gstin_tb.grid(row=3,column=1)
 
         #Save Button
@@ -915,9 +945,12 @@ def item_obj():
 
     def edit_item_placement():
         item_id_tb.place(relx = 0.03, rely = 0.12, anchor = NW)
+        item_id_tb.bind('<Key>',validation_10charecters)
         item_name_tb.place(relx = 0.0925, rely = 0.12, anchor = NW)
+        item_name_tb.bind('<Key>',validation_25charecters)
         item_quantity_tb.place(relx = 0.209, rely = 0.12, anchor = NW)
         item_category_tb.place(relx = 0.278, rely = 0.123, anchor = NW)
+        item_category_tb.bind('<Key>',validation_15charecters)
         try:
             con=sqlite3.connect("Database/Store_Data.sql")
             cur=con.cursor()
@@ -954,6 +987,7 @@ def item_obj():
 
     item_search_tb=Entry(item_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=20)
     item_search_tb.place(relx = 0.095, rely = 0.07, anchor = NW)
+    item_search_tb.bind('<Key>',validation_25charecters)
 
     item_lbl=Label(item_frame,text="Search\Edit Items",font=book_antiqua_size18,bg=frame_color,fg=element_color)
     item_lbl.place(relx = 0.4, rely = 0.008, anchor = NW)
@@ -1154,7 +1188,8 @@ def report_obj():
     report_filter_lbl.place(relx = 0.04, rely = 0.15, anchor = NW)
 
     report_filter_tb=Entry(report_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=15)
-    report_filter_tb.place(relx = 0.07, rely = 0.15, anchor = NW)
+    report_filter_tb.place(relx = 0.075, rely = 0.15, anchor = NW)
+    report_filter_tb.bind('<Key>',validation_25charecters)
 
     #from date
     report_date_lbl=Label(report_frame,text="From",font=book_antiqua,bg=frame_color,fg=element_color)
@@ -1287,6 +1322,7 @@ def billing_obj():
 
     billing_customer_name_tb=Entry(billing_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=20)
     billing_customer_name_tb.place(relx = 0.115, rely = 0.075, anchor = NW)
+    billing_customer_name_tb.bind('<Key>',validation_25charecters)
 
     #Customer Mobile NUmber
     billing_mobile_lbl=Label(billing_frame,text="Mobile",font=book_antiqua,bg=frame_color,fg=element_color)
@@ -1302,6 +1338,7 @@ def billing_obj():
 
     billing_bill_number_tb=Entry(billing_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=10)
     billing_bill_number_tb.place(relx = 0.44, rely = 0.075, anchor = NW)
+    billing_bill_number_tb.bind('<Key>',validation_25charecters)
 
     #billed date
     today = date.today()
@@ -1313,8 +1350,7 @@ def billing_obj():
     billing_item_code_tb.place(relx = 0.03, rely = 0.15, anchor = NW)
 
     #Item Name TextBox
-    style.configure("TCombobox", fg= element_color, bg= entry_box_color)
-    billing_item_name_tb=ttk.Combobox(billing_frame,values='',font=arial,width=20,state='readonly')
+    billing_item_name_tb=ttk.Combobox(billing_frame,values='',font=arial,width=20,state='readonly',foreground='black')
     billing_item_name_tb.place(relx = 0.0925, rely = 0.1535, anchor = NW)
 
     #category cb
@@ -1534,7 +1570,7 @@ def billing_obj():
             try:
                 con=sqlite3.connect("Database/Store_Data.sql")
                 cur=con.cursor()
-                cur.execute("CREATE TABLE IF NOT EXISTS temp_item_sold_details(sold_item_id int(8) PRIMARY KEY NOT NULL,sold_item_name varchar(25) NOT NULL,sold_quantity FLOAT NOT NULL,sold_price FLOAT NOT NULL,sold_category varchar(20),sold_gst FLOAT,sold_discount FLOAT,total_price FLOAT)")
+                cur.execute("CREATE TABLE IF NOT EXISTS temp_item_sold_details(sold_item_id int(10) PRIMARY KEY NOT NULL,sold_item_name varchar(25) NOT NULL,sold_quantity FLOAT NOT NULL,sold_price FLOAT NOT NULL,sold_category varchar(15),sold_gst FLOAT,sold_discount FLOAT,total_price FLOAT)")
                 
                 cur.execute("SELECT purchase_quantity from item_purchase_details where item_id={}".format(int(billing_item_code_tb.get())))
                 stock=cur.fetchall()
@@ -1595,7 +1631,7 @@ def billing_obj():
                 con=sqlite3.connect("Database/Store_Data.sql")
                 cur=con.cursor()
                 cur.execute("drop table temp_item_sold_details")
-                cur.execute("CREATE TABLE IF NOT EXISTS temp_item_sold_details(sold_item_id int(8) PRIMARY KEY NOT NULL,sold_item_name varchar(25) NOT NULL,sold_quantity FLOAT NOT NULL,sold_price FLOAT NOT NULL,sold_category varchar(20),sold_gst FLOAT,sold_discount FLOAT,total_price FLOAT)")
+                cur.execute("CREATE TABLE IF NOT EXISTS temp_item_sold_details(sold_item_id int(10) PRIMARY KEY NOT NULL,sold_item_name varchar(25) NOT NULL,sold_quantity FLOAT NOT NULL,sold_price FLOAT NOT NULL,sold_category varchar(15),sold_gst FLOAT,sold_discount FLOAT,total_price FLOAT)")
                 total_lbl.configure(text="0000.00")
                 Total_discount_lbl2.configure(text="Rs 00.00")
                 Total_tax_lbl2.configure(text="Rs 00.00")
@@ -1777,8 +1813,8 @@ def billing_obj():
             try:
                 con=sqlite3.connect("Database/Store_Data.sql")
                 cur=con.cursor()
-                cur.execute("CREATE TABLE IF NOT EXISTS customer_details(customer_name varchar(20) NOT NULL,mobile_number int(10),bill_number int(8) NOT NULL,bill_date date,amount FLOAT)")
-                cur.execute("CREATE TABLE IF NOT EXISTS item_sold_details(bill_number int(8),sold_item_name varchar(25),sold_quantity FLOAT,sold_price FLOAT ,sold_category varchar(20),sold_gst FLOAT,sold_discount FLOAT,total_price FLOAT)")
+                cur.execute("CREATE TABLE IF NOT EXISTS customer_details(customer_name varchar(25) NOT NULL,mobile_number int(10),bill_number int(10) NOT NULL,bill_date date,amount FLOAT)")
+                cur.execute("CREATE TABLE IF NOT EXISTS item_sold_details(bill_number int(10),sold_item_name varchar(25),sold_quantity FLOAT,sold_price FLOAT ,sold_category varchar(15),sold_gst FLOAT,sold_discount FLOAT,total_price FLOAT)")
                 cur.execute("SELECT * from temp_item_sold_details ORDER BY sold_item_name ASC")
                 row=cur.fetchall()
                 cur.execute("SELECT SUM(total_price) FROM temp_item_sold_details")
@@ -1802,7 +1838,7 @@ def billing_obj():
     con=sqlite3.connect("Database/Store_Data.sql")
     cur=con.cursor()
     cur.execute("drop table if exists temp_item_sold_details")
-    cur.execute("CREATE TABLE IF NOT EXISTS temp_item_sold_details(sold_item_id int(8) PRIMARY KEY NOT NULL,sold_item_name varchar(25) NOT NULL,sold_quantity FLOAT NOT NULL,sold_price FLOAT NOT NULL,sold_category varchar(20),sold_gst FLOAT,sold_discount FLOAT,total_price FLOAT,updated_price FLOAT)")
+    cur.execute("CREATE TABLE IF NOT EXISTS temp_item_sold_details(sold_item_id int(10) PRIMARY KEY NOT NULL,sold_item_name varchar(25) NOT NULL,sold_quantity FLOAT NOT NULL,sold_price FLOAT NOT NULL,sold_category varchar(15),sold_gst FLOAT,sold_discount FLOAT,total_price FLOAT,updated_price FLOAT)")
     con.commit()
     con.close()
 

@@ -34,7 +34,7 @@ def make_directory(directory_name):
     try:
         mkdir('{}'.format(directory_name))
     except FileExistsError:
-        print('file exists')
+        print('{} exists'.format(directory_name))
 
 make_directory('Billed Bills')
 make_directory('JSON Files')
@@ -78,31 +78,26 @@ def scroll_bar(frame_name,widget):
     #t = Text(widget, width = 15, height = 15, wrap = NONE,xscrollcommand = h.set,yscrollcommand = v.set)
 def validation_2charecters(event):
     val = event.widget.get()
-    print(val)
     if len(val)>1:
         event.widget.delete(1)
 
 def validation_10charecters(event):
     val = event.widget.get()
-    print(val)
     if len(val)>9:
         event.widget.delete(9)
 
 def validation_15charecters(event):
     val = event.widget.get()
-    print(val)
     if len(val)>14:
         event.widget.delete(14)
 
 def validation_25charecters(event):
     val = event.widget.get()
-    print(val)
     if len(val)>24:
         event.widget.delete(24)
 
 def validation_95charecters(event):
     val = event.widget.get(1.0, END)
-    print(val)
     if len(val)>94.0:
         event.widget.delete(1.94)
 
@@ -268,7 +263,7 @@ def company_details_obj():
     edit_btn.place(relx = 0.1, rely = 0.32, anchor = NW)
 
     #Update Button and message
-    add_btn=Button(company_details_frame,fg=element_color,bg=frame_button_color,text="Update Details",width = 20,border=4,command=lambda:[details_updated_obj(),edit_btn.config(state='normal'),company_adress_tb.config(fg='grey',bg='white',)])
+    add_btn=Button(company_details_frame,fg=element_color,bg=frame_button_color,text="Update Details",width = 20,border=4,command=lambda:[details_updated_obj(),edit_btn.config(state='normal')])
     add_btn.place(relx = 0.205, rely = 0.32, anchor = NW)
 
     style.configure("TCombobox", fg= element_color, bg= entry_box_color)
@@ -385,7 +380,7 @@ def company_details_obj():
             messagebox.showerror(title='Error', message="Enter All Fields")
         elif any(not ch.isdigit() for ch in company_contact_number_tb.get()):
             messagebox.showerror(title='Error', message="Contact Number \ncannot have Letter or special charecter")
-        elif len(company_contact_number_tb.get()) >10:
+        elif len(company_contact_number_tb.get())!=10:
             messagebox.showerror(title='Error', message="Contact Number Must be\n less than 10 Digits")
         elif len(company_gstin_tb.get()) !=15:
             messagebox.showerror(title='Error', message="GSTIN Number Must be\n 15 Digits")
@@ -396,6 +391,7 @@ def company_details_obj():
             ,'company_contact':(company_contact_number_tb.get())}
             write_counter('company_details',company)
             disable_company__text_box()
+            company_adress_tb.config(fg='grey',bg='white')
             
     if path.exists("JSON Files/company_details.json"):
         enable_company__text_box()
@@ -601,7 +597,6 @@ def purchase_obj():
         except sqlite3.Error as err:
             print("Error - ",err)
             error_message=str(err)
-            print(error_message[0:24])
             if error_message[0:24]=='UNIQUE constraint failed':
                 messagebox.showerror(title='Error', message="Item Code cannot repeat")
             con.close()
@@ -621,8 +616,6 @@ def purchase_obj():
                     purchase_tree_view.insert("", 'end', text ="L1",values =(i[0],i[1],i[2],i[3],i[4]))
                 cur.execute("SELECT SUM(total_price) FROM temp_item_purchase_details")
                 total=cur.fetchall()
-                print(len(total))
-                print(total)
                 if str(total[0][0])=='None':
                     purchase_total_lbl.configure(text="0000.00")
                 else:
@@ -1045,7 +1038,6 @@ def item_obj():
         else:
             name_data = {}
             for key,value in item.items():
-                print(item)
                 if val.lower() in key.lower():
                     name_data[key]=value
                     Update2(name_data)
@@ -1063,7 +1055,6 @@ def item_obj():
             cur=con.cursor()
             cur.execute("SELECT item_id,item_name,purchase_quantity,item_category,buying_price,selling_price from item_purchase_details ORDER BY item_id ASC")
             row=cur.fetchall()
-            print(row)
             for i in row:
                 item[i[1]]=[i[0],i[2],i[3],i[4],i[5]]
                 item_tree_view.insert("", 'end', text ="L1", values=(i[0],i[1],i[2],i[3],i[4],i[5]))
@@ -1075,7 +1066,6 @@ def item_obj():
 
     def delete_item_info():
         selected_treeview_item=selected_item_from_treeview(item_tree_view,'item_tree_view')
-        print(selected_treeview_item)
         try:
             con=sqlite3.connect("Database/Store_Data.sql")
             cur=con.cursor()
@@ -1111,7 +1101,6 @@ def item_obj():
                 item_category=value[3]
                 item_price=value[4]
                 item_selling_price=value[5]
-            print(value)
         item_tree_view.configure(selectmode='none')
 
         edit_item_placement()
@@ -1557,7 +1546,6 @@ def billing_obj():
         elif float(billing_quantity_tb.get())<=0:
             messagebox.showerror(title='Error', message="Invalid Item Quantity")
         else:
-            print()
             tax_amount=(float(billing_tax_tb.get())*float(billing_price_tb.get()))/100
             discount_amount=(float(billing_discount_tb.get())*(float(tax_amount)+float(billing_price_tb.get())))/100
             product_price_after_tax=float(billing_price_tb.get())+float(tax_amount)
@@ -1618,7 +1606,6 @@ def billing_obj():
             except sqlite3.Error as err:
                 print("Error - ",err)
                 error_message=str(err)
-                print(error_message[0:24])
                 if error_message[0:24]=='UNIQUE constraint failed':
                     messagebox.showerror(title='Error', message="Item Code cannot repeat")
                 con.close()
@@ -1656,7 +1643,6 @@ def billing_obj():
                 curItem = billing_tree_view.focus()
                 billing_tree_view.item(curItem)
                 selected_items1 =billing_tree_view.item(curItem)
-                print(selected_items1)
                 for key, value in selected_items1.items():
                     if key == 'values':
                         selected_treeview_item3=value[3]

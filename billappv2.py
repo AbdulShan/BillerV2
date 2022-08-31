@@ -1645,7 +1645,6 @@ def billing_obj():
                 print("Error - ",err)
                 con.close()
 
-    global delete_all_sold_item
     def delete_all_sold_item():
         temp=messagebox.askquestion('Delete Product', 'Are you sure you want to Clear All')
         if temp=='yes':
@@ -1874,10 +1873,15 @@ def billing_obj():
                 cur.execute("INSERT INTO customer_details(bill_number,bill_date,customer_name,mobile_number,amount)VALUES({},'{}','{}',{},{})".format(customer_data['customer_bill_number'],datesorted,customer_data['customer_name'],customer_data['customer_mobile'],float(total[0][0])))
                 messagebox.showinfo(title='Saved', message="Products Added to inventory")
                 pdf_output()
+                clear_all(billing_tree_view)
                 cur.execute("drop table temp_item_sold_details")
+                cur.execute("CREATE TABLE IF NOT EXISTS temp_item_sold_details(sold_item_id int(10) PRIMARY KEY NOT NULL,sold_item_name varchar(25) NOT NULL,sold_quantity FLOAT NOT NULL,sold_price FLOAT NOT NULL,sold_category varchar(15),sold_gst FLOAT,sold_discount FLOAT,total_price FLOAT)")
+                total_lbl.configure(text="0000.00")
+                Total_discount_lbl2.configure(text="Rs 00.00")
+                Total_tax_lbl2.configure(text="Rs 00.00")
+                Total_items_lbl2.configure(text="Rs 00")
                 con.commit()
                 con.close()
-                delete_all_sold_item()
             except sqlite3.Error as err:
                 print("Error - ",err)
                 messagebox.showerror(title='Error', message="No Data to Save")

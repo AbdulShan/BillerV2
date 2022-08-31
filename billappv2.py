@@ -1,5 +1,5 @@
 #All necessary Packages
-from tkinter import messagebox, ttk, Button, Frame, Label, Scrollbar, Toplevel, PhotoImage, BOTTOM, LEFT, RIGHT, CENTER, X, Y, Tk, Entry, NW, END, Text
+from tkinter import messagebox, ttk, Button, Frame, Label, Scrollbar, Toplevel, PhotoImage, BOTTOM, LEFT, RIGHT, CENTER, X, Y, Tk, Entry, NW, END, Text, StringVar
 from tkinter.ttk import Style, Treeview
 from tkcalendar import DateEntry
 from asyncio.windows_events import NULL
@@ -100,6 +100,8 @@ def validation_95charecters(event):
     val = event.widget.get(1.0, END)
     if len(val)>94.0:
         event.widget.delete(1.94)
+
+
 
 #Tkinter window configs
 if "__main__"==__name__:
@@ -266,9 +268,14 @@ def company_details_obj():
     add_btn=Button(company_details_frame,fg=element_color,bg=frame_button_color,text="Update Details",width = 20,border=4,command=lambda:[details_updated_obj(),edit_btn.config(state='normal')])
     add_btn.place(relx = 0.205, rely = 0.32, anchor = NW)
 
+    def lower_case1(event):
+        v1.set(v1.get().lower())
+    v1= StringVar()
+
     style.configure("TCombobox", fg= element_color, bg= entry_box_color)
-    category_tb=ttk.Combobox(company_details_frame,values='',font=arial,width=13)
+    category_tb=ttk.Combobox(company_details_frame,values='',font=arial,width=13,textvariable=v1)
     category_tb.place(relx = 0.1, rely = 0.4, anchor = NW)
+    category_tb.bind("<KeyRelease>", lower_case1)
 
     try:
         con=sqlite3.connect("Database/Store_Data.sql")
@@ -296,15 +303,17 @@ def company_details_obj():
         category_tb.insert(0,item_no_array[pos])
         gst_tb.insert(0,item_name_array[pos])
 
-    category_tb.bind('<<ComboboxSelected>>', callback)
+    #category_tb.bind('<<ComboboxSelected>>', callback)
     category_tb.bind('<Key>',validation_15charecters)
 
     #gst
+    
     category=Label(company_details_frame,text="Categories",font=book_antiqua,bg=frame_color,fg=element_color)
     category.place(relx = 0.1, rely = 0.37, anchor = NW)
-
+    
     gst=Label(company_details_frame,text="GST",font=book_antiqua,bg=frame_color,fg=element_color)
     gst.place(relx = 0.22, rely = 0.37, anchor = NW)
+    
 
     gst_tb=Entry(company_details_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=12)
     gst_tb.place(relx = 0.22, rely = 0.4, anchor = NW)
@@ -427,9 +436,13 @@ def purchase_obj():
     dealer_name_lbl=Label(purchase_frame,text="Dealer Name",font=book_antiqua,bg=frame_color,fg=element_color)
     dealer_name_lbl.place(relx = 0.04, rely = 0.075, anchor = NW)
 
-    dealer_name_tb=Entry(purchase_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=20)
+    def lower_case2(event):
+        dealername.set(dealername.get().lower())
+    dealername= StringVar()
+    dealer_name_tb=Entry(purchase_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=20,textvariable=dealername)
     dealer_name_tb.place(relx = 0.105, rely = 0.075, anchor = NW)
     dealer_name_tb.bind('<Key>',validation_25charecters)
+    dealer_name_tb.bind('<KeyRelease>',lower_case2)
 
     #Dealer Gstin
     dealer_gstin_lbl=Label(purchase_frame,text="GSTIN",font=book_antiqua,bg=frame_color,fg=element_color)
@@ -498,9 +511,13 @@ def purchase_obj():
     purchase_item_code_tb.bind('<<ComboboxSelected>>', callback)
     
     #Purchase Item Name TextBox
-    purchase_item_name_tb=Entry(purchase_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=28)
+    def lower_case2(event):
+        itemname.set(itemname.get().lower())
+    itemname= StringVar()
+    purchase_item_name_tb=Entry(purchase_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=28,textvariable=itemname)
     purchase_item_name_tb.place(relx = 0.11, rely = 0.198, anchor = NW)
     purchase_item_name_tb.bind('<Key>',validation_25charecters)
+    purchase_item_name_tb.bind('<KeyRelease>',lower_case2)
 
     #Purchase Quantity TextBox
     purchase_quantity_tb=Entry(purchase_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=10)
@@ -844,11 +861,15 @@ def dealer_obj():
         edit_frame= Frame(editwindow,bg="#161719",width=500,height=500)
         edit_frame.grid(row=0,column=0)
 
+        def lower_case2(event):
+            dealername.set(dealername.get().lower())
+        dealername= StringVar()
         dealer_name_lbl=Label(edit_frame,text="Dealer Name",font=book_antiqua,bg=frame_color,fg=element_color,width=15)
         dealer_name_lbl.grid(row=0,column=0)
-        dealer_name_tb=Entry(edit_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=20)
+        dealer_name_tb=Entry(edit_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=20,textvariable=dealername)
         dealer_name_tb.insert(0,dealer_name)
         dealer_name_tb.bind('<Key>',validation_25charecters)
+        dealer_name_tb.bind('<KeyRelease>',lower_case2)
         dealer_name_tb.grid(row=0,column=1)
 
         dealer_contact_lbl=Label(edit_frame,text="Dealer Contact",font=book_antiqua,bg=frame_color,fg=element_color)
@@ -921,7 +942,11 @@ def item_obj():
     item_id_tb=Entry(item_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=11)
 
     #Item Name TextBox
-    item_name_tb=Entry(item_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=21)
+    def lower_case(event):
+        itemname.set(itemname.get().lower())
+    itemname= StringVar()
+    item_name_tb=Entry(item_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=21,textvariable=itemname)
+    item_name_tb.bind('<KeyRelease>',lower_case)
 
     #Quantity TextBox
     item_quantity_tb=Entry(item_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=12)
@@ -1309,9 +1334,13 @@ def billing_obj():
     billing_customer_name_lbl=Label(billing_frame,text="Customer Name",font=book_antiqua,bg=frame_color,fg=element_color)
     billing_customer_name_lbl.place(relx = 0.04, rely = 0.075, anchor = NW)
 
-    billing_customer_name_tb=Entry(billing_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=20)
+    def lower_case(event):
+        customername.set(customername.get().lower())
+    customername= StringVar()
+    billing_customer_name_tb=Entry(billing_frame,fg=element_color,bg=entry_box_color,font=arial,border=4,width=20,textvariable=customername)
     billing_customer_name_tb.place(relx = 0.115, rely = 0.075, anchor = NW)
     billing_customer_name_tb.bind('<Key>',validation_25charecters)
+    billing_customer_name_tb.bind('<KeyRelease>',lower_case)
 
     #Customer Mobile NUmber
     billing_mobile_lbl=Label(billing_frame,text="Mobile",font=book_antiqua,bg=frame_color,fg=element_color)
@@ -1396,7 +1425,7 @@ def billing_obj():
                 billing_tax_tb.delete(0,END)
                 billing_price_tb.configure(state='disabled')
                 billing_item_code_tb.configure(state='disabled')
-                billing_item_name_tb.configure(state='disabled')
+                billing_item_name_tb.configure(state='readonly')
                 billing_category_tb.configure(state='disabled')
                 billing_tax_tb.configure(state='disabled')
             else:
@@ -1567,7 +1596,7 @@ def billing_obj():
                     id_to_update=cur.fetchall()
                     cur.execute("SELECT sold_quantity FROM temp_item_sold_details where sold_item_id={}".format(id_to_update[0][0]))
                     updated_quantity=cur.fetchall()
-                    cur.execute("UPDATE temp_item_sold_details SET total_price=({}*(sold_price+sold_gst))-sold_discount where sold_item_id={:.2f}".format(float(updated_quantity[0][0]),id_to_update[0][0]))
+                    cur.execute("UPDATE temp_item_sold_details SET total_price=({:.2f}*(sold_price+sold_gst))-sold_discount where sold_item_id={:.2f}".format(float(updated_quantity[0][0]),id_to_update[0][0]))
                     con.commit()
                     cur.execute("SELECT sold_item_id,sold_item_name,sold_category,sold_quantity,sold_price,sold_gst,sold_discount,total_price FROM temp_item_sold_details ORDER BY sold_item_id ASC")
                     row=cur.fetchall()

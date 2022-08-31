@@ -1585,7 +1585,6 @@ def billing_obj():
 
             global customer_data
             customer_data={'customer_name':billing_customer_name_tb.get(),'customer_mobile':int(billing_mobile_tb.get()),'customer_bill_number':int(billing_bill_number_tb.get())}
-
             try:
                 con=sqlite3.connect("Database/Store_Data.sql")
                 cur=con.cursor()
@@ -1631,9 +1630,9 @@ def billing_obj():
                     cur.execute("SELECT purchase_quantity FROM item_purchase_details WHERE item_id={}".format(int(billing_item_code_tb.get())))
                     updated_stock=cur.fetchall()
                     if updated_stock[0][0]<=0:
-                        con.rollback()
-                        messagebox.showerror(title='Error', message="Stock Empty\ only {} stock left".format(stock[0][0]))
+                        cur.execute("UPDATE item_purchase_details SET purchase_quantity=purchase_quantity+{:.2f} where item_id={}".format(float(billing_quantity_tb.get()),int(billing_item_code_tb.get())))
                         con.commit()
+                        messagebox.showerror(title='Error', message="Stock Empty\ only {} stock left".format(stock[0][0]))
                         con.close()
                     else:
                         clear_all(billing_tree_view)

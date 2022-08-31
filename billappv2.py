@@ -1596,7 +1596,11 @@ def billing_obj():
                     id_to_update=cur.fetchall()
                     cur.execute("SELECT sold_quantity FROM temp_item_sold_details where sold_item_id={}".format(id_to_update[0][0]))
                     updated_quantity=cur.fetchall()
-                    cur.execute("UPDATE temp_item_sold_details SET total_price=({:.2f}*(sold_price+sold_gst))-sold_discount where sold_item_id={:.2f}".format(float(updated_quantity[0][0]),id_to_update[0][0]))
+                    cur.execute("UPDATE temp_item_sold_details SET total_price=({:.2f}*(sold_price+sold_gst))-sold_discount where sold_item_id={}".format(float(updated_quantity[0][0]),id_to_update[0][0]))
+                    con.commit()
+                    cur.execute("SELECT ROUND(total_price, 2) FROM temp_item_sold_details where sold_item_id={}".format(id_to_update[0][0]))
+                    strip=cur.fetchall()
+                    cur.execute("UPDATE temp_item_sold_details SET total_price=({:.2f}) where sold_item_id={}".format(float(strip[0][0]),id_to_update[0][0]))
                     con.commit()
                     cur.execute("SELECT sold_item_id,sold_item_name,sold_category,sold_quantity,sold_price,sold_gst,sold_discount,total_price FROM temp_item_sold_details ORDER BY sold_item_id ASC")
                     row=cur.fetchall()
@@ -1627,9 +1631,9 @@ def billing_obj():
                     
                     cur.execute("SELECT purchase_quantity FROM item_purchase_details WHERE item_id={}".format(int(billing_item_code_tb.get())))
                     updated_stock=cur.fetchall()
-                    if updated_stock[0][0]<0:
-                        con.rollback()
-                        messagebox.showerror(title='Error', message="Stock Empty\ only '{}' stock left".format(stock[0][0]))
+                elif updated_stock[0][0]<0:
+                    con.rollback()
+                    messagebox.showerror(title='Error', message="Stock Empty\ only '{}' stock left".format(stock[0][0]))
                     con.commit()
                     con.close()
             except sqlite3.Error as err:
@@ -1744,22 +1748,25 @@ def billing_obj():
         cellspacer_bottom()
 
         #row4
+        current_company_details=read_counter('company_details')
         pdf_arial_bold()
         pdf.cell(30, 5, txt = "Billed To",ln = 0, align = 'L', border=0)
         cellspacer()
-        pdf.cell(30, 5, txt = "The-Mart",ln = 1, align = 'L', border=0)
+        pdf.cell(30, 5, txt = "{}".format(current_company_details['company_name']),ln = 1, align = 'L', border=0)
 
         #row5
         pdf_arial()
         pdf.cell(30, 7, txt = "{}".format(billing_customer_name_tb.get()),ln = 0, align = 'L', border=0)
         cellspacer()
-        pdf.cell(30, 7, txt = "{}".format("5th Street"),ln = 1, align = 'L', border=0)
+        pdf.cell(30, 7, txt = "{}".format(current_company_details['company_address']),ln = 1, align = 'L', border=0)
         cellspacer()
         cellspacer()
-        pdf.cell(30, 7, txt = "{}".format("#company mail"),ln = 1, align = 'L', border=0)
+        pdf.cell(30, 7, txt = "{}".format(current_company_details['company_gstin']),ln = 1, align = 'L', border=0)
         cellspacer()
         cellspacer()
-        pdf.cell(30, 7, txt = "{}".format("#contact number"),ln = 1, align = 'L', border=0)
+        pdf.cell(30, 7, txt = "{}".format(current_company_details['company_contact']),ln = 1, align = 'L', border=0)
+        cellspacer_bottom()
+        cellspacer_bottom()
         cellspacer_bottom()
         cellspacer_bottom()
         pdf_arial_bold()

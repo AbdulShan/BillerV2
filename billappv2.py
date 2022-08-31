@@ -1574,6 +1574,8 @@ def billing_obj():
             messagebox.showerror(title='Error', message="Quantity \ncannot have Letter")
         elif float(billing_quantity_tb.get())<=0:
             messagebox.showerror(title='Error', message="Invalid Item Quantity")
+        elif float(billing_discount_tb.get())>100:
+            messagebox.showerror(title='Error', message="Discount Cannot be greater than 100")
         else:
             tax_amount=(float(billing_tax_tb.get())*float(billing_price_tb.get()))/100
             discount_amount=(float(billing_discount_tb.get())*(float(tax_amount)+float(billing_price_tb.get())))/100
@@ -1604,9 +1606,7 @@ def billing_obj():
                     con.commit()
                     cur.execute("SELECT sold_item_id,sold_item_name,sold_category,sold_quantity,sold_price,sold_gst,sold_discount,total_price FROM temp_item_sold_details ORDER BY sold_item_id ASC")
                     row=cur.fetchall()
-                    clear_all(billing_tree_view)
-                    for i in row:
-                        billing_tree_view.insert("", 'end', text ="L1",values =(i[0],i[1],i[2],i[3],i[4],i[5],i[6],i[7]))
+                    
                     cur.execute("SELECT SUM(total_price) FROM temp_item_sold_details")
                     total=cur.fetchall()
                     cur.execute("SELECT * FROM temp_item_sold_details")
@@ -1626,30 +1626,46 @@ def billing_obj():
                         Total_discount_lbl2.configure(text="Rs {:.2f}".format(float(total_discount[0][0])))
                         Total_tax_lbl2.configure(text="Rs {:.2f}".format(float(total_tax[0][0])))
                         Total_items_lbl2.configure(text="Rs {}".format(len(total_products)))
-                    con.commit()
                     cur.execute("UPDATE item_purchase_details SET purchase_quantity=purchase_quantity-{:.2f} where item_id={}".format(float(billing_quantity_tb.get()),int(billing_item_code_tb.get())))
-                    
+                    con.commit()
                     cur.execute("SELECT purchase_quantity FROM item_purchase_details WHERE item_id={}".format(int(billing_item_code_tb.get())))
                     updated_stock=cur.fetchall()
-                elif updated_stock[0][0]<0:
-                    con.rollback()
-                    messagebox.showerror(title='Error', message="Stock Empty\ only '{}' stock left".format(stock[0][0]))
-                    con.commit()
+                    if updated_stock[0][0]<=0:
+                        con.rollback()
+                        messagebox.showerror(title='Error', message="Stock Empty\ only {} stock left".format(stock[0][0]))
+                        con.commit()
+                        con.close()
+                    else:
+                        clear_all(billing_tree_view)
+                        for i in row:
+                            billing_tree_view.insert("", 'end', text ="L1",values =(i[0],i[1],i[2],i[3],i[4],i[5],i[6],i[7]))
+                            con.commit()
                     con.close()
             except sqlite3.Error as err:
                 print("Error - ",err)
-                error_message=str(err)
-                if error_message[0:24]=='UNIQUE constraint failed':
-                    messagebox.showerror(title='Error', message="Item Code cannot repeat")
                 con.close()
 
+    global delete_all_sold_item
     def delete_all_sold_item():
         temp=messagebox.askquestion('Delete Product', 'Are you sure you want to Clear All')
         if temp=='yes':
-            clear_all(billing_tree_view)
             try:
+                data_array=[]
+                item_code=[]
+                item_quantity=[]
                 con=sqlite3.connect("Database/Store_Data.sql")
                 cur=con.cursor()
+                for line in billing_tree_view.get_children():
+                    for value in billing_tree_view.item(line)['values']:
+                        data_array.append(value)
+                    item_code.append(data_array[0])
+                    item_quantity.append(data_array[3])
+                    data_array.clear()
+                for i in item_code:
+                    cur.execute("UPDATE item_purchase_details SET purchase_quantity=purchase_quantity+{:.2f} where item_id={}".format(float(item_quantity[0]),i))
+                    item_quantity.pop(0)
+                    con.commit()
+                print(item_code,item_quantity)
                 cur.execute("drop table temp_item_sold_details")
                 cur.execute("CREATE TABLE IF NOT EXISTS temp_item_sold_details(sold_item_id int(10) PRIMARY KEY NOT NULL,sold_item_name varchar(25) NOT NULL,sold_quantity FLOAT NOT NULL,sold_price FLOAT NOT NULL,sold_category varchar(15),sold_gst FLOAT,sold_discount FLOAT,total_price FLOAT)")
                 total_lbl.configure(text="0000.00")
@@ -1658,6 +1674,7 @@ def billing_obj():
                 Total_items_lbl2.configure(text="Rs 00")
                 con.commit()
                 con.close()
+                clear_all(billing_tree_view)
             except sqlite3.Error as err:
                 print("Error - ",err)
 
@@ -1695,12 +1712,12 @@ def billing_obj():
                     total_lbl.configure(text="0000.00")
                     Total_discount_lbl2.configure(text="Rs 00.00")
                     Total_tax_lbl2.configure(text="Rs 00.00")
-                    Total_items_lbl2.configure(text="Rs 00")
+                    Total_items_lbl2.configure(text="00")
                 else:
                     total_lbl.configure(text="{:.2f}".format(float(total[0][0])))
                     Total_discount_lbl2.configure(text="Rs {:.2f}".format(float(total_discount[0][0])))
                     Total_tax_lbl2.configure(text="Rs {:.2f}".format(float(total_tax[0][0])))
-                    Total_items_lbl2.configure(text="Rs {}".format(len(total_products)))
+                    Total_items_lbl2.configure(text="{}".format(len(total_products)))
 
                 cur.execute("UPDATE item_purchase_details SET purchase_quantity=purchase_quantity+{:.2f} where item_id={}".format(float(selected_treeview_item3),selected_treeview_item))
                 #####
@@ -1708,6 +1725,14 @@ def billing_obj():
                 con.close()
             except sqlite3.Error as err:
                 print("Error - ",err)
+
+    con=sqlite3.connect("Database/Store_Data.sql")
+    cur=con.cursor()
+    cur.execute("drop table temp_item_sold_details")
+    cur.execute("CREATE TABLE IF NOT EXISTS temp_item_sold_details(sold_item_id int(10) PRIMARY KEY NOT NULL,sold_item_name varchar(25) NOT NULL,sold_quantity FLOAT NOT NULL,sold_price FLOAT NOT NULL,sold_category varchar(15),sold_gst FLOAT,sold_discount FLOAT,total_price FLOAT)")
+    con.commit()
+    con.close()
+
     def pdf_output():
         pdf= fpdf.FPDF()
         pdf.add_page()

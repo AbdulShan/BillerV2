@@ -1629,11 +1629,25 @@ def billing_obj():
                     con.commit()
                     cur.execute("SELECT purchase_quantity FROM item_purchase_details WHERE item_id={}".format(int(billing_item_code_tb.get())))
                     updated_stock=cur.fetchall()
+
                     if updated_stock[0][0]<=0:
-                        cur.execute("UPDATE item_purchase_details SET purchase_quantity=purchase_quantity+{:.2f} where item_id={}".format(float(billing_quantity_tb.get()),int(billing_item_code_tb.get())))
-                        con.commit()
+                        
                         cur.execute("UPDATE temp_item_sold_details SET sold_quantity=sold_quantity-{:.2f} where sold_item_id={}".format(float(billing_quantity_tb.get()),int(billing_item_code_tb.get())))
                         con.commit()
+                        
+                        '''cur.execute("SELECT sold_quantity FROM temp_item_sold_details where sold_item_id={}".format(int(billing_item_code_tb.get())))
+                        con.commit()
+                        cur.execute("UPDATE temp_item_sold_details SET sold_gst=sold_price*(sold_gst/100) where sold_item_id={}".format(int(billing_item_code_tb.get())))
+                        con.commit()
+                        cur.execute("UPDATE temp_item_sold_details SET sold_discount=({:.2f}*(sold_gst+sold_price))/100 where sold_item_id={}".format(float(billing_discount_tb.get()),int(billing_item_code_tb.get())))
+                        con.commit()
+                        cur.execute("UPDATE temp_item_sold_details SET total_price=((sold_gst+sold_price)*sold_quantity)-sold_discount where sold_item_id={}".format(int(billing_item_code_tb.get())))
+                        con.commit()
+                        cur.execute("SELECT ROUND(total_price, 2) FROM temp_item_sold_details where sold_item_id={}".format(int(billing_item_code_tb.get())))
+                        strip1=cur.fetchall()
+                        cur.execute("UPDATE temp_item_sold_details SET total_price=({:.2f}) where sold_item_id={}".format(float(strip1[0][0]),int(billing_item_code_tb.get())))
+                        con.commit()'''
+                        
                         cur.execute("SELECT sold_item_id,sold_item_name,sold_category,sold_quantity,sold_price,sold_gst,sold_discount,total_price FROM temp_item_sold_details ORDER BY sold_item_id ASC")
                         row2=cur.fetchall()
                         clear_all(billing_tree_view)
@@ -1865,19 +1879,19 @@ def billing_obj():
         pdf_arial_bold()
         pdf.cell(30, 7, txt = "{}".format("Total"),ln = 0, align = 'L', border=0)
         pdf_arial()
-        pdf.cell(30, 7, txt = "{}".format(total_pdf[0][0]),ln = 1, align = 'L', border=0)
+        pdf.cell(30, 7, txt = "{:.2f}".format(float(total_pdf[0][0])),ln = 1, align = 'L', border=0)
         pdf_arial_bold()
         
         pdf.cell(30, 7, txt = "{}".format("Total Discount"),ln = 0, align = 'L', border=0)
         pdf_arial()
         pdf.cell(10, 7,ln = 0, align = 'L', border=0)
-        pdf.cell(30, 7, txt = "{}".format(total_discount[0][0]),ln = 1, align = 'L', border=0)
+        pdf.cell(30, 7, txt = "{:.2f}".format(float(total_discount[0][0])),ln = 1, align = 'L', border=0)
         pdf_arial_bold()
         
         pdf.cell(30, 7, txt = "{}".format("Total Tax"),ln = 0, align = 'L', border=0)
         pdf_arial()
         pdf.cell(10, 7,ln = 0, align = 'L', border=0)
-        pdf.cell(30, 7, txt = "{}".format(total_gst[0][0]),ln = 0, align = 'L', border=0)
+        pdf.cell(30, 7, txt = "{:.2f}".format(float(total_gst[0][0])),ln = 0, align = 'L', border=0)
         make_directory('Billed Bills')
         pdf.output("Billed Bills/{}.pdf".format(billing_bill_number_tb.get()))
     

@@ -303,7 +303,7 @@ def company_details_obj():
         category_tb.insert(0,item_no_array[pos])
         gst_tb.insert(0,item_name_array[pos])
 
-    #category_tb.bind('<<ComboboxSelected>>', callback)
+    category_tb.bind('<<ComboboxSelected>>', callback)
     category_tb.bind('<Key>',validation_15charecters)
 
     #gst
@@ -1211,14 +1211,14 @@ def report_obj():
     
     today = date.today()
     report_from_date_tb = DateEntry(report_frame, width= 16,height=0, background= "grey", foreground= "white",bd=4, maxdate=today)
-    report_from_date_tb.place(relx = 0.07, rely = 0.19, anchor = NW)
+    report_from_date_tb.place(relx = 0.177, rely = 0.19, anchor = NW)
 
     #to date
     report_date_lbl=Label(report_frame,text="To",font=book_antiqua,bg=frame_color,fg=element_color)
     report_date_lbl.place(relx = 0.16, rely = 0.19, anchor = NW)
     
     report_to_date_tb = DateEntry(report_frame, width= 16,height=0, background= "grey", foreground= "white",bd=4, maxdate=today)
-    report_to_date_tb.place(relx = 0.177, rely = 0.19, anchor = NW)
+    report_to_date_tb.place(relx = 0.07, rely = 0.19, anchor = NW)
 
     #Search btn
     report_filter_btn=Button(report_frame,fg=element_color,bg=frame_button_color,text="Filter",width = 16,border=4,command=lambda:[report_filter()])
@@ -1525,7 +1525,7 @@ def billing_obj():
 
     Total_items_lbl=Label(billing_frame,text="Total Items ",font=book_antiqua,bg=frame_color,fg=element_color)
     Total_items_lbl.place(relx = 0.2, rely = 0.57, anchor = NW)
-    Total_items_lbl2=Label(billing_frame,text="Rs 00",font=book_antiqua,bg=frame_color,fg=element_color)
+    Total_items_lbl2=Label(billing_frame,text="00",font=book_antiqua,bg=frame_color,fg=element_color)
     Total_items_lbl2.place(relx = 0.28, rely = 0.57, anchor = NW)
 
     #Save And Print Button
@@ -1619,12 +1619,12 @@ def billing_obj():
                         total_lbl.configure(text="0000.00")
                         Total_discount_lbl2.configure(text="Rs 00.00")
                         Total_tax_lbl2.configure(text="Rs 00.00")
-                        Total_items_lbl2.configure(text="Rs 00")
+                        Total_items_lbl2.configure(text="00")
                     else:
                         total_lbl.configure(text="{:.2f}".format(float(total[0][0])))
                         Total_discount_lbl2.configure(text="Rs {:.2f}".format(float(total_discount[0][0])))
                         Total_tax_lbl2.configure(text="Rs {:.2f}".format(float(total_tax[0][0])))
-                        Total_items_lbl2.configure(text="Rs {}".format(len(total_products)))
+                        Total_items_lbl2.configure(text="{}".format(len(total_products)))
                     cur.execute("UPDATE item_purchase_details SET purchase_quantity=purchase_quantity-{:.2f} where item_id={}".format(float(billing_quantity_tb.get()),int(billing_item_code_tb.get())))
                     con.commit()
                     cur.execute("SELECT purchase_quantity FROM item_purchase_details WHERE item_id={}".format(int(billing_item_code_tb.get())))
@@ -1669,7 +1669,7 @@ def billing_obj():
                 total_lbl.configure(text="0000.00")
                 Total_discount_lbl2.configure(text="Rs 00.00")
                 Total_tax_lbl2.configure(text="Rs 00.00")
-                Total_items_lbl2.configure(text="Rs 00")
+                Total_items_lbl2.configure(text="00")
                 con.commit()
                 con.close()
                 clear_all(billing_tree_view)
@@ -1818,11 +1818,11 @@ def billing_obj():
                     pdf.cell(30, 7, txt = "{}".format(i[4]),ln = 0, align = 'L', border=0)
                     pdf.cell(30, 7, txt = "{}".format(i[5]),ln = 0, align = 'L', border=0)
                     pdf.cell(30, 7, txt = "{}".format(i[6]),ln = 1, align = 'L', border=0)
-                cur.execute("SELECT SUM(total_price) FROM temp_item_sold_details")
+                cur.execute("SELECT SUM(ROUND(total_price, 2)) FROM temp_item_sold_details")
                 total_pdf=cur.fetchall()
-                cur.execute("SELECT SUM(sold_discount) FROM temp_item_sold_details")
+                cur.execute("SELECT SUM(ROUND(sold_discount, 2)) FROM temp_item_sold_details")
                 total_discount=cur.fetchall()
-                cur.execute("SELECT SUM(sold_gst) FROM temp_item_sold_details")
+                cur.execute("SELECT SUM(ROUND(sold_gst, 2)) FROM temp_item_sold_details")
                 total_gst=cur.fetchall()
                 con.commit()
                 con.close()
@@ -1870,7 +1870,7 @@ def billing_obj():
                     #cur.execute("UPDATE item_purchase_details SET total_price=purchase_quantity*buying_price where item_id={}".format(id_to_update[0][0]))
                 
                 cur.execute("INSERT INTO customer_details(bill_number,bill_date,customer_name,mobile_number,amount)VALUES({},'{}','{}',{},{})".format(customer_data['customer_bill_number'],datesorted,customer_data['customer_name'],customer_data['customer_mobile'],float(total[0][0])))
-                messagebox.showinfo(title='Saved', message="Products Added to inventory")
+                messagebox.showinfo(title='Bill Printed', message="Item Billed")
                 pdf_output()
                 clear_all(billing_tree_view)
                 cur.execute("drop table temp_item_sold_details")
@@ -1878,7 +1878,7 @@ def billing_obj():
                 total_lbl.configure(text="0000.00")
                 Total_discount_lbl2.configure(text="Rs 00.00")
                 Total_tax_lbl2.configure(text="Rs 00.00")
-                Total_items_lbl2.configure(text="Rs 00")
+                Total_items_lbl2.configure(text="00")
                 con.commit()
                 con.close()
             except sqlite3.Error as err:

@@ -1,4 +1,0 @@
-Points to be noted:
-
-1) Delete the logo.png image existing in the folder.
-2) Paste your own logo here as logo.png (case sensitive).
